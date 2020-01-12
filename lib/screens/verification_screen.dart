@@ -1,8 +1,10 @@
 import 'package:Gig/components/primary_button.dart';
+import 'package:Gig/models/user.dart';
 import 'package:flutter/material.dart';
 import 'package:Gig/components/round_button.dart';
 import 'package:Gig/utils/device.dart';
 import 'package:Gig/components/code_field.dart';
+import 'package:provider/provider.dart';
 import 'package:quiver/async.dart';
 
 class VerificationScreen extends StatefulWidget {
@@ -46,11 +48,23 @@ class _VerificationScreenState extends State<VerificationScreen> {
 
   @override
   Widget build(BuildContext context) {
+    User user = Provider.of<User>(context);
+
+    Future<void> verifyAndRegisterAccount() async {
+      user.verifyAndRegisterAccount(this.smsCode).then((_) {
+        if (user.containsError) {
+          user.showErrorMessage(context);
+        } else {
+          Navigator.popUntil(context, ModalRoute.withName(Navigator.defaultRouteName));
+        }
+      });
+    }
+
     return Scaffold(
       appBar: AppBar(
           elevation: 0,
           leading: RoundButton(
-            icon: Icon(Icons.arrow_back),
+            icon: Icons.arrow_back,
             onPressed: () {
               Device.dismissKeyboard(context);
               Navigator.pop(context);
@@ -95,7 +109,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
                 child: CodeField(
-                  onSave: (asd) {},
+                  onSave: (value) => this.smsCode = value,
                   loading: this.loading,
                 ),
               ),
@@ -104,7 +118,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
               ),
               PrimaryButton(
                 text: "Verify",
-                onPressed: () {},
+                onPressed: verifyAndRegisterAccount,
               ),
               this.loading
                   ? Container()

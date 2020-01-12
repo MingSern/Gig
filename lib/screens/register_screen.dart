@@ -1,9 +1,11 @@
 import 'package:Gig/components/primary_button.dart';
+import 'package:Gig/components/title_text.dart';
+import 'package:Gig/enum/enum.dart';
+import 'package:Gig/models/account.dart';
 import 'package:Gig/models/user.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:Gig/components/round_button.dart';
-import 'package:Gig/screens/register_as_screen.dart';
 import 'package:Gig/utils/generator.dart';
 import 'package:provider/provider.dart';
 
@@ -52,13 +54,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
       return false;
     }
 
-    Future<void> registerAccount() async {
+    Future<void> verifyAccount() async {
       if (validatedAndSaved()) {
-        user.registerAccount(userType, this.fullname, this.businessName, this.email, this.password, this.phoneNumber).then((_) {
+        Account account = Account(userType, email, password, fullname, businessName, phoneNumber);
+
+        await user.verifyAccount(account).then((_) {
           if (user.containsError) {
             user.showErrorMessage(context);
           } else {
-            Navigator.popUntil(context, ModalRoute.withName(Navigator.defaultRouteName));
+            Navigator.pushNamed(context, "/verification", arguments: account);
           }
         });
       }
@@ -68,7 +72,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       appBar: AppBar(
         elevation: 0,
         leading: RoundButton(
-          icon: Icon(Icons.arrow_back),
+          icon: Icons.arrow_back,
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -80,27 +84,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                Container(
-                  margin: const EdgeInsets.fromLTRB(40, 0, 40, 40),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Text(
-                        "Register as",
-                        style: TextStyle(
-                          fontSize: 25,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Text(
-                        userType == UserType.jobseeker ? "Jobseeker" : "Employer",
-                        style: TextStyle(
-                          fontSize: 25,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
+                TitleText(
+                  title: "Register as",
+                  subtitle: userType == UserType.jobseeker ? "Jobseeker" : "Employer",
+                ),
+                SizedBox(
+                  height: 40,
                 ),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 40),
@@ -172,7 +161,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   padding: const EdgeInsets.fromLTRB(40, 40, 40, 0),
                   child: PrimaryButton(
                     text: "Register",
-                    onPressed: registerAccount,
+                    onPressed: verifyAccount,
                   ),
                 ),
                 SizedBox(

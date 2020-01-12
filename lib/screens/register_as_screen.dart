@@ -1,12 +1,8 @@
 import 'package:Gig/components/primary_button.dart';
 import 'package:Gig/components/secondary_button.dart';
+import 'package:Gig/enum/enum.dart';
 import 'package:flutter/material.dart';
 import 'package:Gig/components/round_button.dart';
-
-enum UserType {
-  jobseeker,
-  employer,
-}
 
 class RegisterAsScreen extends StatelessWidget {
   @override
@@ -15,7 +11,7 @@ class RegisterAsScreen extends StatelessWidget {
       appBar: AppBar(
         elevation: 0,
         leading: RoundButton(
-          icon: Icon(Icons.arrow_back),
+          icon: Icons.arrow_back,
           onPressed: () => Navigator.pop(context),
         ),
       ),

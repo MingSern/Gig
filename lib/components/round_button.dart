@@ -1,6 +1,9 @@
+import 'package:Gig/enum/enum.dart';
+import 'package:Gig/models/user.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
-class RoundButton extends StatefulWidget {
+class RoundButton extends StatelessWidget {
   RoundButton({
     Key key,
     @required this.icon,
@@ -10,30 +13,30 @@ class RoundButton extends StatefulWidget {
     this.splashColor = Colors.black12,
   });
 
-  final Icon icon;
+  final IconData icon;
   final GestureTapCallback onPressed;
   final EdgeInsets margin;
   final Color fillColor;
   final Color splashColor;
 
   @override
-  _RoundButtonState createState() => _RoundButtonState();
-}
-
-class _RoundButtonState extends State<RoundButton> {
-  @override
   Widget build(BuildContext context) {
+    User user = Provider.of<User>(context);
+
     return Container(
-      margin: widget.margin,
+      margin: this.margin,
       child: RawMaterialButton(
         elevation: 0,
         highlightElevation: 0,
         constraints: BoxConstraints.tight(Size(45, 45)),
         shape: CircleBorder(),
-        fillColor: widget.fillColor,
-        splashColor: widget.splashColor,
-        child: widget.icon,
-        onPressed: widget.onPressed,
+        fillColor: this.fillColor,
+        splashColor: this.splashColor,
+        child: Icon(
+          this.icon,
+          color: user.viewState == ViewState.busy ? Colors.black54 : Colors.black,
+        ),
+        onPressed: user.viewState == ViewState.busy ? null : this.onPressed,
       ),
     );
   }

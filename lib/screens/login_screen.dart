@@ -1,4 +1,5 @@
 import 'package:Gig/components/primary_button.dart';
+import 'package:Gig/components/title_text.dart';
 import 'package:Gig/models/user.dart';
 import 'package:Gig/utils/palette.dart';
 import 'package:flutter/material.dart';
@@ -50,30 +51,14 @@ class _LoginScreenState extends State<LoginScreen> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
                 SizedBox(
-                  height: 40,
+                  height: 80,
                 ),
-                Container(
-                  margin: const EdgeInsets.all(40),
-                  alignment: Alignment(-1, 0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Text(
-                        "Welcome to",
-                        style: TextStyle(
-                          fontSize: 25,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Text(
-                        "EasyJob",
-                        style: TextStyle(
-                          fontSize: 25,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
+                TitleText(
+                  title: "Welcome to",
+                  subtitle: "EasyStore",
+                ),
+                SizedBox(
+                  height: 40,
                 ),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 40),

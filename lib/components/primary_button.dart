@@ -1,4 +1,4 @@
-import 'package:Gig/models/base.dart';
+import 'package:Gig/enum/enum.dart';
 import 'package:Gig/models/user.dart';
 import 'package:Gig/utils/palette.dart';
 import 'package:flutter/material.dart';
@@ -20,7 +20,10 @@ class PrimaryButton extends StatelessWidget {
   Widget build(BuildContext context) {
     User user = Provider.of<User>(context);
 
-    return Container(
+    return AnimatedContainer(
+      duration: Duration(milliseconds: 250),
+      width: user.viewState == ViewState.busy ? 45 : this.width,
+      height: 45,
       margin: const EdgeInsets.all(5),
       child: RawMaterialButton(
         elevation: 0,
@@ -31,13 +34,12 @@ class PrimaryButton extends StatelessWidget {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(100),
         ),
-        constraints: BoxConstraints.tight(Size(this.width, 45)),
         child: user.viewState == ViewState.busy
             ? SizedBox(
-                height: 25,
-                width: 25,
+                height: 20,
+                width: 20,
                 child: CircularProgressIndicator(
-                  valueColor: new AlwaysStoppedAnimation<Color>(Colors.black87),
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.black87),
                   backgroundColor: Palette.mustard,
                 ),
               )

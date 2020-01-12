@@ -1,10 +1,6 @@
 import 'package:Gig/components/primary_button.dart';
+import 'package:Gig/enum/enum.dart';
 import 'package:flutter/material.dart';
-
-enum ViewState {
-  idle,
-  busy,
-}
 
 class Base extends ChangeNotifier {
   ViewState viewState = ViewState.idle;
