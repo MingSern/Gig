@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "227748215494",
+    "firebase_url": "https://gig-app-15fbf.firebaseio.com",
+    "project_id": "gig-app-15fbf",
+    "storage_bucket": "gig-app-15fbf.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:227748215494:android:51abb8ee1a5fae6bdff5c7",
+        "android_client_info": {
+          "package_name": "com.example.gig"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "227748215494-rs54s7j9gvpfnlrn7nu2mddmf2aa3s8j.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBR8YGvmRy4vKduTaN7YXDxxtGE4LvGVb4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "227748215494-rs54s7j9gvpfnlrn7nu2mddmf2aa3s8j.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
