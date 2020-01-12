@@ -25,6 +25,7 @@ class MyApp extends StatelessWidget {
     final themeData = ThemeData(
       scaffoldBackgroundColor: Colors.white,
       primarySwatch: Colors.grey,
+      fontFamily: 'LexendDeca',
       appBarTheme: AppBarTheme(
         color: Colors.white,
       ),

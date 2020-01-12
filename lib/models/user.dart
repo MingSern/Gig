@@ -77,7 +77,7 @@ class User extends Base {
 
   Future<void> verifyAndRegisterAccount(String smsCode) async {
     setState(ViewState.busy);
-    print(smsCode);
+
     var credential = PhoneAuthProvider.getCredential(verificationId: this.account.verificationId, smsCode: smsCode);
 
     await Firebase.signInWithPhoneNumber(credential).then((AuthResult result) async {
