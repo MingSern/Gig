@@ -118,4 +118,92 @@ class Generator {
 
     return data;
   }
+
+  static Map generateJobData() {
+    var jobs = [
+      "Sales representative",
+      "Sales manager",
+      "Salesperson",
+      "Salesman",
+      "Saleswoman",
+      "Cashier",
+      "Seller",
+      "Merchant",
+      "Distributor",
+      "Advertising agent",
+      "Grocer",
+      "Greengrocer",
+      "Baker",
+      "Butcher",
+      "Florist",
+      "Artist",
+      "Painter",
+      "Sculptor",
+      "Architect",
+      "Composer",
+      "Conductor",
+      "Musician",
+      "Pianist",
+      "Violinist",
+      "Guitarist",
+      "Drummer",
+      "Player",
+      "Singer",
+      "Designer",
+      "Fashion designer",
+      "Dress designer",
+      "Interior designer",
+      "Furniture designer",
+      "Graphic designer",
+    ];
+
+    var locations = [
+      "Hialeah",
+      "Lock Haven",
+      "Ocala",
+      "Morrilton",
+      "Windham",
+      "Lincoln",
+      "Pauls Valley",
+      "Denton",
+      "Moorhead",
+      "Wahiawa",
+      "Kampong Wan Chik",
+      "Kampung Beluru",
+      "Kampung Kuncau",
+      "Lubok Nibong",
+      "Kampung Ganun",
+      "Kampong Kepala Tomang",
+      "Aloi Lubok",
+      "Rumah Ingka",
+      "Kampong Banggol Damar",
+      "Kampung Kaparingan",
+      "Kampung Perdak",
+      "Kampung Pandang Kela",
+      "Sembulan",
+      "Kampong Batu Thirty-seven",
+      "Kampong Tok Jamal",
+      "Kampong Asam Kumbang",
+      "Kampong Sungai Atun",
+      "Kampong Palau Belachan",
+      "Kampung Padang Che Nudin",
+      "Kuala Gramma",
+      "Rumah Chadun",
+      "Kampung Bukit Katong",
+      "Kampung Siong",
+      "Kampong Buloh Semerah",
+      "Kampung Rid",
+    ];
+
+    var random = new Random();
+
+    var data = {
+      "workPosition": jobs[random.nextInt(jobs.length)],
+      "wages": random.nextInt(100).toString(),
+      "location": locations[random.nextInt(locations.length)],
+      "description": "I want more detailed information.",
+    };
+
+    return data;
+  }
 }

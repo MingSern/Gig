@@ -1,5 +1,10 @@
 import 'package:Gig/models/user.dart';
 import 'package:Gig/root.dart';
+import 'package:Gig/screens/chat/ChatRoomScreen.dart';
+import 'package:Gig/screens/home/Employer/AddJobScreen.dart';
+import 'package:Gig/screens/home/FilterScreen.dart';
+import 'package:Gig/screens/home/JobInfoScreen.dart';
+import 'package:Gig/screens/home/SearchJobsScreen.dart';
 import 'package:Gig/screens/verification_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -18,7 +23,6 @@ class MyApp extends StatelessWidget {
     ));
 
     final providers = [
-      // ChangeNotifierProvider<Auth>(create: (context) => Auth()),
       ChangeNotifierProvider<User>(create: (context) => User()),
     ];
 
@@ -44,6 +48,11 @@ class MyApp extends StatelessWidget {
             '/register_as': (context) => RegisterAsScreen(),
             '/register': (context) => RegisterScreen(),
             '/verification': (context) => VerificationScreen(),
+            '/job/info': (context) => JobInfoScreen(),
+            '/home/job/search': (context) => SearchJobsScreen(),
+            '/home/job/filter': (context) => FilterScreen(),
+            '/home/job/add': (context) => AddJobScreen(),
+            '/chat/room': (context) => ChatRoom(),
           },
         ),
       ),

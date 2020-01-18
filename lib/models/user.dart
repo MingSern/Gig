@@ -14,12 +14,15 @@ class User extends Base {
   Account account;
 
   User() {
+    // this.logoutAccount();
     this.authenticate();
   }
 
   Future<void> authenticate() async {
-    await Firebase.getCurrentUser().then((user) {
+    await Firebase.getCurrentUser().then((user) async {
       if (user != null) {
+        this.setId(user.uid);
+        await this.getAccount();
         this.authStatus = AuthStatus.signedIn;
       } else {
         this.authStatus = AuthStatus.notSignedIn;
@@ -30,6 +33,30 @@ class User extends Base {
     });
 
     notifyListeners();
+  }
+
+  void setId(String id) {
+    this.id = id;
+  }
+
+  void setAccount(Account account) {
+    this.account = account;
+  }
+
+  Future<void> getAccount() async {
+    DocumentSnapshot snapshot = await firestore.collection("accounts").document(this.id).get();
+    var accountData = snapshot.data;
+
+    UserType userType = UserType.values.firstWhere((e) => e.toString() == accountData["userType"]);
+    String email = accountData["email"];
+    String fullname = accountData["fullname"];
+    String businessName = accountData["businessName"] ?? "";
+    String phoneNumber = accountData["phoneNumber"];
+    String password = accountData["password"] ?? "";
+
+    Account account = new Account(userType, email, password, fullname, businessName, phoneNumber);
+
+    this.setAccount(account);
   }
 
   // Account -----------------------------------------------------------------------------------------
@@ -57,7 +84,7 @@ class User extends Base {
     final PhoneCodeSent smsCodeSent = (String verId, [int forceCodeResend]) {
       verificationId = verId;
       account.setVerificationId(verId);
-      this.account = account;
+      this.setAccount(account);
     };
 
     final PhoneVerificationCompleted verifySuccess = (AuthCredential user) {

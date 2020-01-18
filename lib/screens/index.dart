@@ -1,8 +1,14 @@
 import 'package:Gig/components/rounded_nav_bar.dart';
 import 'package:Gig/components/rounded_nav_bar_item.dart';
+import 'package:Gig/enum/enum.dart';
+import 'package:Gig/models/user.dart';
+import 'package:Gig/screens/chat/ChatScreen.dart';
+import 'package:Gig/screens/home/Employer/HomeScreen.dart' as Employer;
+import 'package:Gig/screens/home/Jobseeker/HomeScreen.dart' as Jobseeker;
+import 'package:Gig/screens/list/ListScreen.dart';
 import 'package:Gig/screens/profile/profile_screen.dart';
-import 'package:Gig/utils/palette.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class Screen {
   const Screen(this.label, this.icon);
@@ -27,25 +33,26 @@ class _IndexState extends State<Index> {
 
   @override
   Widget build(BuildContext context) {
+    User user = Provider.of<User>(context);
+
     return Scaffold(
       body: IndexedStack(
         index: this.currentIndex,
         children: <Widget>[
-          Scaffold(),
-          Scaffold(),
-          Scaffold(),
+          user.account.userType == UserType.jobseeker ? Jobseeker.HomeScreen() : Employer.HomeScreen(),
+          ListScreen(),
+          ChatScreen(),
           ProfileScreen(),
         ],
       ),
       bottomNavigationBar: RoundedNavBar(
         items: screens.map((Screen screen) {
           return RoundedNavBarItem(
-            startIndex: currentIndex,
             index: screens.indexOf(screen),
-            label: screen.label,
-            activeColor: Palette.mustard,
+            currentIndex: currentIndex,
             iconData: screen.icon,
-            onTap: () {
+            label: screen.label,
+            onPressed: () {
               setState(() {
                 currentIndex = screens.indexOf(screen);
               });
