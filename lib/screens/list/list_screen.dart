@@ -34,10 +34,10 @@ class ListScreen extends StatelessWidget {
               itemCount: 5,
               itemBuilder: (context, index) {
                 return SmallCard(
-                  title: "Cashier",
-                  subtitle: "H&M",
-                  body: "RM31/hr",
-                  day: "2 days ago",
+                  workPosition: "Cashier",
+                  businessName: "H&M",
+                  wages: "31",
+                  createdAt: 1579432429384,
                   location: "Bukit Bintang",
                   onPressed: () => Navigator.pushNamed(context, "/job/info"),
                 );
@@ -47,10 +47,10 @@ class ListScreen extends StatelessWidget {
               itemCount: 5,
               itemBuilder: (context, index) {
                 return SmallCard(
-                  title: "Cashier",
-                  subtitle: "H&M",
-                  body: "RM31/hr",
-                  day: "2 days ago",
+                  workPosition: "Cashier",
+                  businessName: "H&M",
+                  wages: "31",
+                  createdAt: 1579432429384,
                   location: "Bukit Bintang",
                   onPressed: () => Navigator.pushNamed(context, "/job/info"),
                 );

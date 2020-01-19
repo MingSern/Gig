@@ -1,20 +1,18 @@
 import 'package:Gig/components/big_card.dart';
 import 'package:Gig/components/round_button.dart';
 import 'package:Gig/components/title_button.dart';
-import 'package:Gig/utils/device.dart';
+import 'package:Gig/models/job.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class HomeScreen extends StatelessWidget {
-  final PageController _pageController = new PageController(viewportFraction: 0.89);
-
   @override
   Widget build(BuildContext context) {
+    Job job = Provider.of<Job>(context);
+
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(
-        elevation: 0,
-        backgroundColor: Colors.white,
         titleSpacing: 0,
         title: searchBar(context),
         actions: <Widget>[
@@ -24,8 +22,8 @@ class HomeScreen extends StatelessWidget {
           )
         ],
       ),
-      body: StreamBuilder(
-        stream: null,
+      body: FutureBuilder(
+        future: job.getAvailableJobs(),
         builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
           if (!snapshot.hasData) {
             return Center(
@@ -37,22 +35,20 @@ class HomeScreen extends StatelessWidget {
             children: <Widget>[
               TitleButton(
                 title: "Recommended for you",
-                icon: Icon(Icons.arrow_forward),
-                onTap: () {},
               ),
               Container(
                 height: 255,
-                child: PageView.builder(
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
                   physics: BouncingScrollPhysics(),
-                  controller: _pageController,
                   itemCount: 5,
                   itemBuilder: (content, index) {
                     return BigCard(
-                      title: "Kitchen Assistant",
-                      subtitle: "lioncity manpower pte ltd",
-                      body: "RM 23/hr",
-                      location: "9: Orchard, Somerset, River valley",
-                      day: "1 day ago",
+                      workPosition: "Cashier",
+                      businessName: "H&M",
+                      wages: "31",
+                      createdAt: 1579432429384,
+                      location: "Bukit Bintang",
                       onPressed: () {},
                     );
                   },
@@ -60,21 +56,19 @@ class HomeScreen extends StatelessWidget {
               ),
               TitleButton(
                 title: "Available jobs",
-                icon: Icon(Icons.arrow_forward),
-                onTap: () {},
               ),
               Container(
                 height: 255,
-                child: PageView(
-                  controller: _pageController,
+                child: ListView(
+                  scrollDirection: Axis.horizontal,
                   physics: BouncingScrollPhysics(),
                   children: snapshot.data.documents.map((document) {
                     return BigCard(
-                      title: document["workPosition"],
-                      subtitle: document["businessName"],
-                      body: "RM ${document["wages"]}/hr",
+                      workPosition: document["workPosition"],
+                      businessName: document["businessName"],
+                      wages: document["wages"],
                       location: document["location"],
-                      day: Device.getTimeAgo(document["createdAt"]),
+                      createdAt: document["createdAt"],
                       onPressed: () {},
                     );
                   }).toList(),

@@ -2,13 +2,9 @@ import 'package:flutter/material.dart';
 
 class TitleButton extends StatefulWidget {
   final String title;
-  final GestureTapCallback onTap;
-  final Icon icon;
 
   TitleButton({
     @required this.title,
-    @required this.onTap,
-    this.icon,
   });
 
   @override
@@ -19,7 +15,7 @@ class _TitleButtonState extends State<TitleButton> {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: widget.onTap,
+      onTap: () => Navigator.pushNamed(context, "/home/job/show", arguments: widget.title),
       child: Container(
         color: Colors.transparent,
         width: double.infinity,
@@ -35,7 +31,7 @@ class _TitleButtonState extends State<TitleButton> {
                 fontSize: 20,
               ),
             ),
-            widget.icon,
+            Icon(Icons.arrow_forward),
           ],
         ),
       ),

@@ -1,10 +1,12 @@
+import 'package:Gig/models/job.dart';
 import 'package:Gig/models/user.dart';
 import 'package:Gig/root.dart';
 import 'package:Gig/screens/chat/ChatRoomScreen.dart';
-import 'package:Gig/screens/home/Employer/AddJobScreen.dart';
-import 'package:Gig/screens/home/FilterScreen.dart';
-import 'package:Gig/screens/home/JobInfoScreen.dart';
-import 'package:Gig/screens/home/SearchJobsScreen.dart';
+import 'package:Gig/screens/home/Employer/add_job_screen.dart';
+import 'package:Gig/screens/home/Jobseeker/show_jobs_screen.dart';
+import 'package:Gig/screens/home/filter_screen.dart';
+import 'package:Gig/screens/home/job_info_screen.dart';
+import 'package:Gig/screens/home/search_jobs_screen.dart';
 import 'package:Gig/screens/verification_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -24,6 +26,10 @@ class MyApp extends StatelessWidget {
 
     final providers = [
       ChangeNotifierProvider<User>(create: (context) => User()),
+      ChangeNotifierProxyProvider<User, Job>(
+        create: (_) => Job(),
+        update: (_, user, job) => job..update(user),
+      ),
     ];
 
     final themeData = ThemeData(
@@ -31,6 +37,7 @@ class MyApp extends StatelessWidget {
       primarySwatch: Colors.grey,
       fontFamily: 'LexendDeca',
       appBarTheme: AppBarTheme(
+        elevation: 0,
         color: Colors.white,
       ),
     );
@@ -49,6 +56,7 @@ class MyApp extends StatelessWidget {
             '/register': (context) => RegisterScreen(),
             '/verification': (context) => VerificationScreen(),
             '/job/info': (context) => JobInfoScreen(),
+            '/home/job/show': (context) => ShowJobsScreen(),
             '/home/job/search': (context) => SearchJobsScreen(),
             '/home/job/filter': (context) => FilterScreen(),
             '/home/job/add': (context) => AddJobScreen(),

@@ -1,4 +1,4 @@
-import 'package:Gig/enum/enum.dart';
+import 'package:Gig/models/job.dart';
 import 'package:Gig/models/user.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -22,6 +22,7 @@ class RoundButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     User user = Provider.of<User>(context);
+    Job job = Provider.of<Job>(context);
 
     return Container(
       margin: this.margin,
@@ -34,9 +35,9 @@ class RoundButton extends StatelessWidget {
         splashColor: this.splashColor,
         child: Icon(
           this.icon,
-          color: user.viewState == ViewState.busy ? Colors.black54 : Colors.black,
+          color: user.loading || job.loading ? Colors.black54 : Colors.black,
         ),
-        onPressed: user.viewState == ViewState.busy ? null : this.onPressed,
+        onPressed: user.loading || job.loading ? null : this.onPressed,
       ),
     );
   }

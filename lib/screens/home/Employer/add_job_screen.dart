@@ -1,7 +1,9 @@
 import 'package:Gig/components/round_button.dart';
+import 'package:Gig/models/job.dart';
 import 'package:Gig/utils/device.dart';
 import 'package:Gig/utils/generator.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class AddJobScreen extends StatefulWidget {
   @override
@@ -32,6 +34,31 @@ class _AddJobScreenState extends State<AddJobScreen> {
 
   @override
   Widget build(BuildContext context) {
+    Job job = Provider.of<Job>(context);
+
+    bool validatedAndSaved() {
+      var form = this.formKey.currentState;
+
+      if (form.validate()) {
+        form.save();
+        return true;
+      }
+
+      return false;
+    }
+
+    void createJob() {
+      if (validatedAndSaved()) {
+        job.createJob(this.workPosition, this.wages, this.location, this.description).then((_) {
+          if (job.containsError) {
+            job.showErrorMessage(context);
+          } else {
+            Device.goBack(context);
+          }
+        });
+      }
+    }
+
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
@@ -49,8 +76,17 @@ class _AddJobScreenState extends State<AddJobScreen> {
               borderRadius: BorderRadius.circular(50),
               child: FlatButton(
                 padding: const EdgeInsets.all(0.0),
-                onPressed: () => Device.dismissKeyboard(context),
-                child: Text("Done"),
+                onPressed: job.loading ? null : createJob,
+                child: job.loading
+                    ? SizedBox(
+                        height: 15,
+                        width: 15,
+                        child: CircularProgressIndicator(
+                          valueColor: AlwaysStoppedAnimation<Color>(Colors.black87),
+                          strokeWidth: 2.0,
+                        ),
+                      )
+                    : Text("Done"),
               ),
             ),
           )
@@ -105,7 +141,8 @@ class _AddJobScreenState extends State<AddJobScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
                   child: TextFormField(
                     initialValue: this.description,
-                    keyboardType: TextInputType.text,
+                    keyboardType: TextInputType.multiline,
+                    maxLines: null,
                     textCapitalization: TextCapitalization.sentences,
                     decoration: InputDecoration(
                       labelText: "Description",

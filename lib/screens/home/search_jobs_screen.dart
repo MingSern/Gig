@@ -14,16 +14,11 @@ class _SearchJobsScreenState extends State<SearchJobsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.white,
         elevation: 0,
         leading: RoundButton(
           icon: Icons.arrow_back,
-          onPressed: () {
-            Device.dismissKeyboard(context);
-            Navigator.pop(context);
-          },
+          onPressed: () => Device.goBack(context),
         ),
         titleSpacing: 0,
         title: this.searchBar(),

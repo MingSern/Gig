@@ -62,14 +62,12 @@ class _VerificationScreenState extends State<VerificationScreen> {
 
     return Scaffold(
       appBar: AppBar(
-          elevation: 0,
-          leading: RoundButton(
-            icon: Icons.arrow_back,
-            onPressed: () {
-              Device.dismissKeyboard(context);
-              Navigator.pop(context);
-            },
-          )),
+        elevation: 0,
+        leading: RoundButton(
+          icon: Icons.arrow_back,
+          onPressed: () => Device.goBack(context),
+        ),
+      ),
       body: Container(
         height: double.infinity,
         child: SingleChildScrollView(

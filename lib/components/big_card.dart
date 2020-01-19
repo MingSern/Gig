@@ -1,33 +1,29 @@
+import 'package:Gig/utils/device.dart';
+import 'package:Gig/utils/palette.dart';
 import 'package:flutter/material.dart';
 
-class BigCard extends StatefulWidget {
-  final String title;
-  final String subtitle;
-  final String body;
+class BigCard extends StatelessWidget {
+  final String workPosition;
+  final String businessName;
+  final String wages;
   final String location;
-  final String day;
+  final num createdAt;
   final GestureTapCallback onPressed;
 
   BigCard({
-    @required this.title,
-    @required this.subtitle,
-    @required this.body,
+    @required this.workPosition,
+    @required this.businessName,
+    @required this.wages,
     @required this.location,
-    @required this.day,
+    @required this.createdAt,
     @required this.onPressed,
   });
 
   @override
-  _BigCardState createState() => _BigCardState();
-}
-
-class _BigCardState extends State<BigCard> {
-  Color mustard = Color(0xFFFCD569);
-
-  @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 25, top: 8, right: 20),
+      width: Device.getMaxWidth(context) * 0.85,
+      margin: const EdgeInsets.only(bottom: 25, top: 8, right: 10, left: 10),
       decoration: BoxDecoration(
         color: Colors.white,
         boxShadow: [
@@ -40,7 +36,7 @@ class _BigCardState extends State<BigCard> {
         borderRadius: BorderRadius.circular(20.0),
       ),
       child: RawMaterialButton(
-        onPressed: widget.onPressed,
+        onPressed: this.onPressed,
         splashColor: Colors.grey[200],
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
@@ -71,14 +67,14 @@ class _BigCardState extends State<BigCard> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
                             Text(
-                              widget.title,
+                              this.workPosition,
                               style: TextStyle(
                                 fontWeight: FontWeight.w500,
                                 fontSize: 19,
                               ),
                             ),
                             Text(
-                              widget.subtitle,
+                              this.businessName,
                               style: TextStyle(
                                 color: Colors.grey,
                                 fontSize: 15,
@@ -87,7 +83,7 @@ class _BigCardState extends State<BigCard> {
                           ],
                         ),
                         Text(
-                          widget.day,
+                          Device.getTimeAgo(this.createdAt),
                           style: TextStyle(
                             color: Colors.grey,
                             fontSize: 11,
@@ -96,9 +92,9 @@ class _BigCardState extends State<BigCard> {
                       ],
                     ),
                     Text(
-                      widget.body,
+                      "RM ${this.wages}/hr",
                       style: TextStyle(
-                        color: mustard,
+                        color: Palette.mustard,
                         fontSize: 26,
                         fontWeight: FontWeight.w500,
                       ),
@@ -114,7 +110,7 @@ class _BigCardState extends State<BigCard> {
                           width: 2,
                         ),
                         Text(
-                          widget.location,
+                          this.location,
                           style: TextStyle(
                             color: Colors.grey,
                             fontSize: 11,

@@ -9,7 +9,7 @@ final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
 final Firestore firestore = Firestore.instance;
 
 class User extends Base {
-  String id;
+  String userId;
   AuthStatus authStatus;
   Account account;
 
@@ -35,8 +35,8 @@ class User extends Base {
     notifyListeners();
   }
 
-  void setId(String id) {
-    this.id = id;
+  void setId(String userId) {
+    this.userId = userId;
   }
 
   void setAccount(Account account) {
@@ -44,7 +44,7 @@ class User extends Base {
   }
 
   Future<void> getAccount() async {
-    DocumentSnapshot snapshot = await firestore.collection("accounts").document(this.id).get();
+    DocumentSnapshot snapshot = await firestore.collection("accounts").document(this.userId).get();
     var accountData = snapshot.data;
 
     UserType userType = UserType.values.firstWhere((e) => e.toString() == accountData["userType"]);
@@ -61,19 +61,19 @@ class User extends Base {
 
   // Account -----------------------------------------------------------------------------------------
   Future<void> loginAccount(String email, String password) async {
-    setState(ViewState.busy);
+    isLoading(true);
 
-    await Firebase.signIn(email, password).then((_) {
-      this.authenticate();
+    await Firebase.signIn(email, password).then((_) async {
+      await this.authenticate();
     }).catchError((onError) {
       setErrorMessage(onError.message);
     });
 
-    setState(ViewState.idle);
+    isLoading(false);
   }
 
   Future<void> verifyAccount(Account account) async {
-    setState(ViewState.busy);
+    isLoading(true);
 
     var verificationId;
 
@@ -99,22 +99,22 @@ class User extends Base {
       setErrorMessage(onError.message);
     });
 
-    setState(ViewState.idle);
+    isLoading(false);
   }
 
   Future<void> verifyAndRegisterAccount(String smsCode) async {
-    setState(ViewState.busy);
+    isLoading(true);
 
     var credential = PhoneAuthProvider.getCredential(verificationId: this.account.verificationId, smsCode: smsCode);
 
     await Firebase.signInWithPhoneNumber(credential).then((AuthResult result) async {
       if (result.user != null) {
         await Firebase.signUp(this.account.email, this.account.password).then((userId) async {
-          this.id = userId;
+          this.setId(userId);
 
           var data = {
             "userType": this.account.userType.toString(),
-            "id": this.id,
+            "id": this.userId,
             "fullname": this.account.fullname,
             "email": this.account.email,
             "phoneNumber": this.account.phoneNumber,
@@ -124,8 +124,8 @@ class User extends Base {
             data["businessName"] = this.account.businessName;
           }
 
-          await firestore.collection("accounts").document(userId).setData(data).then((_) {
-            this.authenticate();
+          await firestore.collection("accounts").document(this.userId).setData(data).then((_) async {
+            await this.authenticate();
           });
         }).catchError((onError) {
           setErrorMessage(onError.message);
@@ -137,18 +137,18 @@ class User extends Base {
       setErrorMessage(onError.message);
     });
 
-    setState(ViewState.idle);
+    isLoading(false);
   }
 
   Future<void> logoutAccount() async {
-    setState(ViewState.busy);
+    isLoading(true);
 
-    await Firebase.signOut().then((_) {
-      this.authenticate();
+    await Firebase.signOut().then((_) async {
+      await this.authenticate();
     }).catchError((onError) {
       setErrorMessage(onError.message);
     });
 
-    setState(ViewState.idle);
+    isLoading(false);
   }
 }

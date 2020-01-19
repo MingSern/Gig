@@ -3,11 +3,6 @@ enum AuthStatus {
   signedIn,
 }
 
-enum ViewState {
-  idle,
-  busy,
-}
-
 enum UserType {
   jobseeker,
   employer,

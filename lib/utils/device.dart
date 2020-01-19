@@ -5,6 +5,11 @@ class Device {
     FocusScope.of(context).requestFocus(new FocusNode());
   }
 
+  static goBack(BuildContext context) {
+    FocusScope.of(context).requestFocus(new FocusNode());
+    Navigator.maybePop(context);
+  }
+
   static getMaxWidth(BuildContext context) {
     return MediaQuery.of(context).size.width;
   }

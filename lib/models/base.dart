@@ -1,15 +1,14 @@
 import 'package:Gig/components/primary_button.dart';
-import 'package:Gig/enum/enum.dart';
 import 'package:flutter/material.dart';
 
 class Base extends ChangeNotifier {
-  ViewState viewState = ViewState.idle;
+  bool loading = false;
   String errorMessage;
   bool containsError = false;
 
   // Set ------------------------------------
-  void setState(ViewState viewState) {
-    this.viewState = viewState;
+  void isLoading(bool loading) {
+    this.loading = loading;
     notifyListeners();
   }
 

@@ -1,12 +1,15 @@
 import 'package:Gig/components/small_card.dart';
-import 'package:Gig/utils/device.dart';
+import 'package:Gig/models/job.dart';
 import 'package:Gig/utils/palette.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    Job job = Provider.of<Job>(context);
+
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
@@ -19,7 +22,7 @@ class HomeScreen extends StatelessWidget {
         ),
       ),
       body: StreamBuilder(
-        stream: null,
+        stream: job.getJobs(),
         builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
           if (!snapshot.hasData) {
             return Center(
@@ -29,11 +32,11 @@ class HomeScreen extends StatelessWidget {
           return ListView(
             children: snapshot.data.documents.map((document) {
               return SmallCard(
-                title: document["workPosition"],
-                subtitle: document["businessName"],
-                body: "RM ${document["wages"]}/hr",
+                workPosition: document["workPosition"],
+                businessName: document["businessName"],
+                wages: document["wages"],
                 location: document["location"],
-                day: Device.getTimeAgo(document["createdAt"]),
+                createdAt: document["createdAt"],
                 onPressed: () {},
               );
             }).toList(),
