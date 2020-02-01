@@ -1,19 +1,37 @@
+import 'package:Gig/components/primary_button.dart';
 import 'package:Gig/components/round_button.dart';
+import 'package:Gig/models/chat_room.dart';
+import 'package:Gig/models/job.dart';
+import 'package:Gig/utils/device.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class JobInfoScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    Job job = Provider.of<Job>(context);
+    ChatRoom chatRoom = Provider.of<ChatRoom>(context);
+
+    void viewChatRoom() {
+      var listener = {
+        "name": job.job["businessName"],
+        "uid": job.job["uid"],
+      };
+
+      chatRoom.open(listener);
+      Navigator.pushNamed(context, "/chat/room");
+    }
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
+        centerTitle: true,
+        title: Text("Job Info"),
         leading: RoundButton(
           icon: Icons.arrow_back,
-          onPressed: () {
-            Navigator.pop(context);
-          },
+          onPressed: () => Device.goBack(context),
         ),
         actions: <Widget>[
           RoundButton(
@@ -21,6 +39,21 @@ class JobInfoScreen extends StatelessWidget {
             onPressed: () {},
           ),
         ],
+      ),
+      body: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            Text(job.job["businessName"]),
+            Text(job.job["workPosition"]),
+            PrimaryButton(
+              text: "Message",
+              onPressed: viewChatRoom,
+            )
+          ],
+        ),
       ),
     );
   }

@@ -29,16 +29,13 @@ class RoundedNavBarItem extends StatelessWidget {
             this.iconData,
             color: this.currentIndex == this.index ? Colors.black : Colors.grey,
           ),
-          this.currentIndex == this.index
-              ? Container(
-                  height: 7,
-                  width: 7,
-                  decoration: BoxDecoration(
-                    color: Palette.mustard,
-                    shape: BoxShape.circle,
-                  ),
-                )
-              : Container(),
+          Text(
+            this.label,
+            style: TextStyle(
+              fontSize: this.currentIndex == this.index ? 14 : 12,
+              color: this.currentIndex == this.index ? Colors.black : Colors.grey,
+            ),
+          ),
         ],
       ),
     );

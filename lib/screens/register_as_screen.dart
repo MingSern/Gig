@@ -1,6 +1,7 @@
 import 'package:Gig/components/primary_button.dart';
 import 'package:Gig/components/secondary_button.dart';
 import 'package:Gig/enum/enum.dart';
+import 'package:Gig/utils/device.dart';
 import 'package:flutter/material.dart';
 import 'package:Gig/components/round_button.dart';
 
@@ -12,7 +13,7 @@ class RegisterAsScreen extends StatelessWidget {
         elevation: 0,
         leading: RoundButton(
           icon: Icons.arrow_back,
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => Device.goBack(context),
         ),
       ),
       body: Padding(

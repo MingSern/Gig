@@ -114,7 +114,7 @@ class User extends Base {
 
           var data = {
             "userType": this.account.userType.toString(),
-            "id": this.userId,
+            "uid": this.userId,
             "fullname": this.account.fullname,
             "email": this.account.email,
             "phoneNumber": this.account.phoneNumber,

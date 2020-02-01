@@ -7,6 +7,7 @@ final firestore = Firestore.instance;
 class Job extends Base {
   String userId;
   String businessName;
+  dynamic job;
   QuerySnapshot availableJobs;
 
   void update(User user) {
@@ -20,12 +21,17 @@ class Job extends Base {
     notifyListeners();
   }
 
+  void setJob(dynamic job) {
+    this.job = job;
+    notifyListeners();
+  }
+
   // employer -----------------------------------------------------------------------------------------
   Future<void> createJob(var workPosition, var wages, var location, var description) async {
     isLoading(true);
 
     var data = {
-      "id": this.userId,
+      "uid": this.userId,
       "workPosition": workPosition,
       "wages": wages,
       "location": location,
@@ -38,7 +44,7 @@ class Job extends Base {
       setErrorMessage(error.message);
     });
 
-    await firestore.collection("accounts").document(this.userId).collection("post").add(data).catchError((error) {
+    await firestore.collection("accounts").document(this.userId).collection("posts").add(data).catchError((error) {
       setErrorMessage(error.message);
     });
 
@@ -46,7 +52,7 @@ class Job extends Base {
   }
 
   Stream<QuerySnapshot> getJobs() {
-    return firestore.collection("accounts").document(this.userId).collection("post").orderBy("createdAt", descending: true).snapshots();
+    return firestore.collection("accounts").document(this.userId).collection("posts").orderBy("createdAt", descending: true).snapshots();
   }
 
   Future<QuerySnapshot> getAvailableJobs() async {

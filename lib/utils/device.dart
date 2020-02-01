@@ -18,6 +18,10 @@ class Device {
     return MediaQuery.of(context).size.height;
   }
 
+  static getFirstLetter(String string) {
+    return string.substring(0, 1).toUpperCase();
+  }
+
   static getTimeAgo(var timestamp) {
     var createdAt = new DateTime.fromMicrosecondsSinceEpoch(timestamp * 1000);
     var diff = new DateTime.now().difference(createdAt);

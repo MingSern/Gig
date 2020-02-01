@@ -3,6 +3,7 @@ import 'package:Gig/components/title_text.dart';
 import 'package:Gig/enum/enum.dart';
 import 'package:Gig/models/account.dart';
 import 'package:Gig/models/user.dart';
+import 'package:Gig/utils/device.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:Gig/components/round_button.dart';
@@ -73,7 +74,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         elevation: 0,
         leading: RoundButton(
           icon: Icons.arrow_back,
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => Device.goBack(context),
         ),
       ),
       body: Container(

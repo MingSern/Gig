@@ -1,3 +1,4 @@
+import 'package:Gig/models/chat_room.dart';
 import 'package:Gig/models/job.dart';
 import 'package:Gig/models/user.dart';
 import 'package:Gig/root.dart';
@@ -30,6 +31,10 @@ class MyApp extends StatelessWidget {
         create: (_) => Job(),
         update: (_, user, job) => job..update(user),
       ),
+      ChangeNotifierProxyProvider<User, ChatRoom>(
+        create: (_) => ChatRoom(),
+        update: (_, user, chatRoom) => chatRoom..update(user),
+      ),
     ];
 
     final themeData = ThemeData(
@@ -60,7 +65,8 @@ class MyApp extends StatelessWidget {
             '/home/job/search': (context) => SearchJobsScreen(),
             '/home/job/filter': (context) => FilterScreen(),
             '/home/job/add': (context) => AddJobScreen(),
-            '/chat/room': (context) => ChatRoom(),
+            '/home/job/info': (context) => JobInfoScreen(),
+            '/chat/room': (context) => ChatRoomScreen(),
           },
         ),
       ),

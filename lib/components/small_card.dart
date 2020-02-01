@@ -50,7 +50,7 @@ class SmallCard extends StatelessWidget {
                   radius: 35,
                   backgroundColor: Palette.mustard,
                   child: Text(
-                    this.businessName.substring(0, 1).toUpperCase(),
+                    Device.getFirstLetter(this.businessName),
                     style: TextStyle(
                       color: Colors.black,
                       fontWeight: FontWeight.w500,

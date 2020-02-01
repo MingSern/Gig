@@ -59,37 +59,47 @@ class _AddJobScreenState extends State<AddJobScreen> {
       }
     }
 
+    void showMessage() {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => AlertDialog(
+          title: Text('Discard'),
+          content: Text('Confirm discard?'),
+          actions: <Widget>[
+            FlatButton(
+              child: Text("Cancel"),
+              onPressed: () => Navigator.pop(context),
+            ),
+            FlatButton(
+              child: Text(
+                "Discard",
+                style: TextStyle(
+                  color: Colors.red,
+                ),
+              ),
+              onPressed: () {},
+            ),
+          ],
+        ),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
         leading: RoundButton(
           icon: Icons.arrow_back,
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => Device.goBack(context),
         ),
         titleSpacing: 0.0,
         title: Text("Add a job"),
         centerTitle: true,
         actions: <Widget>[
-          Container(
-            margin: const EdgeInsets.all(5),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(50),
-              child: FlatButton(
-                padding: const EdgeInsets.all(0.0),
-                onPressed: job.loading ? null : createJob,
-                child: job.loading
-                    ? SizedBox(
-                        height: 15,
-                        width: 15,
-                        child: CircularProgressIndicator(
-                          valueColor: AlwaysStoppedAnimation<Color>(Colors.black87),
-                          strokeWidth: 2.0,
-                        ),
-                      )
-                    : Text("Done"),
-              ),
-            ),
-          )
+          RoundButton(
+            icon: Icons.done,
+            onPressed: job.loading ? null : createJob,
+          ),
         ],
       ),
       body: Container(
@@ -155,32 +165,6 @@ class _AddJobScreenState extends State<AddJobScreen> {
             ),
           ),
         ),
-      ),
-    );
-  }
-
-  void showMessage() {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => AlertDialog(
-        title: Text('Discard'),
-        content: Text('Confirm discard?'),
-        actions: <Widget>[
-          FlatButton(
-            child: Text("Cancel"),
-            onPressed: () => Navigator.pop(context),
-          ),
-          FlatButton(
-            child: Text(
-              "Discard",
-              style: TextStyle(
-                color: Colors.red,
-              ),
-            ),
-            onPressed: () {},
-          ),
-        ],
       ),
     );
   }

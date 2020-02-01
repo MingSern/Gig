@@ -11,6 +11,11 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     Job job = Provider.of<Job>(context);
 
+    void viewJobInfo(document) {
+      job.setJob(document);
+      Navigator.pushNamed(context, "/home/job/info");
+    }
+
     return Scaffold(
       appBar: AppBar(
         titleSpacing: 0,
@@ -69,7 +74,7 @@ class HomeScreen extends StatelessWidget {
                       wages: document["wages"],
                       location: document["location"],
                       createdAt: document["createdAt"],
-                      onPressed: () {},
+                      onPressed: () => viewJobInfo(document),
                     );
                   }).toList(),
                 ),
