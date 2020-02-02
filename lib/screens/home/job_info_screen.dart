@@ -1,5 +1,6 @@
 import 'package:Gig/components/primary_button.dart';
 import 'package:Gig/components/round_button.dart';
+import 'package:Gig/components/secondary_button.dart';
 import 'package:Gig/models/chat_room.dart';
 import 'package:Gig/models/job.dart';
 import 'package:Gig/utils/device.dart';
@@ -20,6 +21,24 @@ class JobInfoScreen extends StatelessWidget {
 
       chatRoom.open(listener);
       Navigator.pushNamed(context, "/chat/room");
+    }
+
+    void applyJob() {
+      job.applyJob().then((_) {
+        if (job.containsError) {
+          job.showErrorMessage(context);
+        }
+      });
+    }
+
+    bool checkJobApplied() {
+      if (job.job["appliedBy"] == null) {
+        return true;
+      } else if (job.job["appliedBy"].contains(job.userId)) {
+        return true;
+      }
+
+      return false;
     }
 
     return Scaffold(
@@ -51,6 +70,10 @@ class JobInfoScreen extends StatelessWidget {
             PrimaryButton(
               text: "Message",
               onPressed: viewChatRoom,
+            ),
+            SecondaryButton(
+              text: checkJobApplied() ? "Applied" : "Apply Job",
+              onPressed: checkJobApplied() ? null : applyJob,
             )
           ],
         ),

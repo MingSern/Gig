@@ -9,6 +9,7 @@ class SmallCard extends StatelessWidget {
   final String location;
   final num createdAt;
   final GestureTapCallback onPressed;
+  final bool rejected;
 
   SmallCard({
     @required this.workPosition,
@@ -17,6 +18,7 @@ class SmallCard extends StatelessWidget {
     @required this.location,
     @required this.createdAt,
     @required this.onPressed,
+    this.rejected = false,
   });
 
   @override
@@ -24,10 +26,10 @@ class SmallCard extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: this.rejected ? Colors.grey[100] : Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.grey[300],
+            color: this.rejected ? Colors.transparent : Colors.grey[300],
             blurRadius: 15.0,
             offset: Offset(0.0, 4.0),
           ),
@@ -35,7 +37,7 @@ class SmallCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(20.0),
       ),
       child: RawMaterialButton(
-        onPressed: this.onPressed,
+        onPressed: this.rejected ? null : this.onPressed,
         splashColor: Colors.grey[200],
         padding: const EdgeInsets.all(10),
         shape: RoundedRectangleBorder(
@@ -81,14 +83,23 @@ class SmallCard extends StatelessWidget {
                 ),
               ],
             ),
-            Text(
-              "RM ${this.wages}/hr",
-              style: TextStyle(
-                color: Palette.mustard,
-                fontSize: 26,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
+            this.rejected
+                ? Text(
+                    "Rejected",
+                    style: TextStyle(
+                      color: Colors.red,
+                      fontSize: 26,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  )
+                : Text(
+                    "RM ${this.wages}/hr",
+                    style: TextStyle(
+                      color: Palette.mustard,
+                      fontSize: 26,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
             SizedBox(
               height: 10,
             ),

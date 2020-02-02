@@ -26,6 +26,12 @@ class Device {
     var createdAt = new DateTime.fromMicrosecondsSinceEpoch(timestamp * 1000);
     var diff = new DateTime.now().difference(createdAt);
 
+    var timestampArray = createdAt.toString().split(" ");
+    var timeArray = timestampArray[1].split(":");
+    var hourToInt = int.parse(timeArray[0]);
+    var daytime = hourToInt < 12 ? "am" : "pm";
+    var time = (hourToInt - 12).toString() + ":" + timeArray[1] + " " + daytime;
+
     if (diff.inDays > 365) return "${(diff.inDays / 365).floor()} ${(diff.inDays / 365).floor() == 1 ? "year" : "years"} ago";
 
     if (diff.inDays > 30) return "${(diff.inDays / 30).floor()} ${(diff.inDays / 30).floor() == 1 ? "month" : "months"} ago";
@@ -34,10 +40,12 @@ class Device {
 
     if (diff.inDays > 0) return "${diff.inDays} ${diff.inDays == 1 ? "day" : "days"} ago";
 
-    if (diff.inHours > 0) return "${diff.inHours} ${diff.inHours == 1 ? "hour" : "hours"} ago";
+    return time;
 
-    if (diff.inMinutes > 0) return "${diff.inMinutes} ${diff.inMinutes == 1 ? "minute" : "minutes"} ago";
+    // if (diff.inHours > 0) return "${diff.inHours} ${diff.inHours == 1 ? "hour" : "hours"} ago";
 
-    return "Just now";
+    // if (diff.inMinutes > 0) return "${diff.inMinutes} ${diff.inMinutes == 1 ? "minute" : "minutes"} ago";
+
+    // return "Just now";
   }
 }
