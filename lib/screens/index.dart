@@ -7,6 +7,7 @@ import 'package:Gig/screens/home/Employer/home_screen.dart' as Employer;
 import 'package:Gig/screens/home/Jobseeker/home_screen.dart' as Jobseeker;
 import 'package:Gig/screens/list/list_screen.dart';
 import 'package:Gig/screens/profile/profile_screen.dart';
+import 'package:Gig/utils/palette.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -48,11 +49,12 @@ class _IndexState extends State<Index> {
       bottomNavigationBar: RoundedNavBar(
         items: screens.map((Screen screen) {
           return RoundedNavBarItem(
-            index: screens.indexOf(screen),
             currentIndex: currentIndex,
-            iconData: screen.icon,
+            index: screens.indexOf(screen),
             label: screen.label,
-            onPressed: () {
+            activeColor: Palette.mustard,
+            iconData: screen.icon,
+            onTap: () {
               setState(() {
                 currentIndex = screens.indexOf(screen);
               });

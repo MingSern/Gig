@@ -60,6 +60,27 @@ class HomeScreen extends StatelessWidget {
                 ),
               ),
               TitleButton(
+                title: "Near you",
+              ),
+              Container(
+                height: 255,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  physics: BouncingScrollPhysics(),
+                  itemCount: 5,
+                  itemBuilder: (content, index) {
+                    return BigCard(
+                      workPosition: "Cashier",
+                      businessName: "H&M",
+                      wages: "31",
+                      createdAt: 1579432429384,
+                      location: "Bukit Bintang",
+                      onPressed: () {},
+                    );
+                  },
+                ),
+              ),
+              TitleButton(
                 title: "Available jobs",
               ),
               Container(

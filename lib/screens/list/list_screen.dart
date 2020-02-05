@@ -3,6 +3,7 @@ import 'package:Gig/components/small_card.dart';
 import 'package:Gig/enum/enum.dart';
 import 'package:Gig/models/job.dart';
 import 'package:Gig/models/user.dart';
+import 'package:Gig/utils/palette.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -30,6 +31,25 @@ class ListScreen extends StatelessWidget {
       /// Todo reject pending
     }
 
+    Widget buildTab(String text, IconData iconData) {
+      return Tab(
+        child: Row(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Icon(iconData),
+            SizedBox(
+              width: 10,
+            ),
+            Text(
+              text,
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
+      );
+    }
+
     return DefaultTabController(
       length: 2,
       child: Scaffold(
@@ -37,20 +57,15 @@ class ListScreen extends StatelessWidget {
         appBar: AppBar(
           backgroundColor: Colors.white,
           elevation: 0,
-          title: Text(
-            "List",
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: Colors.black.withOpacity(0.8),
-            ),
-          ),
-          bottom: TabBar(
+          titleSpacing: 25,
+          title: TabBar(
+            labelPadding: const EdgeInsets.symmetric(vertical: 0),
+            unselectedLabelColor: Colors.black26,
             indicatorPadding: const EdgeInsets.symmetric(horizontal: 50),
-            indicatorColor: Colors.black.withOpacity(0.8),
+            indicatorColor: Palette.mustard,
             tabs: <Widget>[
-              Tab(text: "Pending"),
-              Tab(text: "Shortlisted"),
+              buildTab("Pending", Icons.timer),
+              buildTab("Shortlisted", Icons.bookmark_border),
             ],
           ),
         ),

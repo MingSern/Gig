@@ -48,6 +48,7 @@ class ChatScreen extends StatelessWidget {
 
           return ListView(
             children: snapshot.data.documents.map((document) {
+              // print(document["name"]);
               return ChatTile(
                 name: document["name"],
                 lastMessage: document["lastMessage"],

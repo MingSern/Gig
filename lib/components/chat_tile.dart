@@ -57,7 +57,7 @@ class ChatTile extends StatelessWidget {
                               ),
                             ),
                             Text(
-                              Device.getTimeAgo(this.createdAt),
+                              Device.getDateTime(this.createdAt),
                               style: TextStyle(
                                 fontSize: 11,
                                 color: Colors.redAccent,

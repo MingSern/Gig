@@ -124,7 +124,7 @@ class SmallCard extends StatelessWidget {
                   child: Container(),
                 ),
                 Text(
-                  Device.getTimeAgo(this.createdAt),
+                  Device.getDateTime(this.createdAt),
                   style: TextStyle(
                     color: Colors.grey,
                     fontSize: 11,

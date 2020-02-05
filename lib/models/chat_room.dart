@@ -32,7 +32,7 @@ class ChatRoom extends Base {
   }
 
   Stream<QuerySnapshot> getMessages() {
-    return firestore.collection("chatRooms").document(this.key).collection("messages").orderBy("createdAt", descending: false).snapshots();
+    return firestore.collection("chatRooms").document(this.key).collection("messages").orderBy("createdAt", descending: true).snapshots();
   }
 
   // Methods -----------------------------------------------------------------------------------------
@@ -42,18 +42,18 @@ class ChatRoom extends Base {
     this.listenerName = listener["name"];
     this.listenerId = listener["uid"];
 
+    if (this.userId.compareTo(this.listenerId) > -1) {
+      this.key = this.userId + this.listenerId;
+    } else {
+      this.key = this.listenerId + this.userId;
+    }
+
     var chatRoom = await firestore.collection("chatRooms").document(this.key).get();
 
-    if (chatRoom.exists) {
+    if (chatRoom != null) {
       this.exists = true;
     } else {
       this.exists = false;
-    }
-
-    if (this.userId.compareTo(listener["uid"]) > -1) {
-      this.key = this.userId + listener["uid"];
-    } else {
-      this.key = listener["uid"] + this.userId;
     }
 
     notifyListeners();
@@ -91,7 +91,7 @@ class ChatRoom extends Base {
 
   Future<void> createListenerChatRoom() async {
     var talker = await firestore.collection("accounts").document(this.userId).get();
-
+    print(talker["fullname"]);
     var listenerData = {
       "uid": talker["uid"],
       "name": talker["fullname"],
@@ -115,7 +115,7 @@ class ChatRoom extends Base {
     isLoading(true);
 
     if (!this.exists) {
-      Future.wait([this.createTalkerChatRoom(), this.createListenerChatRoom()]);
+      await Future.wait([this.createTalkerChatRoom(), this.createListenerChatRoom()]);
       this.exists = true;
     }
 
@@ -134,12 +134,13 @@ class ChatRoom extends Base {
     isLoading(false);
   }
 
-  void updateLastMessage(String message) {
+  Future<void> updateLastMessage(String message) async {
     var lastMessage = {
       "lastMessage": message,
+      "createdAt": new DateTime.now().millisecondsSinceEpoch,
     };
 
-    firestore
+    await firestore
         .collection("accounts")
         .document(this.userId)
         .collection("chatRooms")
@@ -149,7 +150,7 @@ class ChatRoom extends Base {
       setErrorMessage(error.message);
     });
 
-    firestore
+    await firestore
         .collection("accounts")
         .document(this.listenerId)
         .collection("chatRooms")

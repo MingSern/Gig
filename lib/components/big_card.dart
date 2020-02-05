@@ -83,7 +83,7 @@ class BigCard extends StatelessWidget {
                           ],
                         ),
                         Text(
-                          Device.getTimeAgo(this.createdAt),
+                          Device.getDateTime(createdAt),
                           style: TextStyle(
                             color: Colors.grey,
                             fontSize: 11,

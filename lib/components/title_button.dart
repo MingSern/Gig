@@ -28,7 +28,7 @@ class _TitleButtonState extends State<TitleButton> {
               widget.title,
               style: TextStyle(
                 fontWeight: FontWeight.bold,
-                fontSize: 20,
+                fontSize: 18,
               ),
             ),
             Icon(Icons.arrow_forward),
