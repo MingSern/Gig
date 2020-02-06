@@ -3,6 +3,12 @@ import 'package:Gig/models/user.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 final firestore = Firestore.instance;
+final accounts = "accounts";
+final pendings = "pendings";
+final chatRooms = "chatRooms";
+final posts = "posts";
+final shortlists = "shortlists";
+final jobs = "jobs";
 
 class Job extends Base {
   String userId;
@@ -46,11 +52,11 @@ class Job extends Base {
       "appliedBy": [],
     };
 
-    await firestore.collection("jobs").document(key).setData(data).catchError((error) {
+    await firestore.collection(jobs).document(key).setData(data).catchError((error) {
       setErrorMessage(error.message);
     });
 
-    await firestore.collection("accounts").document(this.userId).collection("posts").add(data).catchError((error) {
+    await firestore.collection(accounts).document(this.userId).collection(posts).add(data).catchError((error) {
       setErrorMessage(error.message);
     });
 
@@ -58,55 +64,51 @@ class Job extends Base {
   }
 
   Stream<QuerySnapshot> getJobs() {
-    return firestore.collection("accounts").document(this.userId).collection("posts").orderBy("createdAt", descending: true).snapshots();
+    return firestore.collection(accounts).document(this.userId).collection(posts).orderBy("createdAt", descending: true).snapshots();
   }
 
   Future<QuerySnapshot> getAvailableJobs() async {
-    var availableJobs = await firestore.collection("jobs").orderBy("createdAt", descending: true).getDocuments();
+    var availableJobs = await firestore.collection(jobs).orderBy("createdAt", descending: true).getDocuments();
     this.setAvailableJobs(availableJobs);
 
     return availableJobs;
   }
 
-  Future<void> acceptPending(String key) async {
+  Future<void> acceptPending(String jobseekerId, String key) async {
     isLoading(true);
 
-    var ref = firestore.collection("accounts").document(this.userId).collection("pendings").document(key);
-    var data = await ref.get();
-
-    /// update pending to shortlist for [employer] and [jobseeker]
-    await ref.delete().catchError((error) {
-      setErrorMessage(error.message);
-    });
-
-    data.data["updatedAt"] = firestore
-        .collection("accounts")
-        .document(this.userId)
-        .collection("shortlists")
-        .document(data["key"])
-        .setData(data.data)
-        .catchError((error) {
-      setErrorMessage(error.message);
-    });
+    await Future.wait([
+      this.movePendingToShortlist(this.userId, key), // update pending to shortlist for [employer]
+      this.movePendingToShortlist(jobseekerId, key), // update pending to shortlist for [jobseeker]
+    ]);
 
     isLoading(false);
   }
 
-  Future<void> rejectPending(String key) async {
+  Future<void> movePendingToShortlist(String uid, String key) async {
+    var ref = firestore.collection(accounts).document(uid).collection(pendings).document(key);
+    var doc = await ref.get();
+
+    await ref.delete().catchError((error) {
+      setErrorMessage(error.message);
+    });
+
+    doc.data["updatedAt"] = this.getCurrentTime();
+
+    await firestore.collection(accounts).document(uid).collection("shortlists").add(doc.data).catchError((error) {
+      setErrorMessage(error.message);
+    });
+  }
+
+  Future<void> declinePending(String key) async {
     isLoading(true);
 
     /// delete pending for [employer] and [jobseeker]
-    var rejected = {
-      "rejected": true,
+    var declined = {
+      "declined": true,
     };
 
-    await firestore
-        .collection("accounts")
-        .document(this.userId)
-        .collection("pendings")
-        .document(key)
-        .updateData(rejected)
-        .catchError((error) {
+    await firestore.collection(accounts).document(this.userId).collection(pendings).document(key).updateData(declined).catchError((error) {
       setErrorMessage(error.message);
     });
 
@@ -125,11 +127,13 @@ class Job extends Base {
       "appliedBy": FieldValue.arrayUnion([this.userId]),
     };
 
-    await firestore.collection("jobs").document(this.job["key"]).updateData(appliedBy).catchError((error) {
+    var theJob = firestore.collection(jobs).document(this.job["key"]);
+
+    await theJob.updateData(appliedBy).catchError((error) {
       setErrorMessage(error.message);
     });
 
-    this.setJob(await firestore.collection("jobs").document(this.job["key"]).get());
+    this.setJob(await theJob.get());
 
     /// set data to [employer]
     var data = {
@@ -137,10 +141,10 @@ class Job extends Base {
       "uid": this.userId,
       "name": this.fullname,
       "updatedAt": currentTime,
-      "rejected": false,
+      "declined": false,
     };
 
-    await firestore.collection("accounts").document(this.job["uid"]).collection("pendings").add(data).catchError((error) {
+    await firestore.collection(accounts).document(this.job["uid"]).collection(pendings).document(key).setData(data).catchError((error) {
       setErrorMessage(error.message);
     });
 
@@ -155,10 +159,10 @@ class Job extends Base {
       "businessName": this.job["businessName"],
       "createdAt": this.job["createdAt"],
       "updatedAt": currentTime,
-      "rejected": false,
+      "declined": false,
     };
 
-    await firestore.collection("accounts").document(this.userId).collection("pendings").add(employerData).catchError((error) {
+    await firestore.collection(accounts).document(this.userId).collection(pendings).document(key).setData(employerData).catchError((error) {
       setErrorMessage(error.message);
     });
 
@@ -166,21 +170,16 @@ class Job extends Base {
   }
 
   Stream<QuerySnapshot> getPendings() {
-    return firestore.collection("accounts").document(this.userId).collection("pendings").orderBy("updatedAt", descending: true).snapshots();
+    return firestore.collection(accounts).document(this.userId).collection(pendings).orderBy("updatedAt", descending: true).snapshots();
   }
 
   Stream<QuerySnapshot> getShortlists() {
-    return firestore
-        .collection("accounts")
-        .document(this.userId)
-        .collection("shortlists")
-        .orderBy("updatedAt", descending: true)
-        .snapshots();
+    return firestore.collection(accounts).document(this.userId).collection("shortlists").orderBy("updatedAt", descending: true).snapshots();
   }
 
   // methods -----------------------------------------------------------------------------------------
   String createKey() {
-    var ref = firestore.collection("accounts").document();
+    var ref = firestore.collection(accounts).document();
     return ref.documentID;
   }
 

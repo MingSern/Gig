@@ -1,5 +1,6 @@
 import 'package:Gig/utils/device.dart';
 import 'package:Gig/utils/palette.dart';
+import 'package:Gig/utils/time.dart';
 import 'package:flutter/material.dart';
 
 class BigCard extends StatelessWidget {
@@ -83,7 +84,7 @@ class BigCard extends StatelessWidget {
                           ],
                         ),
                         Text(
-                          Device.getDateTime(createdAt),
+                          Time.getDateTime(createdAt),
                           style: TextStyle(
                             color: Colors.grey,
                             fontSize: 11,

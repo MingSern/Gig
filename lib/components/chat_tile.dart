@@ -1,5 +1,6 @@
 import 'package:Gig/utils/device.dart';
 import 'package:Gig/utils/palette.dart';
+import 'package:Gig/utils/time.dart';
 import 'package:flutter/material.dart';
 
 class ChatTile extends StatelessWidget {
@@ -57,7 +58,7 @@ class ChatTile extends StatelessWidget {
                               ),
                             ),
                             Text(
-                              Device.getDateTime(this.createdAt),
+                              Time.getDateTime(this.createdAt),
                               style: TextStyle(
                                 fontSize: 11,
                                 color: Colors.redAccent,

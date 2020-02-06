@@ -1,6 +1,7 @@
 import 'package:Gig/models/user.dart';
 import 'package:Gig/utils/device.dart';
 import 'package:Gig/utils/palette.dart';
+import 'package:Gig/utils/time.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -56,7 +57,7 @@ class ChatBox extends StatelessWidget {
                   height: 5,
                 ),
                 Text(
-                  Device.getTime(this.createdAt),
+                  Time.getTime(this.createdAt),
                   style: TextStyle(
                     color: Palette.ashGrey,
                     fontSize: 10.0,

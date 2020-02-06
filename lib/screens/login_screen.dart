@@ -55,7 +55,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 TitleText(
                   title: "Welcome to",
-                  subtitle: "EasyStore",
+                  subtitle: "EasyJob",
                 ),
                 SizedBox(
                   height: 40,

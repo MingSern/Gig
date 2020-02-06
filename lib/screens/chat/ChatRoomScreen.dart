@@ -1,9 +1,11 @@
 import 'package:Gig/components/chat_box.dart';
+import 'package:Gig/components/date.dart';
 import 'package:Gig/components/round_button.dart';
 import 'package:Gig/components/rounded_nav_bar.dart';
 import 'package:Gig/models/chat_room.dart';
 import 'package:Gig/utils/device.dart';
 import 'package:Gig/utils/palette.dart';
+import 'package:Gig/utils/time.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -19,19 +21,6 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
   @override
   Widget build(BuildContext context) {
     ChatRoom chatRoom = Provider.of<ChatRoom>(context);
-
-    Widget date(var date) {
-      return Padding(
-        padding: const EdgeInsets.all(10.0),
-        child: Text(
-          date,
-          style: TextStyle(
-            fontSize: 12,
-            color: Colors.grey,
-          ),
-        ),
-      );
-    }
 
     return Scaffold(
       appBar: AppBar(
@@ -85,17 +74,17 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
                   itemBuilder: (context, index) {
                     var lastIndex = snapshot.data.documents.length - 1;
                     var document = snapshot.data.documents.elementAt(index);
-                    var currentDate = Device.getDate(document["createdAt"]);
+                    var currentDate = Time.getDate(document["createdAt"]);
                     var nextDate;
 
                     if (index != lastIndex) {
                       var nextDoc = snapshot.data.documents.elementAt(index + 1);
-                      nextDate = Device.getDate(nextDoc["createdAt"]);
+                      nextDate = Time.getDate(nextDoc["createdAt"]);
                     }
 
                     return Column(
                       children: <Widget>[
-                        currentDate != nextDate ? date(currentDate) : Container(),
+                        currentDate != nextDate ? Date(date: currentDate) : Container(),
                         ChatBox(
                           uid: document["uid"],
                           message: document["message"],

@@ -1,5 +1,6 @@
 import 'package:Gig/utils/device.dart';
 import 'package:Gig/utils/palette.dart';
+import 'package:Gig/utils/time.dart';
 import 'package:flutter/material.dart';
 
 class SmallCard extends StatelessWidget {
@@ -9,7 +10,7 @@ class SmallCard extends StatelessWidget {
   final String location;
   final num createdAt;
   final GestureTapCallback onPressed;
-  final bool rejected;
+  final bool declined;
 
   SmallCard({
     @required this.workPosition,
@@ -18,7 +19,7 @@ class SmallCard extends StatelessWidget {
     @required this.location,
     @required this.createdAt,
     @required this.onPressed,
-    this.rejected = false,
+    this.declined = false,
   });
 
   @override
@@ -26,10 +27,10 @@ class SmallCard extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
       decoration: BoxDecoration(
-        color: this.rejected ? Colors.grey[100] : Colors.white,
+        color: this.declined ? Colors.grey[100] : Colors.white,
         boxShadow: [
           BoxShadow(
-            color: this.rejected ? Colors.transparent : Colors.grey[300],
+            color: this.declined ? Colors.transparent : Colors.grey[300],
             blurRadius: 15.0,
             offset: Offset(0.0, 4.0),
           ),
@@ -37,7 +38,7 @@ class SmallCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(20.0),
       ),
       child: RawMaterialButton(
-        onPressed: this.rejected ? null : this.onPressed,
+        onPressed: this.declined ? null : this.onPressed,
         splashColor: Colors.grey[200],
         padding: const EdgeInsets.all(10),
         shape: RoundedRectangleBorder(
@@ -59,33 +60,44 @@ class SmallCard extends StatelessWidget {
                     ),
                   ),
                 ),
-                Container(
-                  margin: const EdgeInsets.only(left: 10),
+                SizedBox(
+                  width: 10,
+                ),
+                Flexible(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
-                      Text(
-                        this.workPosition,
-                        style: TextStyle(
-                          fontWeight: FontWeight.w500,
-                          fontSize: 19,
+                      Container(
+                        child: Text(
+                          this.workPosition,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontWeight: FontWeight.w500,
+                            fontSize: 19,
+                          ),
                         ),
                       ),
-                      Text(
-                        this.businessName,
-                        style: TextStyle(
-                          color: Colors.grey,
-                          fontSize: 15,
+                      Container(
+                        child: Text(
+                          this.businessName,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: Colors.grey,
+                            fontSize: 15,
+                          ),
                         ),
                       ),
                     ],
                   ),
                 ),
+                SizedBox(
+                  width: 10,
+                ),
               ],
             ),
-            this.rejected
+            this.declined
                 ? Text(
-                    "Rejected",
+                    "Declined",
                     style: TextStyle(
                       color: Colors.red,
                       fontSize: 26,
@@ -124,7 +136,7 @@ class SmallCard extends StatelessWidget {
                   child: Container(),
                 ),
                 Text(
-                  Device.getDateTime(this.createdAt),
+                  Time.getDateTime(this.createdAt),
                   style: TextStyle(
                     color: Colors.grey,
                     fontSize: 11,
