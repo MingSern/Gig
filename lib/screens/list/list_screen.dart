@@ -4,6 +4,7 @@ import 'package:Gig/components/small_card.dart';
 import 'package:Gig/enum/enum.dart';
 import 'package:Gig/models/job.dart';
 import 'package:Gig/models/user.dart';
+import 'package:Gig/utils/checker.dart';
 import 'package:Gig/utils/palette.dart';
 import 'package:Gig/utils/time.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -35,11 +36,11 @@ class ListScreen extends StatelessWidget {
         body: TabBarView(
           children: <Widget>[
             BuildLists(
-              type: ListType.pending,
+              type: JobStatus.pending,
               stream: job.getPendings(),
             ),
             BuildLists(
-              type: ListType.shorlisted,
+              type: JobStatus.shortlisted,
               stream: job.getShortlists(),
             ),
           ],
@@ -111,14 +112,38 @@ class BuildLists extends StatelessWidget {
       });
     }
 
-    void declinePending(String key) {
-      /// TODO: reject pending
+    void declinePending(document) {
+      var jobseekerId = document["uid"];
+      var key = document["key"];
+
+      job.declinePending(jobseekerId, key).then((_) {
+        if (job.containsError) {
+          job.showErrorMessage(context);
+        }
+      });
+    }
+
+    bool checkJobStatus(String status) {
+      if (Checker.getJobStatus(status) == JobStatus.pending ||
+          Checker.getJobStatus(status) == JobStatus.shortlisted) {
+        return false;
+      }
+
+      return true;
     }
 
     return StreamBuilder(
       stream: this.stream,
       builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+        if (snapshot.hasError) {
+          return Container();
+        }
+
         if (!snapshot.hasData) {
+          return Container();
+        }
+
+        if (snapshot.data.documents.length == 0) {
           return Container();
         }
 
@@ -127,33 +152,39 @@ class BuildLists extends StatelessWidget {
           itemCount: snapshot.data.documents.length,
           itemBuilder: (context, index) {
             var document = snapshot.data.documents.elementAt(index);
-            var currentDate = Time.getDate(document["createdAt"]);
+            var currentDate = Time.getDate(document["updatedAt"]);
             var previousDate;
 
             if (index != 0) {
               var previousDoc = snapshot.data.documents.elementAt(index - 1);
-              previousDate = Time.getDate(previousDoc["createdAt"]);
+              previousDate = Time.getDate(previousDoc["updatedAt"]);
             }
 
             return Column(
               children: <Widget>[
                 currentDate != previousDate ? Date(date: currentDate) : Container(),
                 user.account.userType == UserType.employer
-                    ? this.type == ListType.pending
+                    ? this.type == JobStatus.pending
                         ? ListCard(
                             fullname: document["name"],
+                            workPosition: document["workPosition"],
                             onTap: viewProfile,
+                            declined: checkJobStatus(document["status"]),
                             onAccept: () => acceptPending(document),
-                            onReject: () => declinePending(document["key"]),
+                            onReject: () => declinePending(document),
                           )
-                        : ListCard(fullname: document["name"], onTap: viewProfile)
+                        : ListCard(
+                            fullname: document["name"],
+                            workPosition: document["workPosition"],
+                            onTap: viewProfile,
+                          )
                     : SmallCard(
                         workPosition: document["workPosition"],
                         businessName: document["businessName"],
                         wages: document["wages"],
                         location: document["location"],
                         createdAt: document["createdAt"],
-                        declined: document["declined"],
+                        declined: checkJobStatus(document["status"]),
                         onPressed: () => viewJobInfo(document),
                       ),
               ],

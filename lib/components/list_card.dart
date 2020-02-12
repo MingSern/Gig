@@ -4,13 +4,17 @@ import 'package:flutter/material.dart';
 
 class ListCard extends StatelessWidget {
   final String fullname;
+  final String workPosition;
   final GestureTapCallback onTap;
+  final bool declined;
   final GestureTapCallback onAccept;
   final GestureTapCallback onReject;
 
   ListCard({
     @required this.fullname,
+    @required this.workPosition,
     @required this.onTap,
+    this.declined = false,
     this.onAccept,
     this.onReject,
   });
@@ -39,12 +43,32 @@ class ListCard extends StatelessWidget {
             BuildUser(
               fullname: this.fullname,
             ),
+            Container(
+              child: Text(
+                this.workPosition,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontWeight: FontWeight.w500,
+                  fontSize: 19,
+                ),
+              ),
+            ),
+            SizedBox(height: 5),
             this.onAccept == null && this.onReject == null
                 ? Container()
-                : BuildButtons(
-                    onAccept: this.onAccept,
-                    onReject: this.onReject,
-                  ),
+                : this.declined
+                    ? Text(
+                        "Declined",
+                        style: TextStyle(
+                          color: Colors.red,
+                          fontSize: 26,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      )
+                    : BuildButtons(
+                        onAccept: this.onAccept,
+                        onReject: this.onReject,
+                      ),
           ],
         ),
       ),
@@ -110,7 +134,7 @@ class Button extends StatelessWidget {
 }
 
 class BuildUser extends StatelessWidget {
-  final fullname;
+  final String fullname;
 
   BuildUser({
     @required this.fullname,
@@ -134,12 +158,23 @@ class BuildUser extends StatelessWidget {
         SizedBox(
           width: 10,
         ),
-        Text(
-          this.fullname,
-          style: TextStyle(
-            fontWeight: FontWeight.w500,
-            fontSize: 19,
-          ),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Text(
+              this.fullname,
+              style: TextStyle(
+                fontWeight: FontWeight.w500,
+                fontSize: 19,
+              ),
+            ),
+            Text(
+              "is applying a position for",
+              style: TextStyle(
+                color: Colors.grey,
+              ),
+            ),
+          ],
         ),
       ],
     );

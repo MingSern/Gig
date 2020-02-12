@@ -8,7 +8,8 @@ enum UserType {
   employer,
 }
 
-enum ListType {
+enum JobStatus {
   pending,
-  shorlisted,
+  shortlisted,
+  declined,
 }

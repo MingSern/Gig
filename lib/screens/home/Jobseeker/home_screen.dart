@@ -11,103 +11,44 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     Job job = Provider.of<Job>(context);
 
-    void viewJobInfo(document) {
-      job.setJob(document);
-      Navigator.pushNamed(context, "/home/job/info");
+    void filterJobs() {
+      Navigator.pushNamed(context, "/home/job/filter");
     }
 
     return Scaffold(
       appBar: AppBar(
         titleSpacing: 0,
-        title: searchBar(context),
+        title: BuildSearchBar(),
         actions: <Widget>[
           RoundButton(
             icon: Icons.tune,
-            onPressed: () => Navigator.pushNamed(context, "/home/job/filter"),
+            onPressed: filterJobs,
           )
         ],
       ),
-      body: FutureBuilder(
-        future: job.getAvailableJobs(),
-        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-          if (!snapshot.hasData) {
-            return Center(
-              child: Text("No post"),
-            );
-          }
-
-          return ListView(
-            children: <Widget>[
-              TitleButton(
-                title: "Recommended for you",
-              ),
-              Container(
-                height: 255,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  physics: BouncingScrollPhysics(),
-                  itemCount: 5,
-                  itemBuilder: (content, index) {
-                    return BigCard(
-                      workPosition: "Cashier",
-                      businessName: "H&M",
-                      wages: "31",
-                      createdAt: 1579432429384,
-                      location: "Bukit Bintang",
-                      onPressed: () {},
-                    );
-                  },
-                ),
-              ),
-              TitleButton(
-                title: "Near you",
-              ),
-              Container(
-                height: 255,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  physics: BouncingScrollPhysics(),
-                  itemCount: 5,
-                  itemBuilder: (content, index) {
-                    return BigCard(
-                      workPosition: "Cashier",
-                      businessName: "H&M",
-                      wages: "31",
-                      createdAt: 1579432429384,
-                      location: "Bukit Bintang",
-                      onPressed: () {},
-                    );
-                  },
-                ),
-              ),
-              TitleButton(
-                title: "Available jobs",
-              ),
-              Container(
-                height: 255,
-                child: ListView(
-                  scrollDirection: Axis.horizontal,
-                  physics: BouncingScrollPhysics(),
-                  children: snapshot.data.documents.map((document) {
-                    return BigCard(
-                      workPosition: document["workPosition"],
-                      businessName: document["businessName"],
-                      wages: document["wages"],
-                      location: document["location"],
-                      createdAt: document["createdAt"],
-                      onPressed: () => viewJobInfo(document),
-                    );
-                  }).toList(),
-                ),
-              ),
-            ],
-          );
-        },
+      body: ListView(
+        children: <Widget>[
+          BuildCarousell(
+            title: "Recommended for you",
+            future: job.getAvailableJobs(),
+          ),
+          BuildCarousell(
+            title: "Near you",
+            future: job.getAvailableJobs(),
+          ),
+          BuildCarousell(
+            title: "Available jobs",
+            future: job.getAvailableJobs(),
+          ),
+        ],
       ),
     );
   }
+}
 
-  Widget searchBar(BuildContext context) {
+class BuildSearchBar extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () => Navigator.pushNamed(context, "/home/job/search"),
       child: Container(
@@ -138,6 +79,68 @@ class HomeScreen extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+class BuildCarousell extends StatelessWidget {
+  final String title;
+  final Future<QuerySnapshot> future;
+
+  BuildCarousell({
+    @required this.title,
+    @required this.future,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    Job job = Provider.of<Job>(context);
+
+    void viewJobInfo(document) {
+      job.setJob(document);
+      Navigator.pushNamed(context, "/home/job/info");
+    }
+
+    return FutureBuilder(
+      future: this.future,
+      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+        if (snapshot.hasError) {
+          return Container();
+        }
+
+        if (!snapshot.hasData) {
+          return Container();
+        }
+
+        if (snapshot.data.documents.length == 0) {
+          return Container();
+        }
+
+        return Column(
+          children: <Widget>[
+            TitleButton(
+              title: this.title,
+            ),
+            Container(
+              height: 255,
+              child: ListView(
+                scrollDirection: Axis.horizontal,
+                physics: BouncingScrollPhysics(),
+                children: snapshot.data.documents.map((document) {
+                  return BigCard(
+                    workPosition: document["workPosition"],
+                    businessName: document["businessName"],
+                    wages: document["wages"],
+                    location: document["location"],
+                    createdAt: document["createdAt"],
+                    onPressed: () => viewJobInfo(document),
+                  );
+                }).toList(),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }

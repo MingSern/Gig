@@ -29,11 +29,28 @@ class HomeScreen extends StatelessWidget {
       body: StreamBuilder(
         stream: job.getJobs(),
         builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+          if (snapshot.hasError) {
+            return Container();
+          }
+
           if (!snapshot.hasData) {
+            return Container();
+          }
+
+          if (snapshot.data.documents.length == 0) {
             return Center(
-              child: Text("No post"),
+              child: Column(
+                mainAxisSize: MainAxisSize.max,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Text("Seems like you have not create any jobs yet 🤷"),
+                  Text("Click on the floating action button"),
+                  Text("to create a job now 🔥"),
+                ],
+              ),
             );
           }
+
           return ListView(
             children: snapshot.data.documents.map((document) {
               return SmallCard(

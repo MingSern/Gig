@@ -1,9 +1,11 @@
 import 'package:Gig/components/primary_button.dart';
 import 'package:Gig/components/round_button.dart';
 import 'package:Gig/components/secondary_button.dart';
+import 'package:Gig/enum/enum.dart';
 import 'package:Gig/models/chat_room.dart';
 import 'package:Gig/models/job.dart';
 import 'package:Gig/models/user.dart';
+import 'package:Gig/utils/checker.dart';
 import 'package:Gig/utils/device.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -34,19 +36,65 @@ class JobInfoScreen extends StatelessWidget {
     }
 
     bool checkJobApplied() {
-      if (job.job["appliedBy"] == null) {
-        return true;
-      } else if (job.job["appliedBy"].contains(job.userId)) {
-        return true;
+      bool havePendings = job.job["pendings"] != null ? true : false;
+
+      if (havePendings) {
+        var pendings = job.job["pendings"];
+        var shortlists = job.job["shortlists"];
+
+        if (pendings.contains(user.userId) || shortlists.contains(user.userId)) {
+          return true;
+        }
+      } else {
+        JobStatus status = Checker.getJobStatus(job.job["status"]);
+
+        if (status == JobStatus.pending || status == JobStatus.shortlisted) {
+          return true;
+        }
       }
 
       return false;
     }
 
+    Widget buildMessageButton() {
+      bool havePendings = job.job["shortlists"] != null ? true : false;
+
+      if (havePendings) {
+        var shortlists = job.job["shortlists"];
+
+        if (shortlists.contains(user.userId)) {
+          return PrimaryButton(
+            text: "Message",
+            onPressed: viewChatRoom,
+          );
+        }
+      } else {
+        JobStatus status = Checker.getJobStatus(job.job["status"]);
+
+        if (status == JobStatus.shortlisted) {
+          return PrimaryButton(
+            text: "Message",
+            onPressed: viewChatRoom,
+          );
+        }
+      }
+
+      return Container();
+    }
+
+    Widget buildApplyButton() {
+      if (user.userId != job.job["uid"]) {
+        return SecondaryButton(
+          text: checkJobApplied() ? "Applied" : "Apply Job",
+          onPressed: checkJobApplied() ? null : applyJob,
+        );
+      }
+
+      return Container();
+    }
+
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
         title: Text("Job Info"),
@@ -69,18 +117,8 @@ class JobInfoScreen extends StatelessWidget {
           children: <Widget>[
             Text(job.job["businessName"]),
             Text(job.job["workPosition"]),
-            user.userId != job.job["uid"]
-                ? PrimaryButton(
-                    text: "Message",
-                    onPressed: viewChatRoom,
-                  )
-                : Container(),
-            user.userId != job.job["uid"]
-                ? SecondaryButton(
-                    text: checkJobApplied() ? "Applied" : "Apply Job",
-                    onPressed: checkJobApplied() ? null : applyJob,
-                  )
-                : Container(),
+            buildMessageButton(),
+            buildApplyButton(),
             Text(job.job["description"]),
           ],
         ),

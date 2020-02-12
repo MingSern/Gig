@@ -1,3 +1,4 @@
+import 'package:Gig/enum/enum.dart';
 import 'package:Gig/models/base.dart';
 import 'package:Gig/models/user.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -49,14 +50,21 @@ class Job extends Base {
       "description": description,
       "businessName": this.businessName,
       "createdAt": this.getCurrentTime(),
-      "appliedBy": [],
+      "pendings": [],
+      "shortlists": [],
+      "rejects": [],
     };
 
     await firestore.collection(jobs).document(key).setData(data).catchError((error) {
       setErrorMessage(error.message);
     });
 
-    await firestore.collection(accounts).document(this.userId).collection(posts).add(data).catchError((error) {
+    await firestore
+        .collection(accounts)
+        .document(this.userId)
+        .collection(posts)
+        .add(data)
+        .catchError((error) {
       setErrorMessage(error.message);
     });
 
@@ -64,11 +72,17 @@ class Job extends Base {
   }
 
   Stream<QuerySnapshot> getJobs() {
-    return firestore.collection(accounts).document(this.userId).collection(posts).orderBy("createdAt", descending: true).snapshots();
+    return firestore
+        .collection(accounts)
+        .document(this.userId)
+        .collection(posts)
+        .orderBy("createdAt", descending: true)
+        .snapshots();
   }
 
   Future<QuerySnapshot> getAvailableJobs() async {
-    var availableJobs = await firestore.collection(jobs).orderBy("createdAt", descending: true).getDocuments();
+    var availableJobs =
+        await firestore.collection(jobs).orderBy("createdAt", descending: true).getDocuments();
     this.setAvailableJobs(availableJobs);
 
     return availableJobs;
@@ -82,6 +96,20 @@ class Job extends Base {
       this.movePendingToShortlist(jobseekerId, key), // update pending to shortlist for [jobseeker]
     ]);
 
+    /// update data for [jobs]
+    var updateData = {
+      "pendings": FieldValue.arrayRemove([jobseekerId]),
+      "shortlists": FieldValue.arrayUnion([jobseekerId]),
+    };
+
+    var theJob = firestore.collection(jobs).document(key);
+
+    await theJob.updateData(updateData).catchError((error) {
+      setErrorMessage(error.message);
+    });
+
+    this.setJob(await theJob.get());
+
     isLoading(false);
   }
 
@@ -93,24 +121,61 @@ class Job extends Base {
       setErrorMessage(error.message);
     });
 
+    /// update data for [jobs]
+    doc.data["status"] = JobStatus.shortlisted.toString();
     doc.data["updatedAt"] = this.getCurrentTime();
 
-    await firestore.collection(accounts).document(uid).collection("shortlists").add(doc.data).catchError((error) {
+    await firestore
+        .collection(accounts)
+        .document(uid)
+        .collection(shortlists)
+        .add(doc.data)
+        .catchError((error) {
       setErrorMessage(error.message);
     });
   }
 
-  Future<void> declinePending(String key) async {
+  Future<void> declinePending(String jobseekerId, String key) async {
     isLoading(true);
 
-    /// delete pending for [employer] and [jobseeker]
-    var declined = {
-      "declined": true,
+    var status = {
+      "status": JobStatus.declined.toString(),
     };
 
-    await firestore.collection(accounts).document(this.userId).collection(pendings).document(key).updateData(declined).catchError((error) {
+    /// update pending for [employer] and [jobseeker]
+    await firestore
+        .collection(accounts)
+        .document(this.userId)
+        .collection(pendings)
+        .document(key)
+        .updateData(status)
+        .catchError((error) {
       setErrorMessage(error.message);
     });
+
+    await firestore
+        .collection(accounts)
+        .document(jobseekerId)
+        .collection(pendings)
+        .document(key)
+        .updateData(status)
+        .catchError((error) {
+      setErrorMessage(error.message);
+    });
+
+    /// update data for [jobs]
+    var updateData = {
+      "pendings": FieldValue.arrayRemove([jobseekerId]),
+      "rejects": FieldValue.arrayUnion([jobseekerId]),
+    };
+
+    var theJob = firestore.collection(jobs).document(key);
+
+    await theJob.updateData(updateData).catchError((error) {
+      setErrorMessage(error.message);
+    });
+
+    this.setJob(await theJob.get());
 
     isLoading(false);
   }
@@ -119,17 +184,17 @@ class Job extends Base {
   Future<void> applyJob() async {
     isLoading(true);
 
-    var key = this.createKey();
+    // var key = this.createKey();
     var currentTime = this.getCurrentTime();
 
     /// update data to [jobs]
-    var appliedBy = {
-      "appliedBy": FieldValue.arrayUnion([this.userId]),
+    var pendingsList = {
+      "pendings": FieldValue.arrayUnion([this.userId]),
     };
 
     var theJob = firestore.collection(jobs).document(this.job["key"]);
 
-    await theJob.updateData(appliedBy).catchError((error) {
+    await theJob.updateData(pendingsList).catchError((error) {
       setErrorMessage(error.message);
     });
 
@@ -137,20 +202,27 @@ class Job extends Base {
 
     /// set data to [employer]
     var data = {
-      "key": key,
+      "key": this.job["key"],
       "uid": this.userId,
+      "workPosition": this.job["workPosition"],
       "name": this.fullname,
       "updatedAt": currentTime,
-      "declined": false,
+      "status": JobStatus.pending.toString(),
     };
 
-    await firestore.collection(accounts).document(this.job["uid"]).collection(pendings).document(key).setData(data).catchError((error) {
+    await firestore
+        .collection(accounts)
+        .document(this.job["uid"])
+        .collection(pendings)
+        .document(this.job["key"])
+        .setData(data)
+        .catchError((error) {
       setErrorMessage(error.message);
     });
 
     /// set data to [jobseeker]
     var employerData = {
-      "key": key,
+      "key": this.job["key"],
       "uid": this.job["uid"],
       "workPosition": this.job["workPosition"],
       "wages": this.job["wages"],
@@ -159,10 +231,16 @@ class Job extends Base {
       "businessName": this.job["businessName"],
       "createdAt": this.job["createdAt"],
       "updatedAt": currentTime,
-      "declined": false,
+      "status": JobStatus.pending.toString(),
     };
 
-    await firestore.collection(accounts).document(this.userId).collection(pendings).document(key).setData(employerData).catchError((error) {
+    await firestore
+        .collection(accounts)
+        .document(this.userId)
+        .collection(pendings)
+        .document(this.job["key"])
+        .setData(employerData)
+        .catchError((error) {
       setErrorMessage(error.message);
     });
 
@@ -170,11 +248,21 @@ class Job extends Base {
   }
 
   Stream<QuerySnapshot> getPendings() {
-    return firestore.collection(accounts).document(this.userId).collection(pendings).orderBy("updatedAt", descending: true).snapshots();
+    return firestore
+        .collection(accounts)
+        .document(this.userId)
+        .collection(pendings)
+        .orderBy("updatedAt", descending: true)
+        .snapshots();
   }
 
   Stream<QuerySnapshot> getShortlists() {
-    return firestore.collection(accounts).document(this.userId).collection("shortlists").orderBy("updatedAt", descending: true).snapshots();
+    return firestore
+        .collection(accounts)
+        .document(this.userId)
+        .collection("shortlists")
+        .orderBy("updatedAt", descending: true)
+        .snapshots();
   }
 
   // methods -----------------------------------------------------------------------------------------
