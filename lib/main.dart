@@ -9,6 +9,7 @@ import 'package:Gig/screens/home/filter_screen.dart';
 import 'package:Gig/screens/home/job_info_screen.dart';
 import 'package:Gig/screens/home/search_jobs_screen.dart';
 import 'package:Gig/screens/verification_screen.dart';
+import 'package:Gig/utils/palette.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:Gig/screens/register_as_screen.dart';
@@ -38,6 +39,9 @@ class MyApp extends StatelessWidget {
     ];
 
     final themeData = ThemeData(
+      textSelectionHandleColor: Palette.lapizBlue,
+      textSelectionColor: Palette.lapizBlue.withOpacity(0.2),
+      cursorColor: Palette.lapizBlue,
       scaffoldBackgroundColor: Colors.white,
       primarySwatch: Colors.grey,
       fontFamily: 'LexendDeca',

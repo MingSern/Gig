@@ -5,9 +5,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 final firestore = Firestore.instance;
 
 class ChatRoom extends Base {
-  String userId;
-  String listenerId;
-  String listenerName;
+  // String userId;
+  User user;
+  dynamic listener;
+  // String listenerId;
+  // String listenerName;
   String key;
   bool exists = false;
   List<dynamic> chatRooms;
@@ -17,7 +19,7 @@ class ChatRoom extends Base {
   }
 
   void update(User user) {
-    this.userId = user.userId;
+    this.user = user;
     notifyListeners();
   }
 
@@ -25,32 +27,37 @@ class ChatRoom extends Base {
   Stream<QuerySnapshot> getChatRooms() {
     return firestore
         .collection("accounts")
-        .document(this.userId)
+        .document(this.user.userId)
         .collection("chatRooms")
         .orderBy("createdAt", descending: true)
         .snapshots();
   }
 
   Stream<QuerySnapshot> getMessages() {
-    return firestore.collection("chatRooms").document(this.key).collection("messages").orderBy("createdAt", descending: true).snapshots();
+    return firestore
+        .collection("chatRooms")
+        .document(this.key)
+        .collection("messages")
+        .orderBy("createdAt", descending: true)
+        .snapshots();
   }
 
   // Methods -----------------------------------------------------------------------------------------
   void open(dynamic listener) async {
     this.closePreviousRoom();
 
-    this.listenerName = listener["name"];
-    this.listenerId = listener["uid"];
+    this.listener = listener;
 
-    if (this.userId.compareTo(this.listenerId) > -1) {
-      this.key = this.userId + this.listenerId;
+    if (this.user.userId.compareTo(this.listener["uid"]) > -1) {
+      this.key = this.user.userId + "_" + this.listener["uid"];
     } else {
-      this.key = this.listenerId + this.userId;
+      this.key = this.listener["uid"] + "_" + this.user.userId;
     }
 
-    var chatRoom = await firestore.collection("chatRooms").document(this.key).get();
+    var chatRoom =
+        await firestore.collection("chatRooms").document(this.key).collection("messages").getDocuments();
 
-    if (chatRoom != null) {
+    if (chatRoom.documents.length > 0) {
       this.exists = true;
     } else {
       this.exists = false;
@@ -62,50 +69,47 @@ class ChatRoom extends Base {
   void closePreviousRoom() {
     this.exists = false;
     this.key = null;
-    this.listenerName = null;
-    this.listenerId = null;
+    this.listener = null;
     notifyListeners();
   }
 
-  Future<void> createTalkerChatRoom() async {
-    var listener = await firestore.collection("accounts").document(this.listenerId).get();
-
-    var talkerData = {
-      "uid": listener["uid"],
-      "name": listener["businessName"],
+  Future<void> createTalkerChatRoom(num createdAt) async {
+    var listenerData = {
+      "uid": this.listener["uid"],
+      "name": this.listener["name"],
       "lastMessage": "",
-      "createdAt": new DateTime.now().millisecondsSinceEpoch,
+      "createdAt": createdAt,
     };
 
-    /// for talker [jobseeker]
+    /// for talker
     await firestore
         .collection("accounts")
-        .document(this.userId)
+        .document(this.user.userId)
         .collection("chatRooms")
         .document(this.key)
-        .setData(talkerData)
+        .setData(listenerData)
         .catchError((error) {
       setErrorMessage(error.message);
     });
   }
 
-  Future<void> createListenerChatRoom() async {
-    var talker = await firestore.collection("accounts").document(this.userId).get();
-    print(talker["fullname"]);
-    var listenerData = {
-      "uid": talker["uid"],
-      "name": talker["fullname"],
+  Future<void> createListenerChatRoom(num createdAt) async {
+    var talkerData = {
+      "uid": this.user.userId,
+      "name": this.user.account.businessName.isEmpty
+          ? this.user.account.fullname
+          : this.user.account.businessName,
       "lastMessage": "",
-      "createdAt": new DateTime.now().millisecondsSinceEpoch,
+      "createdAt": createdAt,
     };
 
-    /// for listener [employer]
+    /// for listener
     await firestore
         .collection("accounts")
-        .document(this.listenerId)
+        .document(this.listener["uid"])
         .collection("chatRooms")
         .document(this.key)
-        .setData(listenerData)
+        .setData(talkerData)
         .catchError((error) {
       setErrorMessage(error.message);
     });
@@ -115,17 +119,23 @@ class ChatRoom extends Base {
     isLoading(true);
 
     if (!this.exists) {
-      await Future.wait([this.createTalkerChatRoom(), this.createListenerChatRoom()]);
+      var createdAt = new DateTime.now().millisecondsSinceEpoch;
+      await Future.wait([this.createTalkerChatRoom(createdAt), this.createListenerChatRoom(createdAt)]);
       this.exists = true;
     }
 
     var messageData = {
-      "uid": this.userId,
+      "uid": this.user.userId,
       "message": message,
       "createdAt": new DateTime.now().millisecondsSinceEpoch,
     };
 
-    await firestore.collection("chatRooms").document(this.key).collection("messages").add(messageData).catchError((error) {
+    await firestore
+        .collection("chatRooms")
+        .document(this.key)
+        .collection("messages")
+        .add(messageData)
+        .catchError((error) {
       setErrorMessage(error.message);
     });
 
@@ -142,7 +152,7 @@ class ChatRoom extends Base {
 
     await firestore
         .collection("accounts")
-        .document(this.userId)
+        .document(this.user.userId)
         .collection("chatRooms")
         .document(this.key)
         .updateData(lastMessage)
@@ -152,7 +162,7 @@ class ChatRoom extends Base {
 
     await firestore
         .collection("accounts")
-        .document(this.listenerId)
+        .document(this.listener["uid"])
         .collection("chatRooms")
         .document(this.key)
         .updateData(lastMessage)

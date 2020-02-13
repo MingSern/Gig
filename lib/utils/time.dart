@@ -29,7 +29,9 @@ class Time {
 
     var hourToInt = int.parse(timeArray[0]);
     var daytime = hourToInt < 12 ? "am" : "pm";
-    var time = (hourToInt - 12).toString() + ":" + timeArray[1] + " " + daytime;
+    var hour = hourToInt > 12 ? hourToInt - 12 : hourToInt;
+    var minutes = timeArray[1];
+    var time = "$hour:$minutes $daytime";
 
     if (diff.inDays == 1) {
       return "Yesterday";
@@ -48,7 +50,7 @@ class Time {
 
     var hourToInt = int.parse(timeArray[0]);
     var daytime = hourToInt < 12 ? "am" : "pm";
-    var hour = hourToInt < 12 ? hourToInt : hourToInt - 12;
+    var hour = hourToInt > 12 ? hourToInt - 12 : hourToInt;
     var minutes = timeArray[1];
     var time = "$hour:$minutes $daytime";
 

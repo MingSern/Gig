@@ -30,14 +30,14 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
           children: <Widget>[
             RoundButton(
               icon: Icons.arrow_back,
-              name: chatRoom.listenerName,
+              name: chatRoom.listener["name"],
               onPressed: () => Device.goBack(context),
             ),
             Expanded(
               child: Align(
                 alignment: Alignment(0, 0),
                 child: Text(
-                  chatRoom.listenerName,
+                  chatRoom.listener["name"],
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
@@ -145,10 +145,11 @@ class _Keyboard extends StatelessWidget {
                 reverse: true,
                 scrollDirection: Axis.vertical,
                 child: TextField(
+                  textCapitalization: TextCapitalization.sentences,
+                  keyboardType: TextInputType.multiline,
                   controller: controller,
                   maxLines: null,
                   decoration: InputDecoration.collapsed(hintText: "Type a message..."),
-                  onTap: () {},
                 ),
               ),
             ),

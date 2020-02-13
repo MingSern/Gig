@@ -61,7 +61,7 @@ class ChatTile extends StatelessWidget {
                               Time.getDateTime(this.createdAt),
                               style: TextStyle(
                                 fontSize: 11,
-                                color: Colors.redAccent,
+                                color: Palette.lapizBlue,
                               ),
                             ),
                           ],
@@ -85,7 +85,7 @@ class ChatTile extends StatelessWidget {
                           ),
                           CircleAvatar(
                             radius: 10,
-                            backgroundColor: Colors.redAccent,
+                            backgroundColor: Palette.lapizBlue,
                             child: Text(
                               "2",
                               style: TextStyle(
