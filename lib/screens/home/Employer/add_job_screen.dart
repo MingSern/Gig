@@ -1,3 +1,4 @@
+import 'package:Gig/components/field.dart';
 import 'package:Gig/components/round_button.dart';
 import 'package:Gig/models/job.dart';
 import 'package:Gig/utils/device.dart';
@@ -83,57 +84,41 @@ class _AddJobScreenState extends State<AddJobScreen> {
             key: formKey,
             child: Column(
               children: <Widget>[
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
-                  child: TextFormField(
-                    initialValue: this.workPosition,
-                    keyboardType: TextInputType.text,
-                    textCapitalization: TextCapitalization.words,
-                    decoration: InputDecoration(
-                      labelText: "Work position",
-                    ),
-                    onSaved: (value) => workPosition = value,
-                    validator: (value) => value.isEmpty ? "Work position is empty" : null,
-                  ),
+                SizedBox(height: 20),
+                Field(
+                  initialValue: this.workPosition,
+                  keyboardType: TextInputType.text,
+                  textCapitalization: TextCapitalization.words,
+                  labelText: "Work position",
+                  onSaved: (value) => workPosition = value,
+                  validator: (value) => value.isEmpty ? "Work position is empty" : null,
                 ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
-                  child: TextFormField(
-                    initialValue: this.wages,
-                    keyboardType: TextInputType.number,
-                    decoration: InputDecoration(
-                      labelText: "Wages",
-                    ),
-                    onSaved: (value) => wages = value,
-                    validator: (value) => value.isEmpty ? "Wages is empty" : null,
-                  ),
+                SizedBox(height: 10),
+                Field(
+                  initialValue: this.wages,
+                  keyboardType: TextInputType.number,
+                  labelText: "Wages",
+                  onSaved: (value) => wages = value,
+                  validator: (value) => value.isEmpty ? "Wages is empty" : null,
                 ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
-                  child: TextFormField(
-                    initialValue: this.location,
-                    keyboardType: TextInputType.text,
-                    textCapitalization: TextCapitalization.words,
-                    decoration: InputDecoration(
-                      labelText: "Location",
-                    ),
-                    onSaved: (value) => location = value,
-                    validator: (value) => value.isEmpty ? "Location is empty" : null,
-                  ),
+                SizedBox(height: 10),
+                Field(
+                  initialValue: this.location,
+                  keyboardType: TextInputType.text,
+                  textCapitalization: TextCapitalization.words,
+                  labelText: "Location",
+                  onSaved: (value) => location = value,
+                  validator: (value) => value.isEmpty ? "Location is empty" : null,
                 ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
-                  child: TextFormField(
-                    initialValue: this.description,
-                    keyboardType: TextInputType.multiline,
-                    maxLines: null,
-                    textCapitalization: TextCapitalization.sentences,
-                    decoration: InputDecoration(
-                      labelText: "Description",
-                    ),
-                    onSaved: (value) => description = value,
-                    validator: (value) => value.isEmpty ? "Description is empty" : null,
-                  ),
+                SizedBox(height: 10),
+                Field(
+                  initialValue: this.description,
+                  keyboardType: TextInputType.multiline,
+                  textCapitalization: TextCapitalization.sentences,
+                  maxLines: null,
+                  labelText: "Description",
+                  onSaved: (value) => description = value,
+                  validator: (value) => value.isEmpty ? "Description is empty" : null,
                 ),
               ],
             ),

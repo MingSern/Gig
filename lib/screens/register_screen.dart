@@ -1,3 +1,4 @@
+import 'package:Gig/components/field.dart';
 import 'package:Gig/components/primary_button.dart';
 import 'package:Gig/components/title_text.dart';
 import 'package:Gig/enum/enum.dart';
@@ -92,70 +93,53 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 SizedBox(
                   height: 40,
                 ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 40),
-                  child: TextFormField(
-                    initialValue: this.fullname,
-                    textCapitalization: TextCapitalization.words,
-                    keyboardType: TextInputType.text,
-                    decoration: InputDecoration(
-                      labelText: "Full name",
-                    ),
-                    onSaved: (value) => this.fullname = value,
-                    validator: (value) => value.isEmpty ? "Full name is empty" : null,
-                  ),
+                Field(
+                  initialValue: this.fullname,
+                  labelText: "Fullname",
+                  keyboardType: TextInputType.text,
+                  textCapitalization: TextCapitalization.words,
+                  onSaved: (value) => this.fullname = value,
+                  validator: (value) => value.isEmpty ? "Full name is empty" : null,
                 ),
                 userType == UserType.jobseeker
                     ? Container()
-                    : Padding(
-                        padding: const EdgeInsets.fromLTRB(40, 10, 40, 0),
-                        child: TextFormField(
-                          initialValue: this.businessName,
-                          textCapitalization: TextCapitalization.words,
-                          keyboardType: TextInputType.text,
-                          decoration: InputDecoration(
+                    : Column(
+                        children: <Widget>[
+                          SizedBox(height: 10),
+                          Field(
+                            initialValue: this.businessName,
                             labelText: "Business/Company name",
+                            keyboardType: TextInputType.text,
+                            textCapitalization: TextCapitalization.words,
+                            onSaved: (value) => this.businessName = value,
+                            validator: (value) => value.isEmpty ? "Business/Company name is empty" : null,
                           ),
-                          onSaved: (value) => this.businessName = value,
-                          validator: (value) => value.isEmpty ? "Business/Company name is empty" : null,
-                        ),
+                        ],
                       ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
-                  child: TextFormField(
-                    initialValue: this.email,
-                    keyboardType: TextInputType.emailAddress,
-                    decoration: InputDecoration(
-                      labelText: "Email",
-                    ),
-                    onSaved: (value) => this.email = value,
-                    validator: (value) => value.isEmpty ? "Email is empty" : null,
-                  ),
+                SizedBox(height: 10),
+                Field(
+                  initialValue: this.email,
+                  labelText: "Email",
+                  keyboardType: TextInputType.emailAddress,
+                  onSaved: (value) => this.email = value,
+                  validator: (value) => value.isEmpty ? "Email is empty" : null,
                 ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 40),
-                  child: TextFormField(
-                    initialValue: this.password,
-                    keyboardType: TextInputType.text,
-                    obscureText: true,
-                    decoration: InputDecoration(
-                      labelText: "Password",
-                    ),
-                    onSaved: (value) => this.password = value,
-                    validator: (value) => value.isEmpty ? "Password is empty" : null,
-                  ),
+                SizedBox(height: 10),
+                Field(
+                  initialValue: this.password,
+                  labelText: "Password",
+                  keyboardType: TextInputType.text,
+                  obscureText: true,
+                  onSaved: (value) => this.password = value,
+                  validator: (value) => value.isEmpty ? "Password is empty" : null,
                 ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(40, 10, 40, 0),
-                  child: TextFormField(
-                    initialValue: "+601110768827",
-                    keyboardType: TextInputType.phone,
-                    decoration: InputDecoration(
-                      labelText: "Phone number",
-                    ),
-                    onSaved: (value) => this.phoneNumber = value,
-                    validator: (value) => value.isEmpty ? "Phone number is empty" : null,
-                  ),
+                SizedBox(height: 10),
+                Field(
+                  initialValue: "+601110768827",
+                  labelText: "Phone number",
+                  keyboardType: TextInputType.phone,
+                  onSaved: (value) => this.phoneNumber = value,
+                  validator: (value) => value.isEmpty ? "Phone number is empty" : null,
                 ),
                 Container(
                   alignment: Alignment(0, 0),

@@ -8,6 +8,7 @@ import 'package:Gig/screens/home/Jobseeker/show_jobs_screen.dart';
 import 'package:Gig/screens/home/filter_screen.dart';
 import 'package:Gig/screens/home/job_info_screen.dart';
 import 'package:Gig/screens/home/search_jobs_screen.dart';
+import 'package:Gig/screens/profile/description_screen.dart';
 import 'package:Gig/screens/verification_screen.dart';
 import 'package:Gig/utils/palette.dart';
 import 'package:flutter/material.dart';
@@ -71,6 +72,7 @@ class MyApp extends StatelessWidget {
             '/home/job/add': (context) => AddJobScreen(),
             '/home/job/info': (context) => JobInfoScreen(),
             '/chat/room': (context) => ChatRoomScreen(),
+            '/profile/description/add': (context) => DescriptionScreen(),
           },
         ),
       ),

@@ -46,11 +46,22 @@ class BigCard extends StatelessWidget {
           children: <Widget>[
             Container(
               height: 100,
-              decoration: BoxDecoration(
-                color: Colors.grey[200],
+              width: double.infinity,
+              // decoration: BoxDecoration(
+              //   color: Colors.grey[200],
+              //   borderRadius: BorderRadius.only(
+              //     topLeft: const Radius.circular(20.0),
+              //     topRight: const Radius.circular(20.0),
+              //   ),
+              // ),
+              child: ClipRRect(
                 borderRadius: BorderRadius.only(
                   topLeft: const Radius.circular(20.0),
                   topRight: const Radius.circular(20.0),
+                ),
+                child: Image.network(
+                  "https://tinyurl.com/s77cejn",
+                  fit: BoxFit.none,
                 ),
               ),
             ),

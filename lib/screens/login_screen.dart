@@ -1,3 +1,4 @@
+import 'package:Gig/components/field.dart';
 import 'package:Gig/components/primary_button.dart';
 import 'package:Gig/components/title_text.dart';
 import 'package:Gig/models/user.dart';
@@ -60,28 +61,20 @@ class _LoginScreenState extends State<LoginScreen> {
                 SizedBox(
                   height: 40,
                 ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 40),
-                  child: TextFormField(
-                    keyboardType: TextInputType.emailAddress,
-                    decoration: InputDecoration(
-                      labelText: "Email",
-                    ),
-                    onSaved: (value) => this.email = value,
-                    validator: (value) => value.isEmpty ? "Email is empty" : null,
-                  ),
+                Field(
+                  keyboardType: TextInputType.emailAddress,
+                  labelText: "Email",
+                  hintText: "example@mail.com",
+                  onSaved: (value) => this.email = value,
+                  validator: (value) => value.isEmpty ? "Email is empty" : null,
                 ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
-                  child: TextFormField(
-                    keyboardType: TextInputType.text,
-                    obscureText: true,
-                    decoration: InputDecoration(
-                      labelText: "Password",
-                    ),
-                    onSaved: (value) => this.password = value,
-                    validator: (value) => value.isEmpty ? "Password is empty" : null,
-                  ),
+                SizedBox(height: 10),
+                Field(
+                  keyboardType: TextInputType.text,
+                  labelText: "Password",
+                  obscureText: true,
+                  onSaved: (value) => this.password = value,
+                  validator: (value) => value.isEmpty ? "Password is empty" : null,
                 ),
                 Padding(
                   padding: const EdgeInsets.only(top: 40, bottom: 15),

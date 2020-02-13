@@ -11,7 +11,6 @@ class Dialogs {
   }) {
     return showDialog(
       context: context,
-      barrierDismissible: false,
       builder: (context) => AlertDialog(
         title: Text(title),
         content: Text(content),
@@ -21,14 +20,14 @@ class Dialogs {
               onCancel.toUpperCase(),
               style: TextStyle(color: Palette.lapizBlue),
             ),
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(context, false),
           ),
           FlatButton(
             child: Text(
               onConfirm.toUpperCase(),
               style: TextStyle(color: Palette.lapizBlue),
             ),
-            onPressed: () {},
+            onPressed: () => Navigator.pop(context, true),
           ),
         ],
       ),

@@ -2,16 +2,18 @@ import 'package:Gig/utils/palette.dart';
 import 'package:flutter/material.dart';
 
 class SecondaryButton extends StatelessWidget {
+  final String text;
+  final GestureTapCallback onPressed;
+  final double width;
+  final bool smaller;
+
   SecondaryButton({
     Key key,
     @required this.text,
     @required this.onPressed,
     this.width = 150,
+    this.smaller = false,
   });
-
-  final String text;
-  final GestureTapCallback onPressed;
-  final double width;
 
   @override
   Widget build(BuildContext context) {
@@ -27,14 +29,22 @@ class SecondaryButton extends StatelessWidget {
           borderRadius: BorderRadius.circular(100),
         ),
         constraints: BoxConstraints.tight(Size(this.width, 45)),
-        child: Text(
-          this.text,
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-            fontSize: 15,
-          ),
-        ),
+        child: smaller
+            ? Text(
+                this.text,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 13,
+                ),
+              )
+            : Text(
+                this.text,
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                  fontSize: 15,
+                ),
+              ),
         onPressed: this.onPressed,
       ),
     );

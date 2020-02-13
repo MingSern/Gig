@@ -12,9 +12,10 @@ class User extends Base {
   String userId;
   AuthStatus authStatus;
   Account account;
+  String shortlisted = "0";
+  String applied = "0";
 
   User() {
-    // this.logoutAccount();
     this.authenticate();
   }
 
@@ -23,6 +24,8 @@ class User extends Base {
       if (user != null) {
         this.setId(user.uid);
         await this.getAccount();
+        await this.getApplied();
+        await this.getShortlisted();
         this.authStatus = AuthStatus.signedIn;
       } else {
         this.authStatus = AuthStatus.notSignedIn;
@@ -95,7 +98,9 @@ class User extends Base {
       print('${exception.message}');
     };
 
-    await Firebase.sendCodeToPhoneNumber(account.phoneNumber, autoRetrieve, smsCodeSent, verifySuccess, verifyFailed).catchError((onError) {
+    await Firebase.sendCodeToPhoneNumber(
+            account.phoneNumber, autoRetrieve, smsCodeSent, verifySuccess, verifyFailed)
+        .catchError((onError) {
       setErrorMessage(onError.message);
     });
 
@@ -105,7 +110,8 @@ class User extends Base {
   Future<void> verifyAndRegisterAccount(String smsCode) async {
     isLoading(true);
 
-    var credential = PhoneAuthProvider.getCredential(verificationId: this.account.verificationId, smsCode: smsCode);
+    var credential =
+        PhoneAuthProvider.getCredential(verificationId: this.account.verificationId, smsCode: smsCode);
 
     await Firebase.signInWithPhoneNumber(credential).then((AuthResult result) async {
       if (result.user != null) {
@@ -146,6 +152,92 @@ class User extends Base {
     await Firebase.signOut().then((_) async {
       await this.authenticate();
     }).catchError((onError) {
+      setErrorMessage(onError.message);
+    });
+
+    isLoading(false);
+  }
+
+  // Methods ------------------------------------------
+  void setApplied(int length) {
+    this.applied = length.toString();
+    notifyListeners();
+  }
+
+  void setShortlisted(int length) {
+    this.shortlisted = length.toString();
+    notifyListeners();
+  }
+
+  Future<void> getApplied() async {
+    var documents =
+        await firestore.collection("accounts").document(this.userId).collection("pendings").getDocuments();
+
+    this.setApplied(documents.documents.length);
+  }
+
+  Future<void> getShortlisted() async {
+    var documents =
+        await firestore.collection("accounts").document(this.userId).collection("shortlists").getDocuments();
+
+    this.setShortlisted(documents.documents.length);
+  }
+
+  Stream<QuerySnapshot> getDescriptions() {
+    return firestore.collection("accounts").document(this.userId).collection("descriptions").snapshots();
+  }
+
+  Future<void> createDescription(String title, String description) async {
+    isLoading(true);
+
+    var data = {
+      "title": title,
+      "description": description,
+    };
+
+    await firestore
+        .collection("accounts")
+        .document(this.userId)
+        .collection("descriptions")
+        .add(data)
+        .catchError((onError) {
+      setErrorMessage(onError.message);
+    });
+
+    isLoading(false);
+  }
+
+  Future<void> editDescription(String documentId, String title, String description) async {
+    isLoading(true);
+
+    var updateData = {
+      "title": title,
+      "description": description,
+    };
+
+    await firestore
+        .collection("accounts")
+        .document(this.userId)
+        .collection("descriptions")
+        .document(documentId)
+        .updateData(updateData)
+        .catchError((onError) {
+      setErrorMessage(onError.message);
+    });
+
+    isLoading(false);
+  }
+
+  Future<void> deleteDescription(String documentId) async {
+    isLoading(true);
+
+    await firestore
+        .collection("accounts")
+        .document(this.userId)
+        .collection("descriptions")
+        .document(documentId)
+        .delete()
+        .catchError((onError) {
       setErrorMessage(onError.message);
     });
 
