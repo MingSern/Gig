@@ -1,9 +1,11 @@
 import 'package:Gig/components/round_button.dart';
 import 'package:Gig/components/secondary_button.dart';
+import 'package:Gig/models/image_manager.dart';
 import 'package:Gig/models/user.dart';
 import 'package:Gig/utils/device.dart';
 import 'package:Gig/utils/dialogs.dart';
 import 'package:Gig/utils/palette.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -61,6 +63,10 @@ class ProfileScreen extends StatelessWidget {
       });
     }
 
+    void editImage() {
+      Navigator.pushNamed(context, "/profile/image/edit");
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -89,19 +95,22 @@ class ProfileScreen extends StatelessWidget {
               children: <Widget>[
                 Padding(
                   padding: const EdgeInsets.all(15.0),
-                  child: CircleAvatar(
-                    radius: 50,
-                    backgroundColor: Palette.mustard,
-                    backgroundImage: NetworkImage("https://tinyurl.com/yabcsx7v"),
-                    // child: Text(
-                    //   Device.getFirstLetter(
-                    //     user.account.businessName.isEmpty ? user.account.fullname : user.account.businessName,
-                    //   ),
-                    //   style: TextStyle(
-                    //     color: Colors.black,
-                    //     fontWeight: FontWeight.w500,
-                    //   ),
-                    // ),
+                  child: GestureDetector(
+                    onTap: editImage,
+                    child: CircleAvatar(
+                      radius: 50,
+                      backgroundColor: Palette.mustard,
+                      backgroundImage: CachedNetworkImageProvider("https://tinyurl.com/yabcsx7v"),
+                      // child: Text(
+                      //   Device.getFirstLetter(
+                      //     user.account.businessName.isEmpty ? user.account.fullname : user.account.businessName,
+                      //   ),
+                      //   style: TextStyle(
+                      //     color: Colors.black,
+                      //     fontWeight: FontWeight.w500,
+                      //   ),
+                      // ),
+                    ),
                   ),
                 ),
                 Expanded(

@@ -7,6 +7,7 @@ import 'package:Gig/screens/home/Employer/home_screen.dart' as Employer;
 import 'package:Gig/screens/home/Jobseeker/home_screen.dart' as Jobseeker;
 import 'package:Gig/screens/list/list_screen.dart';
 import 'package:Gig/screens/profile/profile_screen.dart';
+import 'package:Gig/utils/dialogs.dart';
 import 'package:Gig/utils/palette.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -36,31 +37,38 @@ class _IndexState extends State<Index> {
   Widget build(BuildContext context) {
     User user = Provider.of<User>(context);
 
-    return Scaffold(
-      body: IndexedStack(
-        index: this.currentIndex,
-        children: <Widget>[
-          user.account.userType == UserType.jobseeker ? Jobseeker.HomeScreen() : Employer.HomeScreen(),
-          ListScreen(),
-          ChatScreen(),
-          ProfileScreen(),
-        ],
-      ),
-      bottomNavigationBar: RoundedNavBar(
-        items: screens.map((Screen screen) {
-          return RoundedNavBarItem(
-            currentIndex: currentIndex,
-            index: screens.indexOf(screen),
-            label: screen.label,
-            activeColor: Palette.mustard,
-            iconData: screen.icon,
-            onTap: () {
-              setState(() {
-                currentIndex = screens.indexOf(screen);
-              });
-            },
-          );
-        }).toList(),
+    Future<bool> onWillPop() {
+      return Dialogs.exitApp(context);
+    }
+
+    return WillPopScope(
+      onWillPop: onWillPop,
+      child: Scaffold(
+        body: IndexedStack(
+          index: this.currentIndex,
+          children: <Widget>[
+            user.account.userType == UserType.jobseeker ? Jobseeker.HomeScreen() : Employer.HomeScreen(),
+            ListScreen(),
+            ChatScreen(),
+            ProfileScreen(),
+          ],
+        ),
+        bottomNavigationBar: RoundedNavBar(
+          items: screens.map((Screen screen) {
+            return RoundedNavBarItem(
+              currentIndex: currentIndex,
+              index: screens.indexOf(screen),
+              label: screen.label,
+              activeColor: Palette.mustard,
+              iconData: screen.icon,
+              onTap: () {
+                setState(() {
+                  currentIndex = screens.indexOf(screen);
+                });
+              },
+            );
+          }).toList(),
+        ),
       ),
     );
   }

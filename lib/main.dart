@@ -1,4 +1,5 @@
 import 'package:Gig/models/chat_room.dart';
+import 'package:Gig/models/image_manager.dart';
 import 'package:Gig/models/job.dart';
 import 'package:Gig/models/user.dart';
 import 'package:Gig/root.dart';
@@ -9,6 +10,7 @@ import 'package:Gig/screens/home/filter_screen.dart';
 import 'package:Gig/screens/home/job_info_screen.dart';
 import 'package:Gig/screens/home/search_jobs_screen.dart';
 import 'package:Gig/screens/profile/description_screen.dart';
+import 'package:Gig/screens/profile/edit_image_screen.dart';
 import 'package:Gig/screens/verification_screen.dart';
 import 'package:Gig/utils/palette.dart';
 import 'package:flutter/material.dart';
@@ -36,6 +38,10 @@ class MyApp extends StatelessWidget {
       ChangeNotifierProxyProvider<User, ChatRoom>(
         create: (_) => ChatRoom(),
         update: (_, user, chatRoom) => chatRoom..update(user),
+      ),
+      ChangeNotifierProxyProvider<User, ImageManager>(
+        create: (_) => ImageManager(),
+        update: (_, user, imageManager) => imageManager..update(user),
       ),
     ];
 
@@ -73,6 +79,7 @@ class MyApp extends StatelessWidget {
             '/home/job/info': (context) => JobInfoScreen(),
             '/chat/room': (context) => ChatRoomScreen(),
             '/profile/description/add': (context) => DescriptionScreen(),
+            '/profile/image/edit': (context) => EditImageScreen(),
           },
         ),
       ),

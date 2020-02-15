@@ -1,6 +1,7 @@
 import 'package:Gig/utils/device.dart';
 import 'package:Gig/utils/palette.dart';
 import 'package:Gig/utils/time.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 class BigCard extends StatelessWidget {
@@ -59,9 +60,9 @@ class BigCard extends StatelessWidget {
                   topLeft: const Radius.circular(20.0),
                   topRight: const Radius.circular(20.0),
                 ),
-                child: Image.network(
-                  "https://tinyurl.com/s77cejn",
-                  fit: BoxFit.none,
+                child: Image(
+                  image: CachedNetworkImageProvider("https://tinyurl.com/s77cejn"),
+                  fit: BoxFit.cover,
                 ),
               ),
             ),
