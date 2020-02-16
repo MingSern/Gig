@@ -5,11 +5,10 @@ import 'package:Gig/models/user.dart';
 import 'package:Gig/utils/device.dart';
 import 'package:Gig/utils/dialogs.dart';
 import 'package:Gig/utils/palette.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class EditImageScreen extends StatelessWidget {
+class AdditionalInfoScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     User user = Provider.of<User>(context);
@@ -25,13 +24,19 @@ class EditImageScreen extends StatelessWidget {
 
     Future<void> uploadImage() async {
       String imageUrl = await imageManager.uploadImage();
+      user.account.setImageUrl(imageUrl);
+    }
 
-      await user.updateProfileImage(imageUrl).then((_) {
+    void verifyAccount() async {
+      if (imageManager.image != null) {
+        await uploadImage();
+      }
+
+      await user.verifyAccount(user.account).then((_) {
         if (user.containsError) {
           user.showErrorMessage(context);
         } else {
-          Navigator.pop(context);
-          imageManager.setImage(null);
+          Navigator.pushNamed(context, "/verification");
         }
       });
     }
@@ -55,17 +60,12 @@ class EditImageScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         leading: RoundButton(
+          provider: user,
           icon: Icons.arrow_back,
           onPressed: () => Device.goBack(context),
         ),
-        title: Text("Edit image"),
+        title: Text("Additional info"),
         centerTitle: true,
-        actions: <Widget>[
-          RoundButton(
-            icon: Icons.done,
-            onPressed: uploadImage,
-          ),
-        ],
       ),
       body: Center(
         child: Column(
@@ -75,33 +75,28 @@ class EditImageScreen extends StatelessWidget {
             Stack(
               alignment: AlignmentDirectional.bottomEnd,
               children: <Widget>[
-                Hero(
-                  tag: "profile",
-                  child: user.account.imageUrl == null
-                      ? CircleAvatar(
-                          radius: 70,
-                          backgroundColor: Palette.mustard,
-                          child: Text(
-                            Device.getFirstLetter(
-                              user.account.businessName.isEmpty
-                                  ? user.account.fullname
-                                  : user.account.businessName,
-                            ),
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.w500,
-                              fontSize: 24,
-                            ),
+                imageManager.image == null
+                    ? CircleAvatar(
+                        radius: 70,
+                        backgroundColor: Palette.mustard,
+                        child: Text(
+                          Device.getFirstLetter(
+                            user.account.businessName.isEmpty
+                                ? user.account.fullname
+                                : user.account.businessName,
                           ),
-                        )
-                      : CircleAvatar(
-                          radius: 70,
-                          backgroundColor: Colors.black12,
-                          backgroundImage: imageManager.image != null
-                              ? FileImage(imageManager.image)
-                              : CachedNetworkImageProvider(user.account.imageUrl),
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontWeight: FontWeight.w500,
+                            fontSize: 24,
+                          ),
                         ),
-                ),
+                      )
+                    : CircleAvatar(
+                        radius: 70,
+                        backgroundColor: Colors.black12,
+                        backgroundImage: FileImage(imageManager.image),
+                      ),
                 FloatingActionButton(
                   mini: true,
                   backgroundColor: Palette.ashGrey,
@@ -112,6 +107,10 @@ class EditImageScreen extends StatelessWidget {
                   onPressed: optionDialog,
                 ),
               ],
+            ),
+            PrimaryButton(
+              text: "Next",
+              onPressed: verifyAccount,
             ),
           ],
         ),

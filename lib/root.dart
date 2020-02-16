@@ -1,8 +1,8 @@
 import 'package:Gig/enum/enum.dart';
 import 'package:Gig/models/user.dart';
+import 'package:Gig/screens/auth/login_screen.dart';
 import 'package:Gig/screens/index.dart';
 import 'package:flutter/material.dart';
-import 'package:Gig/screens/login_screen.dart';
 import 'package:provider/provider.dart';
 
 class Root extends StatelessWidget {

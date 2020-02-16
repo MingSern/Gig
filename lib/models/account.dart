@@ -8,6 +8,7 @@ class Account {
   String businessName;
   String phoneNumber;
   String verificationId;
+  String imageUrl;
 
   Account(userType, email, password, fullname, businessName, phoneNumber) {
     this.userType = userType;
@@ -20,5 +21,9 @@ class Account {
 
   void setVerificationId(verificationId) {
     this.verificationId = verificationId;
+  }
+
+  void setImageUrl(String imageUrl) {
+    this.imageUrl = imageUrl;
   }
 }

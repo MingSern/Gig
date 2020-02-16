@@ -3,6 +3,10 @@ import 'package:Gig/models/image_manager.dart';
 import 'package:Gig/models/job.dart';
 import 'package:Gig/models/user.dart';
 import 'package:Gig/root.dart';
+import 'package:Gig/screens/auth/additional_info_screen.dart';
+import 'package:Gig/screens/auth/register_as_screen.dart';
+import 'package:Gig/screens/auth/register_screen.dart';
+import 'package:Gig/screens/auth/verification_screen.dart';
 import 'package:Gig/screens/chat/ChatRoomScreen.dart';
 import 'package:Gig/screens/home/Employer/add_job_screen.dart';
 import 'package:Gig/screens/home/Jobseeker/show_jobs_screen.dart';
@@ -11,12 +15,9 @@ import 'package:Gig/screens/home/job_info_screen.dart';
 import 'package:Gig/screens/home/search_jobs_screen.dart';
 import 'package:Gig/screens/profile/description_screen.dart';
 import 'package:Gig/screens/profile/edit_image_screen.dart';
-import 'package:Gig/screens/verification_screen.dart';
 import 'package:Gig/utils/palette.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:Gig/screens/register_as_screen.dart';
-import 'package:Gig/screens/register_screen.dart';
 import 'package:Gig/utils/device.dart';
 import 'package:provider/provider.dart';
 
@@ -71,6 +72,7 @@ class MyApp extends StatelessWidget {
             '/register_as': (context) => RegisterAsScreen(),
             '/register': (context) => RegisterScreen(),
             '/verification': (context) => VerificationScreen(),
+            '/additionalInfo': (context) => AdditionalInfoScreen(),
             '/job/info': (context) => JobInfoScreen(),
             '/home/job/show': (context) => ShowJobsScreen(),
             '/home/job/search': (context) => SearchJobsScreen(),

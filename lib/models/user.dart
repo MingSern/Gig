@@ -44,6 +44,7 @@ class User extends Base {
 
   void setAccount(Account account) {
     this.account = account;
+    notifyListeners();
   }
 
   Future<void> getAccount() async {
@@ -56,9 +57,11 @@ class User extends Base {
     String businessName = accountData["businessName"] ?? "";
     String phoneNumber = accountData["phoneNumber"];
     String password = accountData["password"] ?? "";
+    String imageUrl = accountData["imageUrl"] ?? "";
 
     Account account = new Account(userType, email, password, fullname, businessName, phoneNumber);
 
+    account.setImageUrl(imageUrl);
     this.setAccount(account);
   }
 
@@ -124,6 +127,7 @@ class User extends Base {
             "fullname": this.account.fullname,
             "email": this.account.email,
             "phoneNumber": this.account.phoneNumber,
+            "imageUrl": this.account.imageUrl,
           };
 
           if (this.account.userType == UserType.employer) {
@@ -240,6 +244,26 @@ class User extends Base {
         .catchError((onError) {
       setErrorMessage(onError.message);
     });
+
+    isLoading(false);
+  }
+
+  Future<void> updateProfileImage(String imageUrl) async {
+    isLoading(true);
+
+    var updateImageUrl = {
+      "imageUrl": imageUrl,
+    };
+
+    await firestore
+        .collection("accounts")
+        .document(this.userId)
+        .updateData(updateImageUrl)
+        .catchError((onError) {
+      setErrorMessage(onError.message);
+    });
+
+    await this.getAccount();
 
     isLoading(false);
   }

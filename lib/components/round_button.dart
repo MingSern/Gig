@@ -1,21 +1,20 @@
-import 'package:Gig/models/job.dart';
-import 'package:Gig/models/user.dart';
 import 'package:Gig/utils/device.dart';
 import 'package:Gig/utils/palette.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 class RoundButton extends StatelessWidget {
   RoundButton({
     Key key,
     @required this.icon,
     @required this.onPressed,
+    this.provider,
     this.name,
     this.margin = const EdgeInsets.all(5),
     this.fillColor = Colors.transparent,
     this.splashColor = Colors.black12,
   });
 
+  final provider;
   final IconData icon;
   final GestureTapCallback onPressed;
   final String name;
@@ -25,8 +24,21 @@ class RoundButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    User user = Provider.of<User>(context);
-    Job job = Provider.of<Job>(context);
+    Color handleColor() {
+      if (provider != null) {
+        return provider.loading ? Colors.black54 : Colors.black;
+      }
+
+      return Colors.black;
+    }
+
+    Function handleOnPressed() {
+      if (provider != null) {
+        return provider.loading ? null : this.onPressed;
+      }
+
+      return this.onPressed;
+    }
 
     return Container(
       margin: this.margin,
@@ -47,7 +59,7 @@ class RoundButton extends StatelessWidget {
             children: <Widget>[
               Icon(
                 this.icon,
-                color: user.loading || job.loading ? Colors.black54 : Colors.black,
+                color: handleColor(),
               ),
               this.name != null
                   ? CircleAvatar(
@@ -65,7 +77,7 @@ class RoundButton extends StatelessWidget {
             ],
           ),
         ),
-        onPressed: user.loading || job.loading ? null : this.onPressed,
+        onPressed: handleOnPressed(),
       ),
     );
   }

@@ -7,7 +7,6 @@ import 'package:image_picker/image_picker.dart';
 class ImageManager extends Base {
   User user;
   File image;
-  String imageUrl;
   bool loading;
 
   void update(User user) {
@@ -20,13 +19,8 @@ class ImageManager extends Base {
     notifyListeners();
   }
 
-  void setImageUrl(String imageUrl) {
-    this.imageUrl = imageUrl;
-    notifyListeners();
-  }
-
   Future<void> openGallery() async {
-    var image = await ImagePicker.pickImage(source: ImageSource.gallery, imageQuality: 30);
+    var image = await ImagePicker.pickImage(source: ImageSource.gallery, imageQuality: 20);
 
     if (image != null) {
       this.setImage(image);
@@ -34,23 +28,25 @@ class ImageManager extends Base {
   }
 
   Future<void> openCamera() async {
-    var image = await ImagePicker.pickImage(source: ImageSource.camera, imageQuality: 30);
+    var image = await ImagePicker.pickImage(source: ImageSource.camera, imageQuality: 20);
 
     if (image != null) {
       this.setImage(image);
     }
   }
 
-  Future<void> uploadImage() async {
+  Future<String> uploadImage() async {
     isLoading(true);
 
-    String filename = this.basename(this.image.path + DateTime.now().toString());
+    String filename = this.basename(this.image.path);
     StorageReference firebaseStorage = FirebaseStorage.instance.ref().child(this.user.userId).child(filename);
     StorageUploadTask uploadTask = firebaseStorage.putFile(this.image);
 
     await uploadTask.onComplete;
-    this.setImageUrl(await firebaseStorage.getDownloadURL());
+
     isLoading(false);
+
+    return await firebaseStorage.getDownloadURL();
   }
 
   String basename(String filename) {

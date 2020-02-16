@@ -64,7 +64,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           if (user.containsError) {
             user.showErrorMessage(context);
           } else {
-            Navigator.pushNamed(context, "/verification", arguments: account);
+            Navigator.pushNamed(context, "/verification");
           }
         });
       }

@@ -1,8 +1,6 @@
 import 'package:Gig/components/round_button.dart';
 import 'package:Gig/components/secondary_button.dart';
-import 'package:Gig/models/image_manager.dart';
 import 'package:Gig/models/user.dart';
-import 'package:Gig/utils/device.dart';
 import 'package:Gig/utils/dialogs.dart';
 import 'package:Gig/utils/palette.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -80,7 +78,7 @@ class ProfileScreen extends StatelessWidget {
           RoundButton(
             icon: Icons.exit_to_app,
             onPressed: logout,
-          )
+          ),
         ],
       ),
       body: SingleChildScrollView(
@@ -97,19 +95,24 @@ class ProfileScreen extends StatelessWidget {
                   padding: const EdgeInsets.all(15.0),
                   child: GestureDetector(
                     onTap: editImage,
-                    child: CircleAvatar(
-                      radius: 50,
-                      backgroundColor: Palette.mustard,
-                      backgroundImage: CachedNetworkImageProvider("https://tinyurl.com/yabcsx7v"),
-                      // child: Text(
-                      //   Device.getFirstLetter(
-                      //     user.account.businessName.isEmpty ? user.account.fullname : user.account.businessName,
-                      //   ),
-                      //   style: TextStyle(
-                      //     color: Colors.black,
-                      //     fontWeight: FontWeight.w500,
-                      //   ),
-                      // ),
+                    child: Hero(
+                      tag: "profile",
+                      child: CircleAvatar(
+                        radius: 50,
+                        backgroundColor: Palette.mustard,
+                        backgroundImage: CachedNetworkImageProvider(
+                          user.account.imageUrl ?? "https://tinyurl.com/yabcsx7v",
+                        ),
+                        // child: Text(
+                        //   Device.getFirstLetter(
+                        //     user.account.businessName.isEmpty ? user.account.fullname : user.account.businessName,
+                        //   ),
+                        //   style: TextStyle(
+                        //     color: Colors.black,
+                        //     fontWeight: FontWeight.w500,
+                        //   ),
+                        // ),
+                      ),
                     ),
                   ),
                 ),
