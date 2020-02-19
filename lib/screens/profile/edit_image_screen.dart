@@ -4,6 +4,7 @@ import 'package:Gig/models/image_manager.dart';
 import 'package:Gig/models/user.dart';
 import 'package:Gig/utils/device.dart';
 import 'package:Gig/utils/dialogs.dart';
+import 'package:Gig/utils/drawers.dart';
 import 'package:Gig/utils/palette.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -36,20 +37,22 @@ class EditImageScreen extends StatelessWidget {
       });
     }
 
-    void optionDialog() {
-      Dialogs.confirmationDialog(
+    void showBottomSheet() {
+      Drawers.bottom(
         context: context,
-        title: "Select image",
-        content: "Select your image from",
-        onCancel: "gallery",
-        onConfirm: "camera",
-      ).then((onSelect) {
-        if (onSelect == true) {
-          openCamera();
-        } else if (onSelect == false) {
-          openGallery();
-        }
-      });
+        children: <Widget>[
+          ListTile(
+            leading: Icon(Icons.camera_alt),
+            title: Text("Camera"),
+            onTap: openCamera,
+          ),
+          ListTile(
+            leading: Icon(Icons.camera),
+            title: Text("Gallery"),
+            onTap: openGallery,
+          ),
+        ],
+      );
     }
 
     return Scaffold(
@@ -109,7 +112,7 @@ class EditImageScreen extends StatelessWidget {
                     Icons.add,
                     color: Colors.white,
                   ),
-                  onPressed: optionDialog,
+                  onPressed: showBottomSheet,
                 ),
               ],
             ),
