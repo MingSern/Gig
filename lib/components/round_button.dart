@@ -12,6 +12,7 @@ class RoundButton extends StatelessWidget {
     this.margin = const EdgeInsets.all(5),
     this.fillColor = Colors.transparent,
     this.splashColor = Colors.black12,
+    this.inverted = false,
   });
 
   final provider;
@@ -21,20 +22,25 @@ class RoundButton extends StatelessWidget {
   final EdgeInsets margin;
   final Color fillColor;
   final Color splashColor;
+  final bool inverted;
 
   @override
   Widget build(BuildContext context) {
     Color handleColor() {
-      if (provider != null) {
-        return provider.loading ? Colors.black54 : Colors.black;
+      if (this.provider != null) {
+        return this.provider.loading ? Colors.black54 : Colors.black;
+      }
+
+      if (this.inverted) {
+        return Colors.white;
       }
 
       return Colors.black;
     }
 
     Function handleOnPressed() {
-      if (provider != null) {
-        return provider.loading ? null : this.onPressed;
+      if (this.provider != null) {
+        return this.provider.loading ? null : this.onPressed;
       }
 
       return this.onPressed;
