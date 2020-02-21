@@ -1,7 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:async';
 
+import 'package:firebase_messaging/firebase_messaging.dart';
+
 final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
+final FirebaseMessaging firebaseMessaging = FirebaseMessaging();
 
 class Firebase {
   static Future<String> signIn(String email, String password) async {
@@ -42,5 +45,19 @@ class Firebase {
 
   static Future<AuthResult> signInWithPhoneNumber(var credential) {
     return firebaseAuth.signInWithCredential(credential);
+  }
+
+  static void notificationSetup() {
+    firebaseMessaging.configure(
+      onMessage: (Map<String, dynamic> message) async {
+        print("onMessage: $message");
+      },
+      onLaunch: (Map<String, dynamic> message) async {
+        print("onLaunch: $message");
+      },
+      onResume: (Map<String, dynamic> message) async {
+        print("onResume: $message");
+      },
+    );
   }
 }

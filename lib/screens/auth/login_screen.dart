@@ -88,6 +88,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: PrimaryButton(
                       text: "Login",
                       onPressed: loginAccount,
+                      loading: user.loading,
                     ),
                   ),
                   FlatButton(

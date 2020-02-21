@@ -7,6 +7,7 @@ import 'package:Gig/screens/home/Employer/home_screen.dart' as Employer;
 import 'package:Gig/screens/home/Jobseeker/home_screen.dart' as Jobseeker;
 import 'package:Gig/screens/list/list_screen.dart';
 import 'package:Gig/screens/profile/profile_screen.dart';
+import 'package:Gig/services/firebase.dart';
 import 'package:Gig/utils/dialogs.dart';
 import 'package:Gig/utils/palette.dart';
 import 'package:flutter/material.dart';
@@ -32,6 +33,13 @@ class Index extends StatefulWidget {
 
 class _IndexState extends State<Index> {
   var currentIndex = 0;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    Firebase.notificationSetup();
+  }
 
   @override
   Widget build(BuildContext context) {

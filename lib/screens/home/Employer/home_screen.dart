@@ -52,6 +52,7 @@ class HomeScreen extends StatelessWidget {
           }
 
           return ListView(
+            physics: const BouncingScrollPhysics(),
             children: snapshot.data.documents.map((document) {
               return SmallCard(
                 workPosition: document["workPosition"],

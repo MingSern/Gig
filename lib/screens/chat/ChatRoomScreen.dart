@@ -49,7 +49,6 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
           ],
         ),
         centerTitle: true,
-        elevation: 0,
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -98,17 +97,17 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
               },
             ),
           ),
-          _Keyboard(controller: textController),
+          Keyboard(controller: textController),
         ],
       ),
     );
   }
 }
 
-class _Keyboard extends StatelessWidget {
+class Keyboard extends StatelessWidget {
   final TextEditingController controller;
 
-  _Keyboard({
+  Keyboard({
     @required this.controller,
   });
 

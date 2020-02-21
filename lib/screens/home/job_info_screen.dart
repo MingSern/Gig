@@ -88,12 +88,20 @@ class JobInfoScreen extends StatelessWidget {
     Widget buildApplyButton() {
       if (user.userId != job.job["uid"]) {
         return SecondaryButton(
+          smaller: true,
           text: checkJobApplied() ? "Applied" : "Apply Job",
           onPressed: checkJobApplied() ? null : applyJob,
         );
       }
 
       return Container();
+    }
+
+    void viewProfile(String uid) {
+      user.viewOtherUserProfile(uid);
+      Navigator.pushNamed(context, "/profile/view");
+
+      // print(user.otherUser["account"]);
     }
 
     return Scaffold(
@@ -114,7 +122,7 @@ class JobInfoScreen extends StatelessWidget {
             ProfileCard(
               fullname: job.job["businessName"],
               workPosition: job.job["workPosition"],
-              onPressed: () {},
+              onPressed: () => viewProfile(job.job["uid"]),
             ),
             Row(
               mainAxisSize: MainAxisSize.max,
@@ -182,6 +190,7 @@ class ProfileCard extends StatelessWidget {
       child: RawMaterialButton(
         onPressed: this.onPressed,
         splashColor: Colors.grey[200],
+        highlightColor: Colors.transparent,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
         ),

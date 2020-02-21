@@ -27,6 +27,7 @@ class HomeScreen extends StatelessWidget {
         ],
       ),
       body: ListView(
+        physics: const BouncingScrollPhysics(),
         children: <Widget>[
           BuildCarousell(
             title: "Recommended for you",

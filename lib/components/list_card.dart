@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 class ListCard extends StatelessWidget {
   final String fullname;
   final String workPosition;
-  final GestureTapCallback onTap;
+  final GestureTapCallback onPressed;
   final bool declined;
   final GestureTapCallback onAccept;
   final GestureTapCallback onReject;
@@ -13,7 +13,7 @@ class ListCard extends StatelessWidget {
   ListCard({
     @required this.fullname,
     @required this.workPosition,
-    @required this.onTap,
+    @required this.onPressed,
     this.declined = false,
     this.onAccept,
     this.onReject,
@@ -21,113 +21,74 @@ class ListCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: this.onTap,
-      child: Container(
-        padding: const EdgeInsets.all(10),
-        margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey[300],
-              blurRadius: 15.0,
-              offset: Offset(0.0, 4.0),
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      decoration: BoxDecoration(
+        color: this.declined ? Colors.grey[100] : Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: this.declined ? Colors.transparent : Colors.grey[300],
+            blurRadius: 15.0,
+            offset: Offset(0.0, 4.0),
+          ),
+        ],
+        borderRadius: BorderRadius.circular(20.0),
+      ),
+      child: Stack(
+        alignment: AlignmentDirectional.bottomCenter,
+        children: <Widget>[
+          RawMaterialButton(
+            highlightColor: Colors.transparent,
+            onPressed: this.declined ? null : this.onPressed,
+            splashColor: Colors.grey[200],
+            padding: const EdgeInsets.all(10),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
             ),
-          ],
-          borderRadius: BorderRadius.circular(20.0),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: <Widget>[
-            BuildUser(
-              fullname: this.fullname,
-            ),
-            Container(
-              child: Text(
-                this.workPosition,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontWeight: FontWeight.w500,
-                  fontSize: 19,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                BuildUser(
+                  fullname: this.fullname,
                 ),
-              ),
+                Container(
+                  child: Text(
+                    this.workPosition,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontWeight: FontWeight.w500,
+                      fontSize: 19,
+                    ),
+                  ),
+                ),
+                SizedBox(height: 5),
+                this.onAccept == null && this.onReject == null
+                    ? Container()
+                    : this.declined
+                        ? Text(
+                            "Declined",
+                            style: TextStyle(
+                              color: Colors.red,
+                              fontSize: 26,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          )
+                        : Container(height: 40),
+              ],
             ),
-            SizedBox(height: 5),
-            this.onAccept == null && this.onReject == null
-                ? Container()
-                : this.declined
-                    ? Text(
-                        "Declined",
-                        style: TextStyle(
-                          color: Colors.red,
-                          fontSize: 26,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      )
-                    : BuildButtons(
+          ),
+          this.onAccept == null && this.onReject == null
+              ? Container()
+              : this.declined
+                  ? Container()
+                  : Container(
+                      margin: const EdgeInsets.symmetric(vertical: 5),
+                      child: BuildButtons(
                         onAccept: this.onAccept,
                         onReject: this.onReject,
                       ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class Button extends StatelessWidget {
-  final text;
-  final onPressed;
-  final color;
-  final iconData;
-
-  Button({
-    @required this.text,
-    @required this.color,
-    @required this.iconData,
-    @required this.onPressed,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: Container(
-        constraints: const BoxConstraints.expand(height: 40),
-        child: OutlineButton(
-          highlightElevation: 15,
-          borderSide: BorderSide(
-            color: this.color,
-            style: BorderStyle.solid,
-            width: 1.5,
-          ),
-          highlightedBorderColor: this.color,
-          splashColor: Colors.black12,
-          highlightColor: Colors.transparent,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(100),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.max,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Icon(
-                this.iconData,
-                color: this.color,
-              ),
-              SizedBox(width: 5),
-              Text(
-                this.text,
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: this.color,
-                  fontSize: 15,
-                ),
-              ),
-            ],
-          ),
-          onPressed: this.onPressed,
-        ),
+                    ),
+        ],
       ),
     );
   }
@@ -192,31 +153,51 @@ class BuildButtons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return Row(
+      mainAxisSize: MainAxisSize.max,
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: <Widget>[
-        SizedBox(
-          height: 10,
+        FlatButton(
+          padding: const EdgeInsets.symmetric(horizontal: 25),
+          onPressed: this.onReject,
+          child: Row(
+            mainAxisSize: MainAxisSize.max,
+            children: <Widget>[
+              Icon(
+                Icons.clear,
+                color: Colors.red,
+              ),
+              SizedBox(width: 10),
+              Text(
+                "Reject",
+                style: TextStyle(
+                  color: Colors.red,
+                  fontSize: 16,
+                ),
+              ),
+            ],
+          ),
         ),
-        Row(
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: <Widget>[
-            Button(
-              text: "Decline",
-              color: Colors.red,
-              iconData: Icons.clear,
-              onPressed: this.onReject,
-            ),
-            SizedBox(
-              width: 10,
-            ),
-            Button(
-              text: "Accept",
-              color: Colors.green,
-              iconData: Icons.check,
-              onPressed: this.onAccept,
-            ),
-          ],
+        FlatButton(
+          padding: const EdgeInsets.symmetric(horizontal: 25),
+          onPressed: this.onAccept,
+          child: Row(
+            mainAxisSize: MainAxisSize.max,
+            children: <Widget>[
+              Icon(
+                Icons.done,
+                color: Colors.green,
+              ),
+              SizedBox(width: 10),
+              Text(
+                "Accept",
+                style: TextStyle(
+                  color: Colors.green,
+                  fontSize: 16,
+                ),
+              ),
+            ],
+          ),
         ),
       ],
     );

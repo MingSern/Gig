@@ -97,8 +97,9 @@ class BuildLists extends StatelessWidget {
       Navigator.pushNamed(context, "/home/job/info");
     }
 
-    void viewProfile() {
-      /// TODO: go to profile screen for [employer] or [jobseeker]
+    void viewProfile(String uid) {
+      user.viewOtherUserProfile(uid);
+      Navigator.pushNamed(context, "/profile/view");
     }
 
     void acceptPending(document) {
@@ -168,7 +169,7 @@ class BuildLists extends StatelessWidget {
                         ? ListCard(
                             fullname: document["name"],
                             workPosition: document["workPosition"],
-                            onTap: viewProfile,
+                            onPressed: () => viewProfile(document["uid"]),
                             declined: checkJobStatus(document["status"]),
                             onAccept: () => acceptPending(document),
                             onReject: () => declinePending(document),
@@ -176,7 +177,7 @@ class BuildLists extends StatelessWidget {
                         : ListCard(
                             fullname: document["name"],
                             workPosition: document["workPosition"],
-                            onTap: viewProfile,
+                            onPressed: () => viewProfile(document["uid"]),
                           )
                     : SmallCard(
                         workPosition: document["workPosition"],

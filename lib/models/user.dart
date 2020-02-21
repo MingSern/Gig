@@ -2,6 +2,7 @@ import 'package:Gig/enum/enum.dart';
 import 'package:Gig/models/account.dart';
 import 'package:Gig/models/base.dart';
 import 'package:Gig/services/firebase.dart';
+import 'package:Gig/utils/checker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -14,6 +15,7 @@ class User extends Base {
   Account account;
   String shortlisted = "0";
   String applied = "0";
+  dynamic otherUser;
 
   User() {
     this.authenticate();
@@ -266,5 +268,87 @@ class User extends Base {
     await this.getAccount();
 
     isLoading(false);
+  }
+
+  Future<void> viewOtherUserProfile(String uid) async {
+    isLoading(true);
+
+    var account = await firestore.collection("accounts").document(uid).get().catchError((onError) {
+      setErrorMessage(onError.message);
+    });
+
+    UserType userType = Checker.getUserType(account["userType"]);
+    var length = 0;
+
+    if (userType == UserType.jobseeker) {
+      var shortlists = await firestore
+          .collection("accounts")
+          .document(uid)
+          .collection("shortlists")
+          .getDocuments()
+          .catchError((onError) {
+        setErrorMessage(onError.message);
+      });
+      length = shortlists.documents.length;
+    } else {
+      var posts = await firestore
+          .collection("accounts")
+          .document(uid)
+          .collection("posts")
+          .getDocuments()
+          .catchError((onError) {
+        setErrorMessage(onError.message);
+      });
+      length = posts.documents.length;
+    }
+
+    var descriptions = await firestore
+        .collection("accounts")
+        .document(uid)
+        .collection("descriptions")
+        .getDocuments()
+        .catchError((onError) {
+      setErrorMessage(onError.message);
+    });
+
+    var key = "";
+    bool exist = false;
+
+    if (this.userId.compareTo(uid) > -1) {
+      key = this.userId + "_" + uid;
+    } else {
+      key = uid + "_" + this.userId;
+    }
+
+    var chatRoom = await firestore
+        .collection("chatRooms")
+        .document(key)
+        .collection("messages")
+        .getDocuments()
+        .catchError((onError) {
+      setErrorMessage(onError.message);
+    });
+
+    if (chatRoom.documents.length > 0) {
+      exist = true;
+    } else {
+      exist = false;
+    }
+
+    var otherUser = {
+      "account": account,
+      "length": length.toString(),
+      "descriptions": descriptions.documents,
+      "chatRoom": exist,
+    };
+
+    this.setOtherUser(otherUser);
+
+    isLoading(false);
+  }
+
+  void setOtherUser(dynamic otherUser) {
+    this.otherUser = otherUser;
+    notifyListeners();
   }
 }

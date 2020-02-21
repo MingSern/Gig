@@ -7,7 +7,6 @@ import 'package:image_picker/image_picker.dart';
 class ImageManager extends Base {
   User user;
   File image;
-  bool loading;
 
   void update(User user) {
     this.user = user;

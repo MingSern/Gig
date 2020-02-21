@@ -60,7 +60,7 @@ class AdditionalInfoScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         leading: RoundButton(
-          provider: user,
+          loading: user.loading,
           icon: Icons.arrow_back,
           onPressed: () => Device.goBack(context),
         ),

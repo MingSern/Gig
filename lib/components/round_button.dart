@@ -7,7 +7,7 @@ class RoundButton extends StatelessWidget {
     Key key,
     @required this.icon,
     @required this.onPressed,
-    this.provider,
+    this.loading = false,
     this.name,
     this.margin = const EdgeInsets.all(5),
     this.fillColor = Colors.transparent,
@@ -15,7 +15,7 @@ class RoundButton extends StatelessWidget {
     this.inverted = false,
   });
 
-  final provider;
+  final bool loading;
   final IconData icon;
   final GestureTapCallback onPressed;
   final String name;
@@ -27,8 +27,8 @@ class RoundButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Color handleColor() {
-      if (this.provider != null) {
-        return this.provider.loading ? Colors.black54 : Colors.black;
+      if (this.loading) {
+        return this.loading ? Colors.black54 : Colors.black;
       }
 
       if (this.inverted) {
@@ -39,8 +39,8 @@ class RoundButton extends StatelessWidget {
     }
 
     Function handleOnPressed() {
-      if (this.provider != null) {
-        return this.provider.loading ? null : this.onPressed;
+      if (this.loading) {
+        return this.loading ? null : this.onPressed;
       }
 
       return this.onPressed;

@@ -32,7 +32,7 @@ class DescriptionCard extends StatelessWidget {
         onPressed: this.onEdit,
         onLongPress: this.onDelete,
         splashColor: Colors.grey[200],
-        padding: const EdgeInsets.all(10),
+        padding: const EdgeInsets.all(15),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
         ),

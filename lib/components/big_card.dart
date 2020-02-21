@@ -40,6 +40,7 @@ class BigCard extends StatelessWidget {
       child: RawMaterialButton(
         onPressed: this.onPressed,
         splashColor: Colors.grey[200],
+        highlightColor: Colors.transparent,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
         ),
@@ -48,13 +49,6 @@ class BigCard extends StatelessWidget {
             Container(
               height: 100,
               width: double.infinity,
-              // decoration: BoxDecoration(
-              //   color: Colors.grey[200],
-              //   borderRadius: BorderRadius.only(
-              //     topLeft: const Radius.circular(20.0),
-              //     topRight: const Radius.circular(20.0),
-              //   ),
-              // ),
               child: ClipRRect(
                 borderRadius: BorderRadius.only(
                   topLeft: const Radius.circular(20.0),
