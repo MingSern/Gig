@@ -36,9 +36,8 @@ class _IndexState extends State<Index> {
 
   @override
   void initState() {
-    // TODO: implement initState
-    super.initState();
     Firebase.notificationSetup();
+    super.initState();
   }
 
   @override

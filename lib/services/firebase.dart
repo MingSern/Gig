@@ -60,4 +60,8 @@ class Firebase {
       },
     );
   }
+
+  static Future<String> getFCMToken() async {
+    return await firebaseMessaging.getToken();
+  }
 }

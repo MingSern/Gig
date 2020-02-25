@@ -115,8 +115,10 @@ class User extends Base {
   Future<void> verifyAndRegisterAccount(String smsCode) async {
     isLoading(true);
 
-    var credential =
-        PhoneAuthProvider.getCredential(verificationId: this.account.verificationId, smsCode: smsCode);
+    var credential = PhoneAuthProvider.getCredential(
+      verificationId: this.account.verificationId,
+      smsCode: smsCode,
+    );
 
     await Firebase.signInWithPhoneNumber(credential).then((AuthResult result) async {
       if (result.user != null) {
@@ -136,8 +138,16 @@ class User extends Base {
             data["businessName"] = this.account.businessName;
           }
 
-          await firestore.collection("accounts").document(this.userId).setData(data).then((_) async {
+          var userRef = firestore.collection("accounts").document(this.userId);
+
+          await userRef.setData(data).then((_) async {
             await this.authenticate();
+          });
+
+          String fcmToken = await Firebase.getFCMToken();
+
+          userRef.collection("token").document(fcmToken).setData({
+            "fcmToken": fcmToken,
           });
         }).catchError((onError) {
           setErrorMessage(onError.message);
