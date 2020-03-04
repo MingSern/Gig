@@ -22,6 +22,7 @@ class JobInfoScreen extends StatelessWidget {
 
     void viewChatRoom() {
       var listener = {
+        "imageUrl": job.job["imageUrl"],
         "name": job.job["businessName"],
         "uid": job.job["uid"],
       };

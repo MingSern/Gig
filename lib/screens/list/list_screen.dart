@@ -167,6 +167,7 @@ class BuildLists extends StatelessWidget {
                     ? this.type == JobStatus.pending
                         ? ListCard(
                             fullname: document["name"],
+                            imageUrl: document["imageUrl"],
                             workPosition: document["workPosition"],
                             onPressed: () => viewProfile(document["uid"]),
                             declined: checkJobStatus(document["status"]),
@@ -175,6 +176,7 @@ class BuildLists extends StatelessWidget {
                           )
                         : ListCard(
                             fullname: document["name"],
+                            imageUrl: document["imageUrl"],
                             workPosition: document["workPosition"],
                             onPressed: () => viewProfile(document["uid"]),
                           )

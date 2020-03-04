@@ -26,7 +26,7 @@ class SmallCard extends StatelessWidget {
   });
 
   Widget handleAvatar() {
-    if (this.imageUrl != null) {
+    if (this.imageUrl?.isNotEmpty ?? false) {
       return CircleAvatar(
         radius: 35,
         backgroundColor: Palette.mustard,

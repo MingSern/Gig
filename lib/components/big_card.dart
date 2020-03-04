@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 class BigCard extends StatelessWidget {
   final String workPosition;
   final String businessName;
+  final String imageUrl;
   final String wages;
   final String location;
   final num createdAt;
@@ -15,6 +16,7 @@ class BigCard extends StatelessWidget {
   BigCard({
     @required this.workPosition,
     @required this.businessName,
+    @required this.imageUrl,
     @required this.wages,
     @required this.location,
     @required this.createdAt,
@@ -55,7 +57,9 @@ class BigCard extends StatelessWidget {
                   topRight: const Radius.circular(20.0),
                 ),
                 child: Image(
-                  image: CachedNetworkImageProvider("https://tinyurl.com/s77cejn"),
+                  image: CachedNetworkImageProvider(
+                    this.imageUrl,
+                  ),
                   fit: BoxFit.cover,
                 ),
               ),

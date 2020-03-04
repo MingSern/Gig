@@ -1,6 +1,8 @@
 import 'dart:math';
 
 class Generator {
+  static final random = new Random();
+
   static Map generateAccountData() {
     var emails = [
       "sv883",
@@ -105,7 +107,6 @@ class Generator {
       "zis0b",
     ];
 
-    var random = new Random();
     var name = emails[random.nextInt(emails.length)];
     var num = random.nextInt(100);
 
@@ -195,8 +196,6 @@ class Generator {
       "Kampung Rid",
     ];
 
-    var random = new Random();
-
     var data = {
       "workPosition": jobs[random.nextInt(jobs.length)],
       "wages": random.nextInt(100).toString(),
@@ -205,5 +204,24 @@ class Generator {
     };
 
     return data;
+  }
+
+  static String getImageUrl() {
+    List<String> imageUrls = [
+      "https://tinyurl.com/vhafedq",
+      "https://tinyurl.com/wby7c6p",
+      "https://tinyurl.com/sgkkooq",
+      "https://tinyurl.com/scdhlob",
+      "https://tinyurl.com/vtoae8a",
+      "https://tinyurl.com/ueuycw7",
+      "https://tinyurl.com/wer4nyp",
+      "https://tinyurl.com/to6adnl",
+      "https://tinyurl.com/tzwpsyp",
+      "https://tinyurl.com/tgzxkxb",
+      "https://tinyurl.com/utt78f8",
+      "https://tinyurl.com/qmxp6d2",
+    ];
+
+    return imageUrls[random.nextInt(imageUrls.length)];
   }
 }

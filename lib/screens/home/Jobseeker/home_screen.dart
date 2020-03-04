@@ -131,6 +131,7 @@ class BuildCarousell extends StatelessWidget {
                   return BigCard(
                     workPosition: document["workPosition"],
                     businessName: document["businessName"],
+                    imageUrl: document["imageUrls"]?.first ?? "https://tinyurl.com/wby7c6p",
                     wages: document["wages"],
                     location: document["location"],
                     createdAt: document["createdAt"],

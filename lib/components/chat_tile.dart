@@ -1,16 +1,19 @@
 import 'package:Gig/utils/device.dart';
 import 'package:Gig/utils/palette.dart';
 import 'package:Gig/utils/time.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 class ChatTile extends StatelessWidget {
-  final name;
-  final lastMessage;
-  final createdAt;
-  final onTap;
+  final String name;
+  final String imageUrl;
+  final String lastMessage;
+  final int createdAt;
+  final VoidCallback onTap;
 
   ChatTile({
     @required this.name,
+    @required this.imageUrl,
     @required this.lastMessage,
     @required this.createdAt,
     @required this.onTap,
@@ -18,6 +21,29 @@ class ChatTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Widget handleAvatar() {
+      if (this.imageUrl?.isNotEmpty ?? false) {
+        return CircleAvatar(
+          radius: 28,
+          backgroundColor: Palette.mustard,
+          backgroundImage: CachedNetworkImageProvider(this.imageUrl),
+        );
+      }
+
+      return CircleAvatar(
+        radius: 28,
+        backgroundColor: Palette.mustard,
+        child: Text(
+          Device.getFirstLetter(this.name),
+          style: TextStyle(
+            fontSize: 17,
+            color: Colors.black,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      );
+    }
+
     return Column(
       children: <Widget>[
         InkWell(
@@ -28,18 +54,7 @@ class ChatTile extends StatelessWidget {
               children: <Widget>[
                 Container(
                   margin: const EdgeInsets.only(right: 15),
-                  child: CircleAvatar(
-                    radius: 28,
-                    backgroundColor: Palette.mustard,
-                    child: Text(
-                      Device.getFirstLetter(this.name),
-                      style: TextStyle(
-                        fontSize: 17,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.black,
-                      ),
-                    ),
-                  ),
+                  child: handleAvatar(),
                 ),
                 Expanded(
                   child: Column(

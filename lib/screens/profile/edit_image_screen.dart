@@ -66,6 +66,43 @@ class EditImageScreen extends StatelessWidget {
       return Future.value(false);
     }
 
+    Widget handleAvatar() {
+      if (imageManager.image != null) {
+        return Hero(
+          tag: "profile",
+          child: Image.file(
+            imageManager.image,
+            fit: BoxFit.cover,
+          ),
+        );
+      }
+
+      if (user.account.imageUrl?.isNotEmpty ?? false) {
+        return Hero(
+          tag: "profile",
+          child: Image(
+            fit: BoxFit.cover,
+            image: CachedNetworkImageProvider(user.account.imageUrl),
+          ),
+        );
+      }
+
+      return Container(
+        color: Palette.mustard,
+        child: Center(
+          child: Text(
+            Device.getFirstLetter(
+              user.account.businessName.isEmpty ? user.account.fullname : user.account.businessName,
+            ),
+            style: TextStyle(
+              fontWeight: FontWeight.w500,
+              fontSize: 24,
+            ),
+          ),
+        ),
+      );
+    }
+
     return WillPopScope(
       onWillPop: onWillPop,
       child: Scaffold(
@@ -109,35 +146,7 @@ class EditImageScreen extends StatelessWidget {
           child: Container(
             width: Device.getMaxWidth(context),
             height: Device.getMaxWidth(context),
-            child: Hero(
-              tag: "profile",
-              child: user.account.imageUrl != null
-                  ? imageManager.image != null
-                      ? Image.file(
-                          imageManager.image,
-                          fit: BoxFit.cover,
-                        )
-                      : Image(
-                          fit: BoxFit.cover,
-                          image: CachedNetworkImageProvider(user.account.imageUrl),
-                        )
-                  : Container(
-                      color: Palette.mustard,
-                      child: Center(
-                        child: Text(
-                          Device.getFirstLetter(
-                            user.account.businessName.isEmpty
-                                ? user.account.fullname
-                                : user.account.businessName,
-                          ),
-                          style: TextStyle(
-                            fontWeight: FontWeight.w500,
-                            fontSize: 24,
-                          ),
-                        ),
-                      ),
-                    ),
-            ),
+            child: handleAvatar(),
           ),
         ),
       ),

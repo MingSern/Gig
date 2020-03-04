@@ -1,6 +1,7 @@
 import 'package:Gig/enum/enum.dart';
 import 'package:Gig/models/base.dart';
 import 'package:Gig/models/user.dart';
+import 'package:Gig/utils/generator.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 final firestore = Firestore.instance;
@@ -12,16 +13,18 @@ final shortlists = "shortlists";
 final jobs = "jobs";
 
 class Job extends Base {
-  String userId;
-  String fullname;
-  String businessName;
+  // String userId;
+  // String fullname;
+  // String businessName;
+  User user;
   dynamic job;
   QuerySnapshot availableJobs;
 
   void update(User user) {
-    this.userId = user.userId;
-    this.businessName = user.account.businessName;
-    this.fullname = user.account.fullname;
+    this.user = user;
+    // this.userId = user.userId;
+    // this.businessName = user.account.businessName;
+    // this.fullname = user.account.fullname;
     notifyListeners();
   }
 
@@ -40,15 +43,18 @@ class Job extends Base {
     isLoading(true);
 
     var key = this.createKey();
+    var imageUrl = Generator.getImageUrl();
 
     var data = {
       "key": key,
-      "uid": this.userId,
+      "uid": this.user.userId,
       "workPosition": workPosition,
+      "imageUrls": [imageUrl],
       "wages": wages,
       "location": location,
       "description": description,
-      "businessName": this.businessName,
+      "businessName": this.user.account.businessName,
+      "imageUrl": this.user.account.imageUrl,
       "createdAt": this.getCurrentTime(),
       "pendings": [],
       "shortlists": [],
@@ -61,7 +67,7 @@ class Job extends Base {
 
     await firestore
         .collection(accounts)
-        .document(this.userId)
+        .document(this.user.userId)
         .collection(posts)
         .add(data)
         .catchError((error) {
@@ -74,7 +80,7 @@ class Job extends Base {
   Stream<QuerySnapshot> getJobs() {
     return firestore
         .collection(accounts)
-        .document(this.userId)
+        .document(this.user.userId)
         .collection(posts)
         .orderBy("createdAt", descending: true)
         .snapshots();
@@ -92,7 +98,7 @@ class Job extends Base {
     isLoading(true);
 
     await Future.wait([
-      this.movePendingToShortlist(this.userId, key), // update pending to shortlist for [employer]
+      this.movePendingToShortlist(this.user.userId, key), // update pending to shortlist for [employer]
       this.movePendingToShortlist(jobseekerId, key), // update pending to shortlist for [jobseeker]
     ]);
 
@@ -145,7 +151,7 @@ class Job extends Base {
     /// update pending for [employer] and [jobseeker]
     await firestore
         .collection(accounts)
-        .document(this.userId)
+        .document(this.user.userId)
         .collection(pendings)
         .document(key)
         .updateData(status)
@@ -189,7 +195,7 @@ class Job extends Base {
 
     /// update data to [jobs]
     var pendingsList = {
-      "pendings": FieldValue.arrayUnion([this.userId]),
+      "pendings": FieldValue.arrayUnion([this.user.userId]),
     };
 
     var theJob = firestore.collection(jobs).document(this.job["key"]);
@@ -203,9 +209,10 @@ class Job extends Base {
     /// set data to [employer]
     var data = {
       "key": this.job["key"],
-      "uid": this.userId,
+      "uid": this.user.userId,
       "workPosition": this.job["workPosition"],
-      "name": this.fullname,
+      "name": this.user.account.fullname,
+      "imageUrl": this.user.account.imageUrl,
       "updatedAt": currentTime,
       "status": JobStatus.pending.toString(),
     };
@@ -229,6 +236,7 @@ class Job extends Base {
       "location": this.job["location"],
       "description": this.job["description"],
       "businessName": this.job["businessName"],
+      "imageUrl": this.job["imageUrl"],
       "createdAt": this.job["createdAt"],
       "updatedAt": currentTime,
       "status": JobStatus.pending.toString(),
@@ -236,7 +244,7 @@ class Job extends Base {
 
     await firestore
         .collection(accounts)
-        .document(this.userId)
+        .document(this.user.userId)
         .collection(pendings)
         .document(this.job["key"])
         .setData(employerData)
@@ -250,7 +258,7 @@ class Job extends Base {
   Stream<QuerySnapshot> getPendings() {
     return firestore
         .collection(accounts)
-        .document(this.userId)
+        .document(this.user.userId)
         .collection(pendings)
         .orderBy("updatedAt", descending: true)
         .snapshots();
@@ -259,7 +267,7 @@ class Job extends Base {
   Stream<QuerySnapshot> getShortlists() {
     return firestore
         .collection(accounts)
-        .document(this.userId)
+        .document(this.user.userId)
         .collection("shortlists")
         .orderBy("updatedAt", descending: true)
         .snapshots();

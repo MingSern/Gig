@@ -31,6 +31,7 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
             RoundButton(
               icon: Icons.arrow_back,
               name: chatRoom.listener["name"],
+              imageUrl: chatRoom.listener["imageUrl"],
               onPressed: () => Device.goBack(context),
             ),
             Expanded(

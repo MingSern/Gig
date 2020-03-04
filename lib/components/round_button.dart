@@ -1,5 +1,6 @@
 import 'package:Gig/utils/device.dart';
 import 'package:Gig/utils/palette.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 class RoundButton extends StatelessWidget {
@@ -9,6 +10,7 @@ class RoundButton extends StatelessWidget {
     @required this.onPressed,
     this.loading = false,
     this.name,
+    this.imageUrl,
     this.margin = const EdgeInsets.all(5),
     this.fillColor = Colors.transparent,
     this.splashColor = Colors.black12,
@@ -19,6 +21,7 @@ class RoundButton extends StatelessWidget {
   final IconData icon;
   final GestureTapCallback onPressed;
   final String name;
+  final String imageUrl;
   final EdgeInsets margin;
   final Color fillColor;
   final Color splashColor;
@@ -46,6 +49,32 @@ class RoundButton extends StatelessWidget {
       return this.onPressed;
     }
 
+    Widget handleAvatar() {
+      if (this.imageUrl?.isNotEmpty ?? false) {
+        return CircleAvatar(
+          radius: 18,
+          backgroundColor: Palette.mustard,
+          backgroundImage: CachedNetworkImageProvider(this.imageUrl),
+        );
+      }
+
+      if (this.name != null) {
+        return CircleAvatar(
+          radius: 18,
+          backgroundColor: Palette.mustard,
+          child: Text(
+            Device.getFirstLetter(this.name),
+            style: TextStyle(
+              color: Colors.black,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        );
+      }
+
+      return Container();
+    }
+
     return Container(
       margin: this.margin,
       child: RawMaterialButton(
@@ -67,19 +96,7 @@ class RoundButton extends StatelessWidget {
                 this.icon,
                 color: handleColor(),
               ),
-              this.name != null
-                  ? CircleAvatar(
-                      radius: 18,
-                      backgroundColor: Palette.mustard,
-                      child: Text(
-                        Device.getFirstLetter(this.name),
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    )
-                  : Container(),
+              handleAvatar(),
             ],
           ),
         ),

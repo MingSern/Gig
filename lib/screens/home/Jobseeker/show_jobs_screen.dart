@@ -11,6 +11,11 @@ class ShowJobsScreen extends StatelessWidget {
     Job job = Provider.of<Job>(context);
     final String title = ModalRoute.of(context).settings.arguments;
 
+    void viewJobInfo(document) {
+      job.setJob(document);
+      Navigator.pushNamed(context, "/home/job/info");
+    }
+
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -29,7 +34,7 @@ class ShowJobsScreen extends StatelessWidget {
             wages: document["wages"],
             createdAt: document["createdAt"],
             location: document["location"],
-            onPressed: () => Navigator.pushNamed(context, "/job/info"),
+            onPressed: () => viewJobInfo(document),
           );
         }).toList(),
       ),

@@ -1,10 +1,12 @@
 import 'package:Gig/utils/device.dart';
 import 'package:Gig/utils/palette.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 class ListCard extends StatelessWidget {
   final String fullname;
   final String workPosition;
+  final String imageUrl;
   final GestureTapCallback onPressed;
   final bool declined;
   final GestureTapCallback onAccept;
@@ -13,6 +15,7 @@ class ListCard extends StatelessWidget {
   ListCard({
     @required this.fullname,
     @required this.workPosition,
+    @required this.imageUrl,
     @required this.onPressed,
     this.declined = false,
     this.onAccept,
@@ -49,6 +52,7 @@ class ListCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
                 BuildUser(
+                  imageUrl: this.imageUrl,
                   fullname: this.fullname,
                 ),
                 Container(
@@ -96,26 +100,40 @@ class ListCard extends StatelessWidget {
 
 class BuildUser extends StatelessWidget {
   final String fullname;
+  final String imageUrl;
 
   BuildUser({
     @required this.fullname,
+    @required this.imageUrl,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: <Widget>[
-        CircleAvatar(
+    Widget handleAvatar() {
+      if (this.imageUrl?.isNotEmpty ?? false) {
+        return CircleAvatar(
           radius: 35,
           backgroundColor: Palette.mustard,
-          child: Text(
-            Device.getFirstLetter(this.fullname),
-            style: TextStyle(
-              color: Colors.black,
-              fontWeight: FontWeight.w500,
-            ),
+          backgroundImage: CachedNetworkImageProvider(this.imageUrl),
+        );
+      }
+
+      return CircleAvatar(
+        radius: 35,
+        backgroundColor: Palette.mustard,
+        child: Text(
+          Device.getFirstLetter(this.fullname),
+          style: TextStyle(
+            color: Colors.black,
+            fontWeight: FontWeight.w500,
           ),
         ),
+      );
+    }
+
+    return Row(
+      children: <Widget>[
+        handleAvatar(),
         SizedBox(
           width: 10,
         ),

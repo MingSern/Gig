@@ -8,11 +8,69 @@ class SearchJobsScreen extends StatefulWidget {
 }
 
 class _SearchJobsScreenState extends State<SearchJobsScreen> {
-  String keyword;
-  final TextEditingController textController = new TextEditingController();
+  bool searching = false;
+  TextEditingController textController;
+
+  @override
+  void initState() {
+    super.initState();
+    textController = new TextEditingController(text: "");
+    textController.addListener(() {
+      if (textController.text != "") {
+        setState(() {
+          searching = true;
+        });
+      } else {
+        setState(() {
+          searching = false;
+        });
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
+    Widget searchBar() {
+      return Container(
+        height: 40,
+        alignment: Alignment(0, 0),
+        margin: const EdgeInsets.only(right: 20),
+        padding: const EdgeInsets.symmetric(horizontal: 15),
+        decoration: BoxDecoration(
+          color: Colors.grey[200],
+          borderRadius: BorderRadius.all(
+            Radius.circular(100),
+          ),
+        ),
+        child: Row(
+          children: <Widget>[
+            Flexible(
+              child: TextField(
+                controller: textController,
+                autofocus: true,
+                decoration: InputDecoration(
+                  border: InputBorder.none,
+                  hintText: "Search jobs",
+                ),
+              ),
+            ),
+            this.searching
+                ? GestureDetector(
+                    onTap: textController.clear,
+                    child: Container(
+                      margin: const EdgeInsets.only(left: 5),
+                      child: Icon(
+                        Icons.clear,
+                        color: Colors.black87,
+                      ),
+                    ),
+                  )
+                : Container(),
+          ],
+        ),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
@@ -21,59 +79,9 @@ class _SearchJobsScreenState extends State<SearchJobsScreen> {
           onPressed: () => Device.goBack(context),
         ),
         titleSpacing: 0,
-        title: this.searchBar(),
+        title: searchBar(),
       ),
-    );
-  }
-
-  Widget searchBar() {
-    return Container(
-      height: 40,
-      alignment: Alignment(0, 0),
-      margin: const EdgeInsets.only(right: 20),
-      padding: const EdgeInsets.symmetric(horizontal: 15),
-      decoration: BoxDecoration(
-        color: Colors.grey[200],
-        borderRadius: BorderRadius.all(
-          Radius.circular(100),
-        ),
-      ),
-      child: Row(
-        children: <Widget>[
-          Flexible(
-            child: TextField(
-              controller: textController,
-              autofocus: true,
-              decoration: InputDecoration(
-                border: InputBorder.none,
-                hintText: "Search jobs",
-              ),
-              onChanged: (value) {
-                setState(() {
-                  keyword = value;
-                });
-              },
-            ),
-          ),
-          keyword != ""
-              ? GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      textController.clear();
-                      keyword = "";
-                    });
-                  },
-                  child: Container(
-                    margin: const EdgeInsets.only(left: 5),
-                    child: Icon(
-                      Icons.clear,
-                      color: Colors.black87,
-                    ),
-                  ),
-                )
-              : Container(),
-        ],
-      ),
+      body: Container(),
     );
   }
 }

@@ -63,6 +63,7 @@ class _AddJobScreenState extends State<AddJobScreen> {
     return Scaffold(
       appBar: AppBar(
         leading: RoundButton(
+          loading: job.loading,
           icon: Icons.arrow_back,
           onPressed: () => Device.goBack(context),
         ),
@@ -71,6 +72,7 @@ class _AddJobScreenState extends State<AddJobScreen> {
         centerTitle: true,
         actions: <Widget>[
           RoundButton(
+            loading: job.loading,
             icon: Icons.done,
             onPressed: job.loading ? null : createJob,
           ),
