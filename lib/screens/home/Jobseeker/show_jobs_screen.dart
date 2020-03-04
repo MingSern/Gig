@@ -25,6 +25,7 @@ class ShowJobsScreen extends StatelessWidget {
           return SmallCard(
             workPosition: document["workPosition"],
             businessName: document["businessName"],
+            imageUrl: document["imageUrl"],
             wages: document["wages"],
             createdAt: document["createdAt"],
             location: document["location"],

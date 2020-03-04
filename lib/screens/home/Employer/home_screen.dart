@@ -1,5 +1,6 @@
 import 'package:Gig/components/small_card.dart';
 import 'package:Gig/models/job.dart';
+import 'package:Gig/models/user.dart';
 import 'package:Gig/utils/palette.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -9,6 +10,7 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Job job = Provider.of<Job>(context);
+    User user = Provider.of<User>(context);
 
     void viewJobInfo(document) {
       job.setJob(document);
@@ -17,7 +19,6 @@ class HomeScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        elevation: 0,
         title: Text(
           "Home",
           style: TextStyle(
@@ -56,7 +57,8 @@ class HomeScreen extends StatelessWidget {
             children: snapshot.data.documents.map((document) {
               return SmallCard(
                 workPosition: document["workPosition"],
-                businessName: document["businessName"],
+                businessName: user.account.businessName,
+                imageUrl: user.account.imageUrl,
                 wages: document["wages"],
                 location: document["location"],
                 createdAt: document["createdAt"],

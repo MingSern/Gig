@@ -1,7 +1,9 @@
 import 'package:Gig/components/description_card.dart';
 import 'package:Gig/components/round_button.dart';
 import 'package:Gig/components/secondary_button.dart';
+import 'package:Gig/enum/enum.dart';
 import 'package:Gig/models/user.dart';
+import 'package:Gig/utils/device.dart';
 import 'package:Gig/utils/dialogs.dart';
 import 'package:Gig/utils/palette.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -66,6 +68,30 @@ class ProfileScreen extends StatelessWidget {
       Navigator.pushNamed(context, "/profile/image/edit");
     }
 
+    Widget handleAvatar() {
+      if (user.account.imageUrl.isNotEmpty) {
+        return CircleAvatar(
+          radius: 50,
+          backgroundColor: Palette.mustard,
+          backgroundImage: CachedNetworkImageProvider((user.account.imageUrl)),
+        );
+      }
+
+      return CircleAvatar(
+        radius: 50,
+        backgroundColor: Palette.mustard,
+        child: Text(
+          Device.getFirstLetter(
+            user.account.businessName.isEmpty ? user.account.fullname : user.account.businessName,
+          ),
+          style: TextStyle(
+            color: Colors.black,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -98,22 +124,7 @@ class ProfileScreen extends StatelessWidget {
                     onTap: editImage,
                     child: Hero(
                       tag: "profile",
-                      child: CircleAvatar(
-                        radius: 50,
-                        backgroundColor: Palette.mustard,
-                        backgroundImage: CachedNetworkImageProvider(
-                          user.account.imageUrl ?? "https://tinyurl.com/yabcsx7v",
-                        ),
-                        // child: Text(
-                        //   Device.getFirstLetter(
-                        //     user.account.businessName.isEmpty ? user.account.fullname : user.account.businessName,
-                        //   ),
-                        //   style: TextStyle(
-                        //     color: Colors.black,
-                        //     fontWeight: FontWeight.w500,
-                        //   ),
-                        // ),
-                      ),
+                      child: handleAvatar(),
                     ),
                   ),
                 ),
@@ -136,27 +147,35 @@ class ProfileScreen extends StatelessWidget {
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.max,
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: <Widget>[
-                            Text(
-                              user.applied,
-                              style: TextStyle(fontSize: 20),
-                            ),
-                            Text("Applied"),
-                          ],
-                        ),
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: <Widget>[
-                            Text(
-                              user.shortlisted,
-                              style: TextStyle(fontSize: 20),
-                            ),
-                            Text("Shortlisted"),
-                          ],
+                        user.account.userType == UserType.employer
+                            ? Container()
+                            : Padding(
+                                padding: const EdgeInsets.all(10.0),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: <Widget>[
+                                    Text(
+                                      user.applied,
+                                      style: TextStyle(fontSize: 20),
+                                    ),
+                                    Text("Applied"),
+                                  ],
+                                ),
+                              ),
+                        Padding(
+                          padding: const EdgeInsets.all(10.0),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: <Widget>[
+                              Text(
+                                user.shortlisted,
+                                style: TextStyle(fontSize: 20),
+                              ),
+                              Text("Shortlisted"),
+                            ],
+                          ),
                         ),
                       ],
                     ),

@@ -20,7 +20,6 @@ class ListScreen extends StatelessWidget {
       length: 2,
       child: Scaffold(
         appBar: AppBar(
-          elevation: 0,
           titleSpacing: 25,
           title: TabBar(
             labelPadding: const EdgeInsets.symmetric(vertical: 0),
@@ -182,6 +181,7 @@ class BuildLists extends StatelessWidget {
                     : SmallCard(
                         workPosition: document["workPosition"],
                         businessName: document["businessName"],
+                        imageUrl: document["imageUrl"],
                         wages: document["wages"],
                         location: document["location"],
                         createdAt: document["createdAt"],

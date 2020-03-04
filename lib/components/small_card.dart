@@ -1,11 +1,13 @@
 import 'package:Gig/utils/device.dart';
 import 'package:Gig/utils/palette.dart';
 import 'package:Gig/utils/time.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 class SmallCard extends StatelessWidget {
   final String workPosition;
   final String businessName;
+  final String imageUrl;
   final String wages;
   final String location;
   final num createdAt;
@@ -15,12 +17,35 @@ class SmallCard extends StatelessWidget {
   SmallCard({
     @required this.workPosition,
     @required this.businessName,
+    @required this.imageUrl,
     @required this.wages,
     @required this.location,
     @required this.createdAt,
     @required this.onPressed,
     this.declined = false,
   });
+
+  Widget handleAvatar() {
+    if (this.imageUrl != null) {
+      return CircleAvatar(
+        radius: 35,
+        backgroundColor: Palette.mustard,
+        backgroundImage: CachedNetworkImageProvider(this.imageUrl),
+      );
+    }
+
+    return CircleAvatar(
+      radius: 35,
+      backgroundColor: Palette.mustard,
+      child: Text(
+        Device.getFirstLetter(this.businessName),
+        style: TextStyle(
+          color: Colors.black,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -50,17 +75,7 @@ class SmallCard extends StatelessWidget {
           children: <Widget>[
             Row(
               children: <Widget>[
-                CircleAvatar(
-                  radius: 35,
-                  backgroundColor: Palette.mustard,
-                  child: Text(
-                    Device.getFirstLetter(this.businessName),
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
+                this.handleAvatar(),
                 SizedBox(
                   width: 10,
                 ),

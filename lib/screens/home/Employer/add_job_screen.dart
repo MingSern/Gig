@@ -62,7 +62,6 @@ class _AddJobScreenState extends State<AddJobScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        elevation: 0,
         leading: RoundButton(
           icon: Icons.arrow_back,
           onPressed: () => Device.goBack(context),

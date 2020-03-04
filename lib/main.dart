@@ -55,7 +55,7 @@ class MyApp extends StatelessWidget {
       primarySwatch: Colors.grey,
       fontFamily: 'LexendDeca',
       appBarTheme: AppBarTheme(
-        elevation: 0,
+        elevation: 0.7,
         color: Colors.white,
       ),
     );

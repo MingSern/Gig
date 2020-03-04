@@ -321,35 +321,35 @@ class User extends Base {
       setErrorMessage(onError.message);
     });
 
-    var key = "";
-    bool exist = false;
+    // var key = "";
+    // bool exist = false;
 
-    if (this.userId.compareTo(uid) > -1) {
-      key = this.userId + "_" + uid;
-    } else {
-      key = uid + "_" + this.userId;
-    }
+    // if (this.userId.compareTo(uid) > -1) {
+    //   key = this.userId + "_" + uid;
+    // } else {
+    //   key = uid + "_" + this.userId;
+    // }
 
-    var chatRoom = await firestore
-        .collection("chatRooms")
-        .document(key)
-        .collection("messages")
-        .getDocuments()
-        .catchError((onError) {
-      setErrorMessage(onError.message);
-    });
+    // var chatRoom = await firestore
+    //     .collection("chatRooms")
+    //     .document(key)
+    //     .collection("messages")
+    //     .getDocuments()
+    //     .catchError((onError) {
+    //   setErrorMessage(onError.message);
+    // });
 
-    if (chatRoom.documents.length > 0) {
-      exist = true;
-    } else {
-      exist = false;
-    }
+    // if (chatRoom.documents.length > 0) {
+    //   exist = true;
+    // } else {
+    //   exist = false;
+    // }
 
     var otherUser = {
       "account": account,
       "length": length.toString(),
       "descriptions": descriptions.documents,
-      "chatRoom": exist,
+      // "chatRoom": exist,
     };
 
     this.setOtherUser(otherUser);

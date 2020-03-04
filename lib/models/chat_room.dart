@@ -126,6 +126,7 @@ class ChatRoom extends Base {
 
     var messageData = {
       "uid": this.user.userId,
+      "to": this.key.split("_").where((id) => id != this.user.userId).toList().first,
       "message": message,
       "createdAt": new DateTime.now().millisecondsSinceEpoch,
     };

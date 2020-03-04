@@ -16,9 +16,7 @@ class ChatScreen extends StatelessWidget {
     }
 
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(
-        elevation: 0,
         title: Text(
           "Messages",
           style: TextStyle(
@@ -47,8 +45,8 @@ class ChatScreen extends StatelessWidget {
           }
 
           return ListView(
+            physics: BouncingScrollPhysics(),
             children: snapshot.data.documents.map((document) {
-              // print(document["name"]);
               return ChatTile(
                 name: document["name"],
                 lastMessage: document["lastMessage"],

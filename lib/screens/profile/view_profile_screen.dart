@@ -3,6 +3,7 @@ import 'package:Gig/components/loading.dart';
 import 'package:Gig/components/primary_button.dart';
 import 'package:Gig/components/round_button.dart';
 import 'package:Gig/enum/enum.dart';
+import 'package:Gig/models/chat_room.dart';
 import 'package:Gig/models/user.dart';
 import 'package:Gig/utils/checker.dart';
 import 'package:Gig/utils/device.dart';
@@ -15,8 +16,14 @@ class ViewProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     User user = Provider.of<User>(context);
-    var account = user.otherUser["account"];
-    UserType userType = Checker.getUserType(account["userType"]);
+    ChatRoom chatRoom = Provider.of<ChatRoom>(context);
+    var account;
+    UserType userType;
+
+    if (user.otherUser != null) {
+      account = user.otherUser["account"];
+      userType = Checker.getUserType(account["userType"]);
+    }
 
     String handleFullname() {
       if (account["businessName"] == null) {
@@ -24,6 +31,16 @@ class ViewProfileScreen extends StatelessWidget {
       }
 
       return account["businessName"];
+    }
+
+    void viewChatRoom() {
+      var listener = {
+        "name": account["fullname"],
+        "uid": account["uid"],
+      };
+
+      chatRoom.open(listener);
+      Navigator.pushNamed(context, "/chat/room");
     }
 
     return Scaffold(
@@ -136,12 +153,10 @@ class ViewProfileScreen extends StatelessWidget {
                             ],
                           ),
                         ),
-                        user.otherUser["chatRoom"]
-                            ? PrimaryButton(
-                                text: "Message",
-                                onPressed: () {},
-                              )
-                            : Container(),
+                        PrimaryButton(
+                          text: "Message",
+                          onPressed: viewChatRoom,
+                        )
                       ],
                     ),
                   ),
