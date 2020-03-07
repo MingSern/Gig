@@ -10,6 +10,7 @@ class ChatTile extends StatelessWidget {
   final String lastMessage;
   final int createdAt;
   final VoidCallback onTap;
+  final int quantity;
 
   ChatTile({
     @required this.name,
@@ -17,6 +18,7 @@ class ChatTile extends StatelessWidget {
     @required this.lastMessage,
     @required this.createdAt,
     @required this.onTap,
+    this.quantity = 0,
   });
 
   @override
@@ -76,7 +78,7 @@ class ChatTile extends StatelessWidget {
                               Time.getDateTime(this.createdAt),
                               style: TextStyle(
                                 fontSize: 11,
-                                color: Palette.lapizBlue,
+                                color: Colors.grey,
                               ),
                             ),
                           ],
@@ -98,17 +100,19 @@ class ChatTile extends StatelessWidget {
                               ),
                             ),
                           ),
-                          CircleAvatar(
-                            radius: 10,
-                            backgroundColor: Palette.lapizBlue,
-                            child: Text(
-                              "2",
-                              style: TextStyle(
-                                fontSize: 11,
-                                color: Colors.grey[50],
-                              ),
-                            ),
-                          ),
+                          this.quantity == 0
+                              ? Container()
+                              : CircleAvatar(
+                                  radius: 10,
+                                  backgroundColor: Palette.lapizBlue,
+                                  child: Text(
+                                    "2",
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      color: Colors.grey[50],
+                                    ),
+                                  ),
+                                ),
                         ],
                       ),
                     ],

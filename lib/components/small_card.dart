@@ -65,7 +65,6 @@ class SmallCard extends StatelessWidget {
       child: RawMaterialButton(
         onPressed: this.declined ? null : this.onPressed,
         splashColor: Colors.grey[200],
-        highlightColor: Colors.transparent,
         padding: const EdgeInsets.all(10),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),

@@ -6,10 +6,7 @@ class FilterScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
         leading: RoundButton(
           icon: Icons.arrow_back,
           onPressed: () => Device.goBack(context),

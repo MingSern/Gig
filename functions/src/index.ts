@@ -12,7 +12,7 @@ export const chatNotification = functions.firestore
         const message = snapshot.data();
 
         if (message == undefined) {
-            console.log("--------------------------- CHATROOM NOT EXIST ---------------------------");
+            console.log("------------- CHATROOM NOT EXIST -------------");
             return;
         }
 
@@ -34,7 +34,7 @@ export const chatNotification = functions.firestore
         const userData = userResult.data();
 
         if (userData == undefined) {
-            console.log("--------------------------- USER NOT EXIST ---------------------------");
+            console.log("------------- USER NOT EXIST -------------");
             return;
         }
 
@@ -57,6 +57,8 @@ export const chatNotification = functions.firestore
                 sound: "default",
             },
         }
+
+        console.log("------------- TOKEN : " + tokens + " -------------");
 
         return fcm.sendToDevice(tokens, payload);
     });

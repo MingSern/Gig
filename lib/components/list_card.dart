@@ -41,7 +41,6 @@ class ListCard extends StatelessWidget {
         alignment: AlignmentDirectional.bottomCenter,
         children: <Widget>[
           RawMaterialButton(
-            highlightColor: Colors.transparent,
             onPressed: this.declined ? null : this.onPressed,
             splashColor: Colors.grey[200],
             padding: const EdgeInsets.all(10),

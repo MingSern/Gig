@@ -73,7 +73,6 @@ class _SearchJobsScreenState extends State<SearchJobsScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        elevation: 0,
         leading: RoundButton(
           icon: Icons.arrow_back,
           onPressed: () => Device.goBack(context),

@@ -26,11 +26,7 @@ class ViewProfileScreen extends StatelessWidget {
     }
 
     String handleFullname() {
-      if (account["businessName"] == null) {
-        return account["fullname"];
-      }
-
-      return account["businessName"];
+      return account["businessName"] ?? account["fullname"];
     }
 
     void viewChatRoom() {

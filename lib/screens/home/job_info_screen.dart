@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:Gig/components/description_card.dart';
 import 'package:Gig/components/primary_button.dart';
 import 'package:Gig/components/round_button.dart';
@@ -8,12 +10,16 @@ import 'package:Gig/models/job.dart';
 import 'package:Gig/models/user.dart';
 import 'package:Gig/utils/checker.dart';
 import 'package:Gig/utils/device.dart';
+import 'package:Gig/utils/generator.dart';
 import 'package:Gig/utils/lorem.dart';
 import 'package:Gig/utils/palette.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class JobInfoScreen extends StatelessWidget {
+  final imageUrl = Generator.getImageUrl();
+
   @override
   Widget build(BuildContext context) {
     User user = Provider.of<User>(context);
@@ -115,15 +121,30 @@ class JobInfoScreen extends StatelessWidget {
         ),
       ),
       body: SingleChildScrollView(
+        physics: BouncingScrollPhysics(),
         child: Column(
           mainAxisSize: MainAxisSize.max,
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
-            ProfileCard(
-              fullname: job.job["businessName"],
-              workPosition: job.job["workPosition"],
-              onPressed: () => viewProfile(job.job["uid"]),
+            Stack(
+              alignment: AlignmentDirectional.bottomCenter,
+              children: <Widget>[
+                Container(
+                  padding: const EdgeInsets.only(bottom: 70),
+                  height: Device.getMaxHeight(context) * 0.4,
+                  width: double.infinity,
+                  child: CachedNetworkImage(
+                    imageUrl: job.job["imageUrls"]?.first ?? this.imageUrl,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+                ProfileCard(
+                  fullname: job.job["businessName"],
+                  workPosition: job.job["workPosition"],
+                  onPressed: () => viewProfile(job.job["uid"]),
+                ),
+              ],
             ),
             Row(
               mainAxisSize: MainAxisSize.max,
@@ -191,7 +212,6 @@ class ProfileCard extends StatelessWidget {
       child: RawMaterialButton(
         onPressed: this.onPressed,
         splashColor: Colors.grey[200],
-        highlightColor: Colors.transparent,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
         ),

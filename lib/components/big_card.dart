@@ -42,7 +42,6 @@ class BigCard extends StatelessWidget {
       child: RawMaterialButton(
         onPressed: this.onPressed,
         splashColor: Colors.grey[200],
-        highlightColor: Colors.transparent,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
         ),
