@@ -1,4 +1,5 @@
 import 'package:Gig/components/description_card.dart';
+import 'package:Gig/components/empty_state.dart';
 import 'package:Gig/components/round_button.dart';
 import 'package:Gig/components/secondary_button.dart';
 import 'package:Gig/enum/enum.dart';
@@ -231,18 +232,9 @@ class ProfileScreen extends StatelessWidget {
                 }
 
                 if (snapshot.data.documents.length == 0) {
-                  return Container(
-                    height: Device.getMaxHeight(context) * 0.3,
-                    child: Center(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.max,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          Text("Seems like you don't have any descriptions yet 🤷"),
-                          Text("Add one now! 🔥"),
-                        ],
-                      ),
-                    ),
+                  return EmptyState(
+                    imagePath: "assets/empty_profile.png",
+                    message: "Add description to boost your profile 🔥",
                   );
                 }
 

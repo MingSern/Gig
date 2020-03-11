@@ -1,4 +1,5 @@
 import 'package:Gig/components/chat_tile.dart';
+import 'package:Gig/components/empty_state.dart';
 import 'package:Gig/models/chat_room.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -36,15 +37,9 @@ class ChatScreen extends StatelessWidget {
           }
 
           if (snapshot.data.documents.length == 0) {
-            return Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.max,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Text("Seems like you don't have any"),
-                  Text("messages yet 🤷"),
-                ],
-              ),
+            return EmptyState(
+              imagePath: "assets/empty_message.png",
+              message: "No new messages for now 🤷",
             );
           }
 

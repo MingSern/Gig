@@ -1,3 +1,4 @@
+import 'package:Gig/components/empty_state.dart';
 import 'package:Gig/components/small_card.dart';
 import 'package:Gig/models/job.dart';
 import 'package:Gig/models/user.dart';
@@ -39,16 +40,9 @@ class HomeScreen extends StatelessWidget {
           }
 
           if (snapshot.data.documents.length == 0) {
-            return Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.max,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Text("Seems like you have not create any jobs yet 🤷"),
-                  Text("Click on the floating action button"),
-                  Text("to create a job now 🔥"),
-                ],
-              ),
+            return EmptyState(
+              imagePath: "assets/empty_post.png",
+              message: "Click on the floating action button to create a job now 🔥",
             );
           }
 

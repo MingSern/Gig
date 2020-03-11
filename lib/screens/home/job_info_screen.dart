@@ -107,8 +107,6 @@ class JobInfoScreen extends StatelessWidget {
     void viewProfile(String uid) {
       user.viewOtherUserProfile(uid);
       Navigator.pushNamed(context, "/profile/view");
-
-      // print(user.otherUser["account"]);
     }
 
     return Scaffold(
@@ -156,21 +154,14 @@ class JobInfoScreen extends StatelessWidget {
             DescriptionCard(
               title: "Wages",
               child: Text(job.job["wages"]),
-              onEdit: null,
-              onDelete: null,
             ),
             DescriptionCard(
               title: "Location",
               child: Text(job.job["location"]),
-              onEdit: null,
-              onDelete: null,
             ),
             DescriptionCard(
               title: "Job description",
               child: Text(Lorem.long()),
-              // description: job.job["description"],
-              onEdit: null,
-              onDelete: null,
             ),
             SizedBox(
               height: 50,

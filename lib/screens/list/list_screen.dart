@@ -1,4 +1,5 @@
 import 'package:Gig/components/date.dart';
+import 'package:Gig/components/empty_state.dart';
 import 'package:Gig/components/list_card.dart';
 import 'package:Gig/components/small_card.dart';
 import 'package:Gig/enum/enum.dart';
@@ -144,24 +145,13 @@ class BuildLists extends StatelessWidget {
         }
 
         if (snapshot.data.documents.length == 0) {
-          return Center(
-            child: this.type == JobStatus.pending
-                ? Column(
-                    mainAxisSize: MainAxisSize.max,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Text("Seems like you haven't apply any jobs yet 🤷"),
-                      Text("Apply a job now! 🔥"),
-                    ],
-                  )
-                : Column(
-                    mainAxisSize: MainAxisSize.max,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Text("Seems like you haven't been accepted"),
-                      Text("by any employers yet 🤷"),
-                    ],
-                  ),
+          return EmptyState(
+            imagePath: "assets/empty_list.png",
+            message: this.type == JobStatus.pending
+                ? user.account.userType == UserType.jobseeker
+                    ? "You haven't apply any jobs 🤷"
+                    : "No one apply for your jobs 🤷"
+                : "Seems like you haven't been accepted 🤷",
           );
         }
 

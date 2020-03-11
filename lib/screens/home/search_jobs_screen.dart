@@ -125,7 +125,17 @@ class _SearchJobsScreenState extends State<SearchJobsScreen> {
                 );
               }
 
-              return Container();
+              int lastIndex = snapshot.data.documents.length - 1;
+              int index = snapshot.data.documents.indexOf(document);
+
+              return index == lastIndex
+                  ? Container(
+                      height: Device.getMaxHeight(context) / 2,
+                      child: Center(
+                        child: Text("No result"),
+                      ),
+                    )
+                  : Container();
             }).toList(),
           );
         },
