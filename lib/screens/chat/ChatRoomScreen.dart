@@ -69,7 +69,7 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
                 return ListView.builder(
                   shrinkWrap: true,
                   reverse: true,
-                  physics: const BouncingScrollPhysics(),
+                  physics: ClampingScrollPhysics(),
                   itemCount: snapshot.data.documents.length,
                   itemBuilder: (context, index) {
                     var lastIndex = snapshot.data.documents.length - 1;

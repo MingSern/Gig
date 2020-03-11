@@ -26,7 +26,6 @@ class ShowJobsScreen extends StatelessWidget {
         ),
       ),
       body: ListView(
-        physics: BouncingScrollPhysics(),
         children: job.availableJobs.documents.map((document) {
           return SmallCard(
             workPosition: document["workPosition"],

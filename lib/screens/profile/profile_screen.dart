@@ -109,7 +109,6 @@ class ProfileScreen extends StatelessWidget {
         ],
       ),
       body: SingleChildScrollView(
-        physics: BouncingScrollPhysics(),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.start,
@@ -223,12 +222,28 @@ class ProfileScreen extends StatelessWidget {
             StreamBuilder(
               stream: user.getDescriptions(),
               builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                if (snapshot.hasError) {
+                  return Container();
+                }
+
                 if (!snapshot.hasData) {
                   return Container();
                 }
 
-                if (snapshot.hasError) {
-                  return Container();
+                if (snapshot.data.documents.length == 0) {
+                  return Container(
+                    height: Device.getMaxHeight(context) * 0.3,
+                    child: Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.max,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          Text("Seems like you don't have any descriptions yet 🤷"),
+                          Text("Add one now! 🔥"),
+                        ],
+                      ),
+                    ),
+                  );
                 }
 
                 return ListView.builder(
@@ -240,7 +255,7 @@ class ProfileScreen extends StatelessWidget {
 
                     return DescriptionCard(
                       title: document["title"],
-                      description: document["description"],
+                      child: Text(document["description"]),
                       onEdit: () => onEdit(document),
                       onDelete: () => onDelete(document),
                     );

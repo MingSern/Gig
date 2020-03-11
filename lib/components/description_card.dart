@@ -1,33 +1,22 @@
+import 'package:Gig/components/floaty_card.dart';
 import 'package:flutter/material.dart';
 
 class DescriptionCard extends StatelessWidget {
   final String title;
-  final String description;
+  final Widget child;
   final GestureTapCallback onEdit;
   final GestureTapCallback onDelete;
 
   DescriptionCard({
     @required this.title,
-    @required this.description,
+    @required this.child,
     this.onEdit,
     this.onDelete,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey[300],
-            blurRadius: 15.0,
-            offset: Offset(0.0, 4.0),
-          ),
-        ],
-        borderRadius: BorderRadius.circular(20.0),
-      ),
+    return FloatyCard(
       child: RawMaterialButton(
         onPressed: this.onEdit,
         onLongPress: this.onDelete,
@@ -51,7 +40,7 @@ class DescriptionCard extends StatelessWidget {
                 ),
               ),
             ),
-            Text(this.description),
+            this.child,
           ],
         ),
       ),

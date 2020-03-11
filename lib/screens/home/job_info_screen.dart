@@ -121,7 +121,6 @@ class JobInfoScreen extends StatelessWidget {
         ),
       ),
       body: SingleChildScrollView(
-        physics: BouncingScrollPhysics(),
         child: Column(
           mainAxisSize: MainAxisSize.max,
           mainAxisAlignment: MainAxisAlignment.start,
@@ -156,19 +155,19 @@ class JobInfoScreen extends StatelessWidget {
             ),
             DescriptionCard(
               title: "Wages",
-              description: job.job["wages"],
+              child: Text(job.job["wages"]),
               onEdit: null,
               onDelete: null,
             ),
             DescriptionCard(
               title: "Location",
-              description: job.job["location"],
+              child: Text(job.job["location"]),
               onEdit: null,
               onDelete: null,
             ),
             DescriptionCard(
               title: "Job description",
-              description: Lorem.long(),
+              child: Text(Lorem.long()),
               // description: job.job["description"],
               onEdit: null,
               onDelete: null,

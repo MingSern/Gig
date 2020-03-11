@@ -27,14 +27,28 @@ class ChatScreen extends StatelessWidget {
       body: StreamBuilder(
         stream: chatRoom.getChatRooms(),
         builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+          if (snapshot.hasError) {
+            return Container();
+          }
+
           if (!snapshot.hasData) {
+            return Container();
+          }
+
+          if (snapshot.data.documents.length == 0) {
             return Center(
-              child: Text("Only shortlisted chat exist here"),
+              child: Column(
+                mainAxisSize: MainAxisSize.max,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Text("Seems like you don't have any"),
+                  Text("messages yet 🤷"),
+                ],
+              ),
             );
           }
 
           return ListView(
-            physics: BouncingScrollPhysics(),
             children: snapshot.data.documents.map((document) {
               return ChatTile(
                 name: document["name"],

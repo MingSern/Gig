@@ -13,18 +13,14 @@ final shortlists = "shortlists";
 final jobs = "jobs";
 
 class Job extends Base {
-  // String userId;
-  // String fullname;
-  // String businessName;
   User user;
   dynamic job;
   QuerySnapshot availableJobs;
+  List<String> selectedCategories = [];
+  double selectedWages = 10;
 
   void update(User user) {
     this.user = user;
-    // this.userId = user.userId;
-    // this.businessName = user.account.businessName;
-    // this.fullname = user.account.fullname;
     notifyListeners();
   }
 
@@ -86,9 +82,16 @@ class Job extends Base {
         .snapshots();
   }
 
-  Future<QuerySnapshot> getAvailableJobs() async {
-    var availableJobs =
-        await firestore.collection(jobs).orderBy("createdAt", descending: true).getDocuments();
+  Future<QuerySnapshot> getAvailableJobs({int limit}) async {
+    var availableJobs;
+
+    if (limit != null) {
+      availableJobs =
+          await firestore.collection(jobs).orderBy("createdAt", descending: true).limit(limit).getDocuments();
+    } else {
+      availableJobs = await firestore.collection(jobs).orderBy("createdAt", descending: true).getDocuments();
+    }
+
     this.setAvailableJobs(availableJobs);
 
     return availableJobs;
@@ -283,5 +286,22 @@ class Job extends Base {
 
   int getCurrentTime() {
     return new DateTime.now().millisecondsSinceEpoch;
+  }
+
+  void setWages(double wages) {
+    this.selectedWages = wages;
+  }
+
+  void setCategories(String category) {
+    if (this.selectedCategories.contains(category)) {
+      this.selectedCategories.remove(category);
+    } else {
+      this.selectedCategories.add(category);
+    }
+  }
+
+  void resetFilter() {
+    this.selectedCategories = [];
+    this.selectedWages = 10;
   }
 }

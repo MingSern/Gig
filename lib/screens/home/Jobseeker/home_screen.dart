@@ -1,4 +1,5 @@
 import 'package:Gig/components/big_card.dart';
+import 'package:Gig/components/loading.dart';
 import 'package:Gig/components/round_button.dart';
 import 'package:Gig/components/title_button.dart';
 import 'package:Gig/models/job.dart';
@@ -27,19 +28,18 @@ class HomeScreen extends StatelessWidget {
         ],
       ),
       body: ListView(
-        physics: const BouncingScrollPhysics(),
         children: <Widget>[
           BuildCarousell(
             title: "Recommended for you",
-            future: job.getAvailableJobs(),
+            future: job.getAvailableJobs(limit: 5),
           ),
           BuildCarousell(
             title: "Near you",
-            future: job.getAvailableJobs(),
+            future: job.getAvailableJobs(limit: 5),
           ),
           BuildCarousell(
             title: "Available jobs",
-            future: job.getAvailableJobs(),
+            future: job.getAvailableJobs(limit: 5),
           ),
         ],
       ),

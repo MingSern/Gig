@@ -144,11 +144,28 @@ class BuildLists extends StatelessWidget {
         }
 
         if (snapshot.data.documents.length == 0) {
-          return Container();
+          return Center(
+            child: this.type == JobStatus.pending
+                ? Column(
+                    mainAxisSize: MainAxisSize.max,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Text("Seems like you haven't apply any jobs yet 🤷"),
+                      Text("Apply a job now! 🔥"),
+                    ],
+                  )
+                : Column(
+                    mainAxisSize: MainAxisSize.max,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Text("Seems like you haven't been accepted"),
+                      Text("by any employers yet 🤷"),
+                    ],
+                  ),
+          );
         }
 
         return ListView.builder(
-          physics: const BouncingScrollPhysics(),
           itemCount: snapshot.data.documents.length,
           itemBuilder: (context, index) {
             var document = snapshot.data.documents.elementAt(index);

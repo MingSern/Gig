@@ -25,9 +25,8 @@ class User extends Base {
     await Firebase.getCurrentUser().then((user) async {
       if (user != null) {
         this.setId(user.uid);
-        await this.getAccount();
-        await this.getApplied();
-        await this.getShortlisted();
+        await Future.wait(
+            [this.getAccount(), this.getApplied(), this.getShortlisted(), this.subscribeFcmToken()]);
         this.authStatus = AuthStatus.signedIn;
       } else {
         this.authStatus = AuthStatus.notSignedIn;
@@ -38,6 +37,20 @@ class User extends Base {
     });
 
     notifyListeners();
+  }
+
+  Future<void> subscribeFcmToken() async {
+    String fcmToken = await Firebase.getFCMToken();
+
+    firestore.collection("accounts").document(this.userId).collection("token").document(fcmToken).setData({
+      "fcmToken": fcmToken,
+    });
+  }
+
+  Future<void> unsubscribeFcmToken() async {
+    String fcmToken = await Firebase.getFCMToken();
+
+    firestore.collection("accounts").document(this.userId).collection("token").document(fcmToken).delete();
   }
 
   void setId(String userId) {
@@ -120,46 +133,79 @@ class User extends Base {
       smsCode: smsCode,
     );
 
-    await Firebase.signInWithPhoneNumber(credential).then((AuthResult result) async {
-      if (result.user != null) {
-        await Firebase.signUp(this.account.email, this.account.password).then((userId) async {
-          this.setId(userId);
-
-          var data = {
-            "userType": this.account.userType.toString(),
-            "uid": this.userId,
-            "fullname": this.account.fullname,
-            "email": this.account.email,
-            "phoneNumber": this.account.phoneNumber,
-            "imageUrl": this.account.imageUrl,
-          };
-
-          if (this.account.userType == UserType.employer) {
-            data["businessName"] = this.account.businessName;
-          }
-
-          var userRef = firestore.collection("accounts").document(this.userId);
-
-          await userRef.setData(data).then((_) async {
-            await this.authenticate();
-          });
-
-          String fcmToken = await Firebase.getFCMToken();
-
-          userRef.collection("token").document(fcmToken).setData({
-            "fcmToken": fcmToken,
-          });
-        }).catchError((onError) {
-          setErrorMessage(onError.message);
-        });
-      } else {
-        setErrorMessage("User not exist.");
-      }
-    }).catchError((onError) {
+    AuthResult result = await Firebase.signInWithPhoneNumber(credential).catchError((onError) {
       setErrorMessage(onError.message);
     });
 
+    if (result.user != null) {
+      String userId = await Firebase.signUp(this.account.email, this.account.password).catchError((onError) {
+        setErrorMessage(onError.message);
+      });
+
+      this.setId(userId);
+
+      var data = {
+        "userType": this.account.userType.toString(),
+        "uid": this.userId,
+        "fullname": this.account.fullname,
+        "email": this.account.email,
+        "phoneNumber": this.account.phoneNumber,
+        "imageUrl": this.account.imageUrl,
+      };
+
+      if (this.account.userType == UserType.employer) {
+        data["businessName"] = this.account.businessName;
+      }
+
+      var userRef = firestore.collection("accounts").document(this.userId);
+
+      await userRef.setData(data).then((_) async {
+        await this.authenticate();
+      });
+    } else {
+      setErrorMessage("User not exist.");
+    }
+
     isLoading(false);
+
+    // await Firebase.signInWithPhoneNumber(credential).then((AuthResult result) async {
+    //   if (result.user != null) {
+    //     await Firebase.signUp(this.account.email, this.account.password).then((userId) async {
+    //       this.setId(userId);
+
+    //       var data = {
+    //         "userType": this.account.userType.toString(),
+    //         "uid": this.userId,
+    //         "fullname": this.account.fullname,
+    //         "email": this.account.email,
+    //         "phoneNumber": this.account.phoneNumber,
+    //         "imageUrl": this.account.imageUrl,
+    //       };
+
+    //       if (this.account.userType == UserType.employer) {
+    //         data["businessName"] = this.account.businessName;
+    //       }
+
+    //       var userRef = firestore.collection("accounts").document(this.userId);
+
+    //       await userRef.setData(data).then((_) async {
+    //         await this.authenticate();
+    //       });
+
+    //       String fcmToken = await Firebase.getFCMToken();
+
+    //       userRef.collection("token").document(fcmToken).setData({
+    //         "fcmToken": fcmToken,
+    //       });
+    //     }).catchError((onError) {
+    //       setErrorMessage(onError.message);
+    //     });
+    //   } else {
+    //     setErrorMessage("User not exist.");
+    //   }
+    // }).catchError((onError) {
+    //   setErrorMessage(onError.message);
+    // });
   }
 
   Future<void> logoutAccount() async {
@@ -167,6 +213,7 @@ class User extends Base {
 
     await Firebase.signOut().then((_) async {
       await this.authenticate();
+      await this.unsubscribeFcmToken();
     }).catchError((onError) {
       setErrorMessage(onError.message);
     });
@@ -321,35 +368,10 @@ class User extends Base {
       setErrorMessage(onError.message);
     });
 
-    // var key = "";
-    // bool exist = false;
-
-    // if (this.userId.compareTo(uid) > -1) {
-    //   key = this.userId + "_" + uid;
-    // } else {
-    //   key = uid + "_" + this.userId;
-    // }
-
-    // var chatRoom = await firestore
-    //     .collection("chatRooms")
-    //     .document(key)
-    //     .collection("messages")
-    //     .getDocuments()
-    //     .catchError((onError) {
-    //   setErrorMessage(onError.message);
-    // });
-
-    // if (chatRoom.documents.length > 0) {
-    //   exist = true;
-    // } else {
-    //   exist = false;
-    // }
-
     var otherUser = {
       "account": account,
       "length": length.toString(),
       "descriptions": descriptions.documents,
-      // "chatRoom": exist,
     };
 
     this.setOtherUser(otherUser);

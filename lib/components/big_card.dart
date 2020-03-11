@@ -49,6 +49,7 @@ class BigCard extends StatelessWidget {
           children: <Widget>[
             Container(
               height: 100,
+              color: Colors.grey[100],
               width: double.infinity,
               child: ClipRRect(
                 borderRadius: BorderRadius.only(
@@ -56,9 +57,7 @@ class BigCard extends StatelessWidget {
                   topRight: const Radius.circular(20.0),
                 ),
                 child: Image(
-                  image: CachedNetworkImageProvider(
-                    this.imageUrl,
-                  ),
+                  image: CachedNetworkImageProvider(this.imageUrl),
                   fit: BoxFit.cover,
                 ),
               ),

@@ -1,6 +1,13 @@
+import 'package:Gig/components/big_card.dart';
+import 'package:Gig/components/loading.dart';
 import 'package:Gig/components/round_button.dart';
+import 'package:Gig/components/small_card.dart';
+import 'package:Gig/models/job.dart';
+import 'package:Gig/utils/debounce.dart';
 import 'package:Gig/utils/device.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class SearchJobsScreen extends StatefulWidget {
   @override
@@ -16,20 +23,16 @@ class _SearchJobsScreenState extends State<SearchJobsScreen> {
     super.initState();
     textController = new TextEditingController(text: "");
     textController.addListener(() {
-      if (textController.text != "") {
-        setState(() {
-          searching = true;
-        });
-      } else {
-        setState(() {
-          searching = false;
-        });
-      }
+      setState(() {
+        searching = textController.text != "";
+      });
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    Job job = Provider.of<Job>(context);
+
     Widget searchBar() {
       return Container(
         height: 40,
@@ -46,6 +49,7 @@ class _SearchJobsScreenState extends State<SearchJobsScreen> {
           children: <Widget>[
             Flexible(
               child: TextField(
+                textCapitalization: TextCapitalization.sentences,
                 controller: textController,
                 autofocus: true,
                 decoration: InputDecoration(
@@ -71,6 +75,11 @@ class _SearchJobsScreenState extends State<SearchJobsScreen> {
       );
     }
 
+    void viewJobInfo(document) {
+      job.setJob(document);
+      Navigator.pushNamed(context, "/home/job/info");
+    }
+
     return Scaffold(
       appBar: AppBar(
         leading: RoundButton(
@@ -80,7 +89,47 @@ class _SearchJobsScreenState extends State<SearchJobsScreen> {
         titleSpacing: 0,
         title: searchBar(),
       ),
-      body: Container(),
+      body: FutureBuilder(
+        future: job.getAvailableJobs(),
+        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+          if (snapshot.hasError) {
+            return Container();
+          }
+
+          if (!snapshot.hasData) {
+            return Container();
+          }
+
+          if (snapshot.data.documents.length == 0) {
+            return Center(
+              child: Text("No result"),
+            );
+          }
+
+          return ListView(
+            children: snapshot.data.documents.map((document) {
+              var keyword = textController.text.toLowerCase().replaceAll(" ", "");
+
+              if (document["workPosition"].toLowerCase().replaceAll(" ", "").contains(keyword) ||
+                  document["businessName"].toLowerCase().replaceAll(" ", "").contains(keyword) ||
+                  document["description"].toLowerCase().replaceAll(" ", "").contains(keyword) ||
+                  document["location"].toLowerCase().replaceAll(" ", "").contains(keyword)) {
+                return SmallCard(
+                  workPosition: document["workPosition"],
+                  businessName: document["businessName"],
+                  imageUrl: document["imageUrl"],
+                  wages: document["wages"],
+                  createdAt: document["createdAt"],
+                  location: document["location"],
+                  onPressed: () => viewJobInfo(document),
+                );
+              }
+
+              return Container();
+            }).toList(),
+          );
+        },
+      ),
     );
   }
 }

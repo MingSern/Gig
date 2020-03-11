@@ -14,7 +14,6 @@ class VerificationScreen extends StatefulWidget {
 
 class _VerificationScreenState extends State<VerificationScreen> {
   String smsCode;
-  var loading = false;
   var width = 150.0;
   int start = 60;
   int current = 60;
@@ -65,6 +64,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
         elevation: 0,
         leading: RoundButton(
           icon: Icons.arrow_back,
+          loading: user.loading,
           onPressed: () => Device.goBack(context),
         ),
       ),
@@ -72,6 +72,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
         height: double.infinity,
         child: SingleChildScrollView(
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
               Text(
@@ -87,7 +88,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
                 child: Text(
-                  "A 6 digit verification code was sent to your contact number 123132313}",
+                  "A 6 digit verification code was sent to your contact number ${user.account.phoneNumber}",
                   style: TextStyle(
                     fontSize: 15,
                     color: Colors.grey,
@@ -108,7 +109,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
                 child: CodeField(
                   onSave: (value) => this.smsCode = value,
-                  loading: this.loading,
+                  loading: user.loading,
                 ),
               ),
               SizedBox(
@@ -116,9 +117,10 @@ class _VerificationScreenState extends State<VerificationScreen> {
               ),
               PrimaryButton(
                 text: "Verify",
+                loading: user.loading,
                 onPressed: verifyAndRegisterAccount,
               ),
-              this.loading
+              user.loading
                   ? Container()
                   : FlatButton(
                       onPressed: () {},

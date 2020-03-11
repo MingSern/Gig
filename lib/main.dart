@@ -66,7 +66,7 @@ class MyApp extends StatelessWidget {
         providers: providers,
         child: MaterialApp(
           debugShowCheckedModeBanner: false,
-          title: 'Gig',
+          title: 'EasyJob',
           theme: themeData,
           home: Root(),
           routes: {

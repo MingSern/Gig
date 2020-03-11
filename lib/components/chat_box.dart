@@ -26,7 +26,7 @@ class ChatBox extends StatelessWidget {
       children: <Widget>[
         user.userId == this.uid
             ? Padding(
-                padding: EdgeInsets.only(left: Device.getMaxWidth(context) * 0.3),
+                padding: EdgeInsets.only(left: Device.getMaxWidth(context) * 0.2),
               )
             : Container(),
         Flexible(
@@ -69,7 +69,7 @@ class ChatBox extends StatelessWidget {
         ),
         user.userId != this.uid
             ? Padding(
-                padding: EdgeInsets.only(right: Device.getMaxWidth(context) * 0.3),
+                padding: EdgeInsets.only(right: Device.getMaxWidth(context) * 0.2),
               )
             : Container(),
       ],

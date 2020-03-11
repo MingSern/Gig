@@ -169,7 +169,7 @@ class ViewProfileScreen extends StatelessWidget {
 
                       return DescriptionCard(
                         title: document["title"],
-                        description: document["description"],
+                        child: Text(document["description"]),
                       );
                     },
                   ),
