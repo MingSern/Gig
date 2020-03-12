@@ -54,7 +54,7 @@ class _IndexState extends State<Index> {
         body: IndexedStack(
           index: this.currentIndex,
           children: <Widget>[
-            user.account.userType == UserType.jobseeker ? Jobseeker.HomeScreen() : Employer.HomeScreen(),
+            user.isJobSeeker() ? Jobseeker.HomeScreen() : Employer.HomeScreen(),
             ListScreen(),
             ChatScreen(),
             ProfileScreen(),

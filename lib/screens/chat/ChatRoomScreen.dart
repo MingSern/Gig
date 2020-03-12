@@ -1,9 +1,12 @@
 import 'package:Gig/components/chat_box.dart';
 import 'package:Gig/components/date.dart';
+import 'package:Gig/components/floaty_card.dart';
 import 'package:Gig/components/round_button.dart';
 import 'package:Gig/components/rounded_nav_bar.dart';
+import 'package:Gig/enum/enum.dart';
 import 'package:Gig/models/chat_room.dart';
 import 'package:Gig/models/job.dart';
+import 'package:Gig/models/user.dart';
 import 'package:Gig/utils/device.dart';
 import 'package:Gig/utils/palette.dart';
 import 'package:Gig/utils/time.dart';
@@ -23,6 +26,7 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
   Widget build(BuildContext context) {
     ChatRoom chatRoom = Provider.of<ChatRoom>(context);
     Job job = Provider.of<Job>(context);
+    User user = Provider.of<User>(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -86,6 +90,9 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
 
                     return Column(
                       children: <Widget>[
+                        user.isJobSeeker()
+                            ? index == lastIndex ? BuildWarningMessage() : Container()
+                            : Container(),
                         currentDate != nextDate ? Date(date: currentDate) : Container(),
                         ChatBox(
                           uid: document["uid"],
@@ -102,6 +109,27 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
           ),
           Keyboard(controller: textController),
         ],
+      ),
+    );
+  }
+}
+
+class BuildWarningMessage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(15, 15, 15, 0),
+      padding: const EdgeInsets.all(15),
+      width: double.infinity,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(15),
+        color: Palette.cherryRed.withOpacity(0.5),
+      ),
+      child: Text(
+        "Be aware of scam. Please keep in mind that normal employers will not ask for any bank or sensitive informations from you.",
+        style: TextStyle(
+          color: Colors.red,
+        ),
       ),
     );
   }

@@ -154,9 +154,7 @@ class BuildLists extends StatelessWidget {
           return EmptyState(
             imagePath: "assets/empty_list.png",
             message: this.type == JobStatus.pending
-                ? user.account.userType == UserType.jobseeker
-                    ? "You haven't apply any jobs 🤷"
-                    : "No one apply for your jobs 🤷"
+                ? user.isJobSeeker() ? "You haven't apply any jobs 🤷" : "No one apply for your jobs 🤷"
                 : "Seems like you haven't been accepted 🤷",
           );
         }
@@ -180,7 +178,7 @@ class BuildLists extends StatelessWidget {
             return Column(
               children: <Widget>[
                 currentDate != previousDate ? Date(date: currentDate) : Container(),
-                user.account.userType == UserType.employer
+                user.isEmployer()
                     ? this.type == JobStatus.pending
                         ? ListCard(
                             fullname: document["name"],

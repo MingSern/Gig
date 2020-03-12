@@ -217,7 +217,7 @@ class Job extends Base {
       "workPosition": this.job["workPosition"],
       "imageUrls": this.job["imageUrls"],
       "name": this.user.account.fullname,
-      "imageUrl": this.user.account.imageUrl,
+      // "imageUrl": this.user.account.imageUrl,
       "updatedAt": currentTime,
       "status": JobStatus.pending.toString(),
     };
@@ -242,7 +242,7 @@ class Job extends Base {
       "location": this.job["location"],
       "description": this.job["description"],
       "businessName": this.job["businessName"],
-      "imageUrl": this.job["imageUrl"],
+      // "imageUrl": this.job["imageUrl"],
       "createdAt": this.job["createdAt"],
       "updatedAt": currentTime,
       "status": JobStatus.pending.toString(),
@@ -322,6 +322,7 @@ class Job extends Base {
 
   void setWages(double wages) {
     this.selectedWages = wages;
+    notifyListeners();
   }
 
   void setCategories(String category) {
@@ -330,10 +331,13 @@ class Job extends Base {
     } else {
       this.selectedCategories.add(category);
     }
+
+    notifyListeners();
   }
 
   void resetFilter() {
     this.selectedCategories = [];
     this.selectedWages = 10;
+    notifyListeners();
   }
 }

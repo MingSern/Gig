@@ -167,45 +167,6 @@ class User extends Base {
     }
 
     isLoading(false);
-
-    // await Firebase.signInWithPhoneNumber(credential).then((AuthResult result) async {
-    //   if (result.user != null) {
-    //     await Firebase.signUp(this.account.email, this.account.password).then((userId) async {
-    //       this.setId(userId);
-
-    //       var data = {
-    //         "userType": this.account.userType.toString(),
-    //         "uid": this.userId,
-    //         "fullname": this.account.fullname,
-    //         "email": this.account.email,
-    //         "phoneNumber": this.account.phoneNumber,
-    //         "imageUrl": this.account.imageUrl,
-    //       };
-
-    //       if (this.account.userType == UserType.employer) {
-    //         data["businessName"] = this.account.businessName;
-    //       }
-
-    //       var userRef = firestore.collection("accounts").document(this.userId);
-
-    //       await userRef.setData(data).then((_) async {
-    //         await this.authenticate();
-    //       });
-
-    //       String fcmToken = await Firebase.getFCMToken();
-
-    //       userRef.collection("token").document(fcmToken).setData({
-    //         "fcmToken": fcmToken,
-    //       });
-    //     }).catchError((onError) {
-    //       setErrorMessage(onError.message);
-    //     });
-    //   } else {
-    //     setErrorMessage("User not exist.");
-    //   }
-    // }).catchError((onError) {
-    //   setErrorMessage(onError.message);
-    // });
   }
 
   Future<void> logoutAccount() async {
@@ -382,5 +343,13 @@ class User extends Base {
   void setOtherUser(dynamic otherUser) {
     this.otherUser = otherUser;
     notifyListeners();
+  }
+
+  bool isJobSeeker() {
+    return this.account.userType == UserType.jobseeker;
+  }
+
+  bool isEmployer() {
+    return this.account.userType == UserType.employer;
   }
 }

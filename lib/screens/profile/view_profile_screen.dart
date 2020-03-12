@@ -31,7 +31,7 @@ class ViewProfileScreen extends StatelessWidget {
 
     void viewChatRoom() {
       var listener = {
-        "imageUrl": account["imageUrl"],
+        // "imageUrl": account["imageUrl"],
         "name": account["businessName"] ?? account["fullname"],
         "uid": account["uid"],
       };

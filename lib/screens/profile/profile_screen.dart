@@ -150,7 +150,7 @@ class ProfileScreen extends StatelessWidget {
                       mainAxisSize: MainAxisSize.max,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
-                        user.account.userType == UserType.employer
+                        user.isEmployer()
                             ? Container()
                             : Padding(
                                 padding: const EdgeInsets.all(10.0),

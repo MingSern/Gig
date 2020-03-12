@@ -117,7 +117,7 @@ class _SearchJobsScreenState extends State<SearchJobsScreen> {
                 return SmallCard(
                   workPosition: document["workPosition"],
                   businessName: document["businessName"],
-                  imageUrl: document["imageUrl"],
+                  imageUrl: job.getImageUrl(document["uid"]),
                   wages: document["wages"],
                   createdAt: document["createdAt"],
                   location: document["location"],

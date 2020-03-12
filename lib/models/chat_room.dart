@@ -77,7 +77,7 @@ class ChatRoom extends Base {
     var listenerData = {
       "uid": this.listener["uid"],
       "name": this.listener["name"],
-      "imageUrl": this.listener["imageUrl"],
+      // "imageUrl": this.listener["imageUrl"],
       "lastMessage": "",
       "createdAt": createdAt,
     };
@@ -94,22 +94,22 @@ class ChatRoom extends Base {
     });
   }
 
-  Future<void> updateTalkerChatRoom() async {
-    var listenerData = {
-      "imageUrl": this.listener["imageUrl"],
-    };
+  // Future<void> updateTalkerChatRoom() async {
+  //   var listenerData = {
+  //     "imageUrl": this.listener["imageUrl"],
+  //   };
 
-    /// for talker
-    await firestore
-        .collection("accounts")
-        .document(this.user.userId)
-        .collection("chatRooms")
-        .document(this.key)
-        .updateData(listenerData)
-        .catchError((error) {
-      setErrorMessage(error.message);
-    });
-  }
+  //   /// for talker
+  //   await firestore
+  //       .collection("accounts")
+  //       .document(this.user.userId)
+  //       .collection("chatRooms")
+  //       .document(this.key)
+  //       .updateData(listenerData)
+  //       .catchError((error) {
+  //     setErrorMessage(error.message);
+  //   });
+  // }
 
   Future<void> createListenerChatRoom(num createdAt) async {
     var talkerData = {
@@ -117,7 +117,7 @@ class ChatRoom extends Base {
       "name": this.user.account.businessName.isEmpty
           ? this.user.account.fullname
           : this.user.account.businessName,
-      "imageUrl": this.user.account.imageUrl,
+      // "imageUrl": this.user.account.imageUrl,
       "lastMessage": "",
       "createdAt": createdAt,
     };
@@ -134,22 +134,22 @@ class ChatRoom extends Base {
     });
   }
 
-  Future<void> updateListenerChatRoom() async {
-    var talkerData = {
-      "imageUrl": this.user.account.imageUrl,
-    };
+  // Future<void> updateListenerChatRoom() async {
+  //   var talkerData = {
+  //     "imageUrl": this.user.account.imageUrl,
+  //   };
 
-    /// for listener
-    await firestore
-        .collection("accounts")
-        .document(this.listener["uid"])
-        .collection("chatRooms")
-        .document(this.key)
-        .updateData(talkerData)
-        .catchError((error) {
-      setErrorMessage(error.message);
-    });
-  }
+  //   /// for listener
+  //   await firestore
+  //       .collection("accounts")
+  //       .document(this.listener["uid"])
+  //       .collection("chatRooms")
+  //       .document(this.key)
+  //       .updateData(talkerData)
+  //       .catchError((error) {
+  //     setErrorMessage(error.message);
+  //   });
+  // }
 
   Future<void> createMessage(String message) async {
     isLoading(true);
@@ -160,7 +160,7 @@ class ChatRoom extends Base {
       this.exists = true;
     }
 
-    Future.wait([this.updateTalkerChatRoom(), this.updateListenerChatRoom()]);
+    // Future.wait([this.updateTalkerChatRoom(), this.updateListenerChatRoom()]);
 
     var messageData = {
       "uid": this.user.userId,

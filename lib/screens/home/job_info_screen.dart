@@ -28,7 +28,7 @@ class JobInfoScreen extends StatelessWidget {
 
     void viewChatRoom() {
       var listener = {
-        "imageUrl": job.job["imageUrl"],
+        // "imageUrl": job.job["imageUrl"],
         "name": job.job["businessName"],
         "uid": job.job["uid"],
       };
@@ -97,6 +97,7 @@ class JobInfoScreen extends StatelessWidget {
         return SecondaryButton(
           smaller: true,
           text: checkJobApplied() ? "Applied" : "Apply Job",
+          loading: job.loading,
           onPressed: checkJobApplied() ? null : applyJob,
         );
       }
