@@ -6,6 +6,7 @@ import 'package:Gig/enum/enum.dart';
 import 'package:Gig/models/job.dart';
 import 'package:Gig/models/user.dart';
 import 'package:Gig/utils/checker.dart';
+import 'package:Gig/utils/debounce.dart';
 import 'package:Gig/utils/palette.dart';
 import 'package:Gig/utils/time.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -16,6 +17,11 @@ class ListScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Job job = Provider.of<Job>(context);
+    Debounce debounce = new Debounce(milliseconds: 3000);
+
+    debounce.run(() {
+      job.getAccount();
+    });
 
     return DefaultTabController(
       length: 2,
@@ -167,6 +173,10 @@ class BuildLists extends StatelessWidget {
               previousDate = Time.getDate(previousDoc["updatedAt"]);
             }
 
+            if (document["uid"] != null) {
+              job.addAccountId(document["uid"]);
+            }
+
             return Column(
               children: <Widget>[
                 currentDate != previousDate ? Date(date: currentDate) : Container(),
@@ -174,7 +184,7 @@ class BuildLists extends StatelessWidget {
                     ? this.type == JobStatus.pending
                         ? ListCard(
                             fullname: document["name"],
-                            imageUrl: document["imageUrl"],
+                            imageUrl: job.getImageUrl(document["uid"]) ?? null,
                             workPosition: document["workPosition"],
                             onPressed: () => viewProfile(document["uid"]),
                             declined: checkJobStatus(document["status"]),
@@ -183,14 +193,14 @@ class BuildLists extends StatelessWidget {
                           )
                         : ListCard(
                             fullname: document["name"],
-                            imageUrl: document["imageUrl"],
+                            imageUrl: job.getImageUrl(document["uid"]) ?? null,
                             workPosition: document["workPosition"],
                             onPressed: () => viewProfile(document["uid"]),
                           )
                     : SmallCard(
                         workPosition: document["workPosition"],
                         businessName: document["businessName"],
-                        imageUrl: document["imageUrl"],
+                        imageUrl: job.getImageUrl(document["uid"]) ?? null,
                         wages: document["wages"],
                         location: document["location"],
                         createdAt: document["createdAt"],

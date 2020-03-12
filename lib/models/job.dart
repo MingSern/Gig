@@ -18,6 +18,8 @@ class Job extends Base {
   QuerySnapshot availableJobs;
   List<String> selectedCategories = [];
   double selectedWages = 10;
+  List<String> accountIds = [];
+  List<Map> accountImageUrls = [];
 
   void update(User user) {
     this.user = user;
@@ -26,12 +28,12 @@ class Job extends Base {
 
   void setAvailableJobs(QuerySnapshot availableJobs) {
     this.availableJobs = availableJobs;
-    notifyListeners();
+    // notifyListeners();
   }
 
   void setJob(dynamic job) {
     this.job = job;
-    notifyListeners();
+    // notifyListeners();
   }
 
   // employer -----------------------------------------------------------------------------------------
@@ -193,7 +195,6 @@ class Job extends Base {
   Future<void> applyJob() async {
     isLoading(true);
 
-    // var key = this.createKey();
     var currentTime = this.getCurrentTime();
 
     /// update data to [jobs]
@@ -276,6 +277,37 @@ class Job extends Base {
         .collection("shortlists")
         .orderBy("updatedAt", descending: true)
         .snapshots();
+  }
+
+  void getAccount() async {
+    if (this.accountIds.isNotEmpty) {
+      var accountsData =
+          await firestore.collection(accounts).where("uid", whereIn: this.accountIds).getDocuments();
+
+      this.accountImageUrls = accountsData.documents.map((document) {
+        return {
+          "uid": "${document["uid"]}",
+          "imageUrl": "${document["imageUrl"]}",
+        };
+      }).toList();
+    }
+  }
+
+  String getImageUrl(String uid) {
+    for (var imageUrl in this.accountImageUrls) {
+      if (imageUrl["uid"] == uid) {
+        return imageUrl["imageUrl"];
+      }
+    }
+
+    return null;
+  }
+
+  void addAccountId(String uid) {
+    if (!this.accountIds.contains(uid)) {
+      this.accountIds.add(uid);
+      notifyListeners();
+    }
   }
 
   // methods -----------------------------------------------------------------------------------------

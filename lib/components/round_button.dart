@@ -51,11 +51,13 @@ class RoundButton extends StatelessWidget {
 
     Widget handleAvatar() {
       if (this.imageUrl?.isNotEmpty ?? false) {
-        return CircleAvatar(
-          radius: 18,
-          backgroundColor: Palette.mustard,
-          backgroundImage: CachedNetworkImageProvider(this.imageUrl),
-        );
+        if (this.imageUrl != "null") {
+          return CircleAvatar(
+            radius: 18,
+            backgroundColor: Palette.mustard,
+            backgroundImage: CachedNetworkImageProvider(this.imageUrl),
+          );
+        }
       }
 
       if (this.name != null) {

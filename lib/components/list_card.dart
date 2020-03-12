@@ -109,24 +109,24 @@ class BuildUser extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Widget handleAvatar() {
-      if (this.imageUrl?.isNotEmpty ?? false) {
+      if (this.imageUrl == null || this.imageUrl.isEmpty || this.imageUrl == "null") {
         return CircleAvatar(
           radius: 35,
           backgroundColor: Palette.mustard,
-          backgroundImage: CachedNetworkImageProvider(this.imageUrl),
+          child: Text(
+            Device.getFirstLetter(this.fullname),
+            style: TextStyle(
+              color: Colors.black,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
         );
       }
 
       return CircleAvatar(
         radius: 35,
         backgroundColor: Palette.mustard,
-        child: Text(
-          Device.getFirstLetter(this.fullname),
-          style: TextStyle(
-            color: Colors.black,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
+        backgroundImage: CachedNetworkImageProvider(this.imageUrl),
       );
     }
 

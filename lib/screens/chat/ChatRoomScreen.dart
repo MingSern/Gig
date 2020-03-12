@@ -3,6 +3,7 @@ import 'package:Gig/components/date.dart';
 import 'package:Gig/components/round_button.dart';
 import 'package:Gig/components/rounded_nav_bar.dart';
 import 'package:Gig/models/chat_room.dart';
+import 'package:Gig/models/job.dart';
 import 'package:Gig/utils/device.dart';
 import 'package:Gig/utils/palette.dart';
 import 'package:Gig/utils/time.dart';
@@ -21,6 +22,7 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
   @override
   Widget build(BuildContext context) {
     ChatRoom chatRoom = Provider.of<ChatRoom>(context);
+    Job job = Provider.of<Job>(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -31,7 +33,7 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
             RoundButton(
               icon: Icons.arrow_back,
               name: chatRoom.listener["name"],
-              imageUrl: chatRoom.listener["imageUrl"],
+              imageUrl: job.getImageUrl(chatRoom.listener["uid"]),
               onPressed: () => Device.goBack(context),
             ),
             Expanded(

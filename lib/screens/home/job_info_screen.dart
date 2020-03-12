@@ -138,8 +138,9 @@ class JobInfoScreen extends StatelessWidget {
                 ),
                 ProfileCard(
                   fullname: job.job["businessName"],
+                  imageUrl: job.getImageUrl(job.job["uid"]),
                   workPosition: job.job["workPosition"],
-                  onPressed: () => viewProfile(job.job["uid"]),
+                  onPressed: job.job["uid"] == user.userId ? null : () => viewProfile(job.job["uid"]),
                 ),
               ],
             ),
@@ -175,11 +176,13 @@ class JobInfoScreen extends StatelessWidget {
 
 class ProfileCard extends StatelessWidget {
   final String fullname;
+  final String imageUrl;
   final String workPosition;
   final GestureTapCallback onPressed;
 
   ProfileCard({
     @required this.fullname,
+    @required this.imageUrl,
     @required this.workPosition,
     @required this.onPressed,
   });
@@ -212,6 +215,7 @@ class ProfileCard extends StatelessWidget {
             children: <Widget>[
               BuildUser(
                 fullname: this.fullname,
+                imageUrl: this.imageUrl,
               ),
               Container(
                 child: Text(
@@ -234,26 +238,42 @@ class ProfileCard extends StatelessWidget {
 
 class BuildUser extends StatelessWidget {
   final String fullname;
+  final String imageUrl;
 
   BuildUser({
     @required this.fullname,
+    @required this.imageUrl,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: <Widget>[
-        CircleAvatar(
-          radius: 35,
-          backgroundColor: Palette.mustard,
-          child: Text(
-            Device.getFirstLetter(this.fullname),
-            style: TextStyle(
-              color: Colors.black,
-              fontWeight: FontWeight.w500,
-            ),
+    Widget handleAvatar() {
+      if (this.imageUrl?.isNotEmpty ?? false) {
+        if (this.imageUrl != "null") {
+          return CircleAvatar(
+            radius: 35,
+            backgroundColor: Palette.mustard,
+            backgroundImage: CachedNetworkImageProvider(this.imageUrl),
+          );
+        }
+      }
+
+      return CircleAvatar(
+        radius: 35,
+        backgroundColor: Palette.mustard,
+        child: Text(
+          Device.getFirstLetter(this.fullname),
+          style: TextStyle(
+            color: Colors.black,
+            fontWeight: FontWeight.w500,
           ),
         ),
+      );
+    }
+
+    return Row(
+      children: <Widget>[
+        handleAvatar(),
         SizedBox(
           width: 10,
         ),
