@@ -97,6 +97,7 @@ class User extends Base {
     isLoading(true);
 
     var verificationId;
+    this.account = account;
 
     final PhoneCodeAutoRetrievalTimeout autoRetrieve = (String verId) {
       verificationId = verId;
@@ -137,7 +138,7 @@ class User extends Base {
       setErrorMessage(onError.message);
     });
 
-    if (result.user != null) {
+    if (result?.user != null) {
       String userId = await Firebase.signUp(this.account.email, this.account.password).catchError((onError) {
         setErrorMessage(onError.message);
       });

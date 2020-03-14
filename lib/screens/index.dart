@@ -1,6 +1,5 @@
 import 'package:Gig/components/rounded_nav_bar.dart';
 import 'package:Gig/components/rounded_nav_bar_item.dart';
-import 'package:Gig/enum/enum.dart';
 import 'package:Gig/models/user.dart';
 import 'package:Gig/screens/chat/ChatScreen.dart';
 import 'package:Gig/screens/home/Employer/home_screen.dart' as Employer;

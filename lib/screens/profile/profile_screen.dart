@@ -2,7 +2,6 @@ import 'package:Gig/components/description_card.dart';
 import 'package:Gig/components/empty_state.dart';
 import 'package:Gig/components/round_button.dart';
 import 'package:Gig/components/secondary_button.dart';
-import 'package:Gig/enum/enum.dart';
 import 'package:Gig/models/user.dart';
 import 'package:Gig/utils/device.dart';
 import 'package:Gig/utils/dialogs.dart';

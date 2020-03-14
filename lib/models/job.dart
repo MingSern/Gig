@@ -279,37 +279,6 @@ class Job extends Base {
         .snapshots();
   }
 
-  void getAccount() async {
-    if (this.accountIds.isNotEmpty) {
-      var accountsData =
-          await firestore.collection(accounts).where("uid", whereIn: this.accountIds).getDocuments();
-
-      this.accountImageUrls = accountsData.documents.map((document) {
-        return {
-          "uid": "${document["uid"]}",
-          "imageUrl": "${document["imageUrl"]}",
-        };
-      }).toList();
-    }
-  }
-
-  String getImageUrl(String uid) {
-    for (var imageUrl in this.accountImageUrls) {
-      if (imageUrl["uid"] == uid) {
-        return imageUrl["imageUrl"];
-      }
-    }
-
-    return null;
-  }
-
-  void addAccountId(String uid) {
-    if (!this.accountIds.contains(uid)) {
-      this.accountIds.add(uid);
-      notifyListeners();
-    }
-  }
-
   // methods -----------------------------------------------------------------------------------------
   String createKey() {
     var ref = firestore.collection(accounts).document();

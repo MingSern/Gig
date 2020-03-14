@@ -1,7 +1,7 @@
 import 'package:Gig/components/big_card.dart';
-import 'package:Gig/components/loading.dart';
 import 'package:Gig/components/round_button.dart';
 import 'package:Gig/components/title_button.dart';
+import 'package:Gig/models/image_manager.dart';
 import 'package:Gig/models/job.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -95,6 +95,7 @@ class BuildCarousell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    ImageManager imageManager = Provider.of<ImageManager>(context);
     Job job = Provider.of<Job>(context);
 
     void viewJobInfo(document) {
@@ -128,6 +129,10 @@ class BuildCarousell extends StatelessWidget {
                 scrollDirection: Axis.horizontal,
                 physics: BouncingScrollPhysics(),
                 children: snapshot.data.documents.map((document) {
+                  if (document["uid"] != null) {
+                    imageManager.addAccountId(document["uid"]);
+                  }
+
                   return BigCard(
                     workPosition: document["workPosition"],
                     businessName: document["businessName"],

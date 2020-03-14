@@ -52,6 +52,8 @@ flutter:
     - assets/empty_message.png
     - assets/empty_post.png
     - assets/empty_profile.png
+    - assets/empty_search.png
+    - assets/logo.png
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
   # For details regarding adding assets from package dependencies, see

@@ -1,4 +1,3 @@
-import 'package:Gig/components/description_card.dart';
 import 'package:Gig/components/filter_card.dart';
 import 'package:Gig/components/round_button.dart';
 import 'package:Gig/lists/categories.dart';

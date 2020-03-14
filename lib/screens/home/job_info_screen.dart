@@ -6,6 +6,7 @@ import 'package:Gig/components/round_button.dart';
 import 'package:Gig/components/secondary_button.dart';
 import 'package:Gig/enum/enum.dart';
 import 'package:Gig/models/chat_room.dart';
+import 'package:Gig/models/image_manager.dart';
 import 'package:Gig/models/job.dart';
 import 'package:Gig/models/user.dart';
 import 'package:Gig/utils/checker.dart';
@@ -22,6 +23,7 @@ class JobInfoScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    ImageManager imageManager = Provider.of<ImageManager>(context);
     User user = Provider.of<User>(context);
     Job job = Provider.of<Job>(context);
     ChatRoom chatRoom = Provider.of<ChatRoom>(context);
@@ -139,7 +141,7 @@ class JobInfoScreen extends StatelessWidget {
                 ),
                 ProfileCard(
                   fullname: job.job["businessName"],
-                  imageUrl: job.getImageUrl(job.job["uid"]),
+                  imageUrl: imageManager.getImageUrl(job.job["uid"]),
                   workPosition: job.job["workPosition"],
                   onPressed: job.job["uid"] == user.userId ? null : () => viewProfile(job.job["uid"]),
                 ),

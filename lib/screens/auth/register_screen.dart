@@ -135,10 +135,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
                 SizedBox(height: 10),
                 Field(
-                  initialValue: "+601110768827",
+                  initialValue: "01110768827",
                   labelText: "Phone number",
                   keyboardType: TextInputType.phone,
-                  onSaved: (value) => this.phoneNumber = value,
+                  onSaved: (value) => this.phoneNumber = "+6" + value,
                   validator: (value) => value.isEmpty ? "Phone number is empty" : null,
                 ),
                 Container(

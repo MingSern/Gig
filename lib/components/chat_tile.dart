@@ -25,11 +25,13 @@ class ChatTile extends StatelessWidget {
   Widget build(BuildContext context) {
     Widget handleAvatar() {
       if (this.imageUrl?.isNotEmpty ?? false) {
-        return CircleAvatar(
-          radius: 28,
-          backgroundColor: Palette.mustard,
-          backgroundImage: CachedNetworkImageProvider(this.imageUrl),
-        );
+        if (this.imageUrl != "null") {
+          return CircleAvatar(
+            radius: 28,
+            backgroundColor: Palette.mustard,
+            backgroundImage: CachedNetworkImageProvider(this.imageUrl),
+          );
+        }
       }
 
       return CircleAvatar(

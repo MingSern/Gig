@@ -1,9 +1,8 @@
-import 'package:Gig/components/big_card.dart';
-import 'package:Gig/components/loading.dart';
+import 'package:Gig/components/empty_state.dart';
 import 'package:Gig/components/round_button.dart';
 import 'package:Gig/components/small_card.dart';
+import 'package:Gig/models/image_manager.dart';
 import 'package:Gig/models/job.dart';
-import 'package:Gig/utils/debounce.dart';
 import 'package:Gig/utils/device.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -31,6 +30,7 @@ class _SearchJobsScreenState extends State<SearchJobsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    ImageManager imageManager = Provider.of<ImageManager>(context);
     Job job = Provider.of<Job>(context);
 
     Widget searchBar() {
@@ -100,14 +100,24 @@ class _SearchJobsScreenState extends State<SearchJobsScreen> {
             return Container();
           }
 
-          if (snapshot.data.documents.length == 0) {
-            return Center(
-              child: Text("No result"),
+          if (textController.text == "") {
+            return ListView(
+              children: <Widget>[
+                SizedBox(height: 130),
+                EmptyState(
+                  imagePath: "assets/empty_search.png",
+                  message: "You can search jobs by the business name 💼, work position 👷 or location 📍",
+                ),
+              ],
             );
           }
 
           return ListView(
             children: snapshot.data.documents.map((document) {
+              if (document["uid"] != null) {
+                imageManager.addAccountId(document["uid"]);
+              }
+
               var keyword = textController.text.toLowerCase().replaceAll(" ", "");
 
               if (document["workPosition"].toLowerCase().replaceAll(" ", "").contains(keyword) ||
@@ -117,7 +127,7 @@ class _SearchJobsScreenState extends State<SearchJobsScreen> {
                 return SmallCard(
                   workPosition: document["workPosition"],
                   businessName: document["businessName"],
-                  imageUrl: job.getImageUrl(document["uid"]),
+                  imageUrl: imageManager.getImageUrl(document["uid"]),
                   wages: document["wages"],
                   createdAt: document["createdAt"],
                   location: document["location"],

@@ -1,12 +1,22 @@
 import 'dart:io';
 import 'package:Gig/models/base.dart';
 import 'package:Gig/models/user.dart';
+import 'package:Gig/utils/debounce.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
 
 class ImageManager extends Base {
   User user;
   File image;
+  List<String> accountIds;
+  List<Map> accountImageUrls;
+  Debounce debounce;
+
+  ImageManager() {
+    this.accountIds = new List<String>();
+    this.accountImageUrls = new List<Map>();
+    this.debounce = new Debounce(milliseconds: 1000);
+  }
 
   void update(User user) {
     this.user = user;
@@ -50,5 +60,39 @@ class ImageManager extends Base {
 
   String basename(String filename) {
     return filename.split("/").last;
+  }
+
+  void getAccount() async {
+    if (this.accountIds.isNotEmpty || this.accountIds != null) {
+      var accountsData =
+          await firestore.collection("accounts").where("uid", whereIn: this.accountIds).getDocuments();
+
+      this.accountImageUrls = accountsData.documents.map((document) {
+        return {
+          "uid": "${document["uid"]}",
+          "imageUrl": "${document["imageUrl"]}",
+        };
+      }).toList();
+    }
+  }
+
+  void addAccountId(String uid) {
+    if (!this.accountIds.contains(uid)) {
+      this.accountIds.add(uid);
+
+      debounce.run(() {
+        this.getAccount();
+      });
+    }
+  }
+
+  String getImageUrl(String uid) {
+    for (var imageUrl in this.accountImageUrls) {
+      if (imageUrl["uid"] == uid) {
+        return imageUrl["imageUrl"];
+      }
+    }
+
+    return null;
   }
 }

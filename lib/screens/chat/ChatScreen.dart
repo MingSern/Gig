@@ -1,7 +1,7 @@
 import 'package:Gig/components/chat_tile.dart';
 import 'package:Gig/components/empty_state.dart';
 import 'package:Gig/models/chat_room.dart';
-import 'package:Gig/models/job.dart';
+import 'package:Gig/models/image_manager.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -9,8 +9,8 @@ import 'package:provider/provider.dart';
 class ChatScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    ImageManager imageManager = Provider.of<ImageManager>(context);
     ChatRoom chatRoom = Provider.of<ChatRoom>(context);
-    Job job = Provider.of<Job>(context);
 
     void viewChatRoom(dynamic listener) {
       chatRoom.open(listener);
@@ -47,9 +47,13 @@ class ChatScreen extends StatelessWidget {
 
           return ListView(
             children: snapshot.data.documents.map((document) {
+              if (document["uid"] != null) {
+                imageManager.addAccountId(document["uid"]);
+              }
+
               return ChatTile(
                 name: document["name"],
-                imageUrl: job.getImageUrl(document["uid"]),
+                imageUrl: imageManager.getImageUrl(document["uid"]),
                 lastMessage: document["lastMessage"],
                 createdAt: document["createdAt"],
                 onTap: () => viewChatRoom(document),

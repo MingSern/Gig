@@ -3,10 +3,10 @@ import 'package:Gig/components/empty_state.dart';
 import 'package:Gig/components/list_card.dart';
 import 'package:Gig/components/small_card.dart';
 import 'package:Gig/enum/enum.dart';
+import 'package:Gig/models/image_manager.dart';
 import 'package:Gig/models/job.dart';
 import 'package:Gig/models/user.dart';
 import 'package:Gig/utils/checker.dart';
-import 'package:Gig/utils/debounce.dart';
 import 'package:Gig/utils/palette.dart';
 import 'package:Gig/utils/time.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -17,11 +17,6 @@ class ListScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Job job = Provider.of<Job>(context);
-    Debounce debounce = new Debounce(milliseconds: 3000);
-
-    debounce.run(() {
-      job.getAccount();
-    });
 
     return DefaultTabController(
       length: 2,
@@ -95,6 +90,7 @@ class BuildLists extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    ImageManager imageManager = Provider.of<ImageManager>(context);
     User user = Provider.of<User>(context);
     Job job = Provider.of<Job>(context);
 
@@ -172,7 +168,7 @@ class BuildLists extends StatelessWidget {
             }
 
             if (document["uid"] != null) {
-              job.addAccountId(document["uid"]);
+              imageManager.addAccountId(document["uid"]);
             }
 
             return Column(
@@ -182,7 +178,7 @@ class BuildLists extends StatelessWidget {
                     ? this.type == JobStatus.pending
                         ? ListCard(
                             fullname: document["name"],
-                            imageUrl: job.getImageUrl(document["uid"]) ?? null,
+                            imageUrl: imageManager.getImageUrl(document["uid"]),
                             workPosition: document["workPosition"],
                             onPressed: () => viewProfile(document["uid"]),
                             declined: checkJobStatus(document["status"]),
@@ -191,14 +187,14 @@ class BuildLists extends StatelessWidget {
                           )
                         : ListCard(
                             fullname: document["name"],
-                            imageUrl: job.getImageUrl(document["uid"]) ?? null,
+                            imageUrl: imageManager.getImageUrl(document["uid"]),
                             workPosition: document["workPosition"],
                             onPressed: () => viewProfile(document["uid"]),
                           )
                     : SmallCard(
                         workPosition: document["workPosition"],
                         businessName: document["businessName"],
-                        imageUrl: job.getImageUrl(document["uid"]) ?? null,
+                        imageUrl: imageManager.getImageUrl(document["uid"]),
                         wages: document["wages"],
                         location: document["location"],
                         createdAt: document["createdAt"],
