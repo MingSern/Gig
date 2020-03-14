@@ -136,12 +136,16 @@ class JobInfoScreen extends StatelessWidget {
                   width: double.infinity,
                   child: CachedNetworkImage(
                     imageUrl: job.job["imageUrls"]?.first ?? this.imageUrl,
+                    fadeOutCurve: Curves.easeIn,
+                    fadeInDuration: Duration(milliseconds: 500),
                     fit: BoxFit.cover,
                   ),
                 ),
                 ProfileCard(
                   fullname: job.job["businessName"],
-                  imageUrl: imageManager.getImageUrl(job.job["uid"]),
+                  imageUrl: job.job["uid"] == user.userId
+                      ? user.account.imageUrl
+                      : imageManager.getImageUrl(job.job["uid"]),
                   workPosition: job.job["workPosition"],
                   onPressed: job.job["uid"] == user.userId ? null : () => viewProfile(job.job["uid"]),
                 ),
@@ -156,19 +160,27 @@ class JobInfoScreen extends StatelessWidget {
               ],
             ),
             DescriptionCard(
-              title: "Wages",
-              child: Text(job.job["wages"]),
+              icon: Icons.category,
+              title: "Category",
+              child: Text(job.job["category"]),
             ),
             DescriptionCard(
+              icon: Icons.monetization_on,
+              title: "Wages",
+              child: Text("RM ${job.job["wages"]}/hr"),
+            ),
+            DescriptionCard(
+              icon: Icons.location_on,
               title: "Location",
               child: Text(job.job["location"]),
             ),
             DescriptionCard(
+              icon: Icons.description,
               title: "Job description",
-              child: Text(Lorem.long()),
+              child: Text(Lorem.short()),
             ),
             SizedBox(
-              height: 50,
+              height: 15,
             ),
           ],
         ),
@@ -253,10 +265,27 @@ class BuildUser extends StatelessWidget {
     Widget handleAvatar() {
       if (this.imageUrl?.isNotEmpty ?? false) {
         if (this.imageUrl != "null") {
-          return CircleAvatar(
-            radius: 35,
-            backgroundColor: Palette.mustard,
-            backgroundImage: CachedNetworkImageProvider(this.imageUrl),
+          // return CircleAvatar(
+          //   radius: 35,
+          //   backgroundColor: Colors.grey[100],
+          //   backgroundImage: CachedNetworkImageProvider(this.imageUrl),
+          // );
+          return Container(
+            height: 70,
+            width: 70,
+            decoration: BoxDecoration(
+              color: Colors.grey[100],
+              shape: BoxShape.circle,
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(200),
+              child: CachedNetworkImage(
+                fit: BoxFit.cover,
+                imageUrl: this.imageUrl,
+                fadeOutCurve: Curves.easeIn,
+                fadeInDuration: Duration(milliseconds: 500),
+              ),
+            ),
           );
         }
       }

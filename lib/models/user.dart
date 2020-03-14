@@ -3,6 +3,7 @@ import 'package:Gig/models/account.dart';
 import 'package:Gig/models/base.dart';
 import 'package:Gig/services/firebase.dart';
 import 'package:Gig/utils/checker.dart';
+import 'package:Gig/utils/debounce.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -16,23 +17,31 @@ class User extends Base {
   String shortlisted = "0";
   String applied = "0";
   dynamic otherUser;
+  Debounce debounce;
 
   User() {
     this.authenticate();
+    debounce = new Debounce(milliseconds: 1500);
   }
 
   Future<void> authenticate() async {
     await Firebase.getCurrentUser().then((user) async {
       if (user != null) {
         this.setId(user.uid);
-        await Future.wait(
-            [this.getAccount(), this.getApplied(), this.getShortlisted(), this.subscribeFcmToken()]);
+
+        await Future.wait([
+          this.getAccount(),
+          this.getApplied(),
+          this.getShortlisted(),
+          this.subscribeFcmToken(),
+        ]);
+
         this.authStatus = AuthStatus.signedIn;
       } else {
         this.authStatus = AuthStatus.notSignedIn;
       }
     }).catchError((onError) {
-      setErrorMessage(onError.message);
+      setErrorMessage(onError.toString());
       this.authStatus = AuthStatus.notSignedIn;
     });
 
@@ -66,17 +75,21 @@ class User extends Base {
     DocumentSnapshot snapshot = await firestore.collection("accounts").document(this.userId).get();
     var accountData = snapshot.data;
 
-    UserType userType = UserType.values.firstWhere((e) => e.toString() == accountData["userType"]);
+    UserType userType = Checker.getUserType(accountData["userType"]);
     String email = accountData["email"];
     String fullname = accountData["fullname"];
     String businessName = accountData["businessName"] ?? "";
     String phoneNumber = accountData["phoneNumber"];
     String password = accountData["password"] ?? "";
     String imageUrl = accountData["imageUrl"] ?? "";
+    List<dynamic> preferedCategories = accountData["preferedCategories"] ?? [];
+    int preferedWages = accountData["preferedWages"] ?? 10;
 
     Account account = new Account(userType, email, password, fullname, businessName, phoneNumber);
 
     account.setImageUrl(imageUrl);
+    account.setPreferedCategories(preferedCategories);
+    account.setPreferedWages(preferedWages);
     this.setAccount(account);
   }
 
@@ -87,7 +100,7 @@ class User extends Base {
     await Firebase.signIn(email, password).then((_) async {
       await this.authenticate();
     }).catchError((onError) {
-      setErrorMessage(onError.message);
+      setErrorMessage(onError.toString());
     });
 
     isLoading(false);
@@ -114,13 +127,13 @@ class User extends Base {
     };
 
     final PhoneVerificationFailed verifyFailed = (AuthException exception) {
-      print('${exception.message}');
+      print('${exception.toString()}');
     };
 
     await Firebase.sendCodeToPhoneNumber(
             account.phoneNumber, autoRetrieve, smsCodeSent, verifySuccess, verifyFailed)
         .catchError((onError) {
-      setErrorMessage(onError.message);
+      setErrorMessage(onError.toString());
     });
 
     isLoading(false);
@@ -135,17 +148,17 @@ class User extends Base {
     );
 
     AuthResult result = await Firebase.signInWithPhoneNumber(credential).catchError((onError) {
-      setErrorMessage(onError.message);
+      setErrorMessage(onError.toString());
     });
 
     if (result?.user != null) {
       String userId = await Firebase.signUp(this.account.email, this.account.password).catchError((onError) {
-        setErrorMessage(onError.message);
+        setErrorMessage(onError.toString());
       });
 
       this.setId(userId);
 
-      var data = {
+      Map<String, dynamic> data = {
         "userType": this.account.userType.toString(),
         "uid": this.userId,
         "fullname": this.account.fullname,
@@ -156,6 +169,8 @@ class User extends Base {
 
       if (this.account.userType == UserType.employer) {
         data["businessName"] = this.account.businessName;
+      } else {
+        data["preferedCategories"] = [];
       }
 
       var userRef = firestore.collection("accounts").document(this.userId);
@@ -177,7 +192,7 @@ class User extends Base {
       await this.authenticate();
       await this.unsubscribeFcmToken();
     }).catchError((onError) {
-      setErrorMessage(onError.message);
+      setErrorMessage(onError.toString());
     });
 
     isLoading(false);
@@ -226,7 +241,7 @@ class User extends Base {
         .collection("descriptions")
         .add(data)
         .catchError((onError) {
-      setErrorMessage(onError.message);
+      setErrorMessage(onError.toString());
     });
 
     isLoading(false);
@@ -247,7 +262,7 @@ class User extends Base {
         .document(documentId)
         .updateData(updateData)
         .catchError((onError) {
-      setErrorMessage(onError.message);
+      setErrorMessage(onError.toString());
     });
 
     isLoading(false);
@@ -263,7 +278,7 @@ class User extends Base {
         .document(documentId)
         .delete()
         .catchError((onError) {
-      setErrorMessage(onError.message);
+      setErrorMessage(onError.toString());
     });
 
     isLoading(false);
@@ -281,7 +296,7 @@ class User extends Base {
         .document(this.userId)
         .updateData(updateImageUrl)
         .catchError((onError) {
-      setErrorMessage(onError.message);
+      setErrorMessage(onError.toString());
     });
 
     await this.getAccount();
@@ -293,7 +308,7 @@ class User extends Base {
     isLoading(true);
 
     var account = await firestore.collection("accounts").document(uid).get().catchError((onError) {
-      setErrorMessage(onError.message);
+      setErrorMessage(onError.toString());
     });
 
     UserType userType = Checker.getUserType(account["userType"]);
@@ -306,8 +321,9 @@ class User extends Base {
           .collection("shortlists")
           .getDocuments()
           .catchError((onError) {
-        setErrorMessage(onError.message);
+        setErrorMessage(onError.toString());
       });
+
       length = shortlists.documents.length;
     } else {
       var posts = await firestore
@@ -316,8 +332,9 @@ class User extends Base {
           .collection("posts")
           .getDocuments()
           .catchError((onError) {
-        setErrorMessage(onError.message);
+        setErrorMessage(onError.toString());
       });
+
       length = posts.documents.length;
     }
 
@@ -327,7 +344,7 @@ class User extends Base {
         .collection("descriptions")
         .getDocuments()
         .catchError((onError) {
-      setErrorMessage(onError.message);
+      setErrorMessage(onError.toString());
     });
 
     var otherUser = {
@@ -352,5 +369,67 @@ class User extends Base {
 
   bool isEmployer() {
     return this.account.userType == UserType.employer;
+  }
+
+  void setWages(int wages) {
+    this.account.preferedWages = wages;
+
+    debounce.run(() {
+      this.savePreferedWages();
+      print("save Wages");
+    });
+
+    notifyListeners();
+  }
+
+  void setCategories(String category) {
+    if (this.account.preferedCategories.contains(category)) {
+      this.account.preferedCategories.remove(category);
+    } else {
+      this.account.preferedCategories.add(category);
+    }
+
+    debounce.run(() {
+      this.savePreferedCategories();
+      print("save Categoris");
+    });
+
+    notifyListeners();
+  }
+
+  Future<void> savePreferedWages() async {
+    isLoading(true);
+
+    var updateWages = {
+      "preferedWages": this.account.preferedWages,
+    };
+
+    await firestore
+        .collection("accounts")
+        .document(this.userId)
+        .updateData(updateWages)
+        .catchError((onError) {
+      setErrorMessage(onError.toString());
+    });
+
+    isLoading(false);
+  }
+
+  Future<void> savePreferedCategories() async {
+    isLoading(true);
+
+    var updateCategories = {
+      "preferedCategories": this.account.preferedCategories,
+    };
+
+    await firestore
+        .collection("accounts")
+        .document(this.userId)
+        .updateData(updateCategories)
+        .catchError((onError) {
+      setErrorMessage(onError.toString());
+    });
+
+    isLoading(false);
   }
 }

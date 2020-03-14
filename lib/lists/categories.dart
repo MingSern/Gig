@@ -26,4 +26,5 @@ List<String> categories = [
   "Social Services & Nonprofit",
   "Sports, Fitness & Recreation",
   "Transportation & Logistics",
+  "Others",
 ];

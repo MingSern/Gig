@@ -62,9 +62,11 @@ class BigCard extends StatelessWidget {
                   topLeft: const Radius.circular(20.0),
                   topRight: const Radius.circular(20.0),
                 ),
-                child: Image(
-                  image: CachedNetworkImageProvider(this.imageUrl),
+                child: CachedNetworkImage(
                   fit: BoxFit.cover,
+                  imageUrl: this.imageUrl,
+                  fadeOutCurve: Curves.easeIn,
+                  fadeInDuration: Duration(milliseconds: 500),
                 ),
               ),
             ),

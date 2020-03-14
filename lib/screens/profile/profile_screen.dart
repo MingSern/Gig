@@ -70,10 +70,22 @@ class ProfileScreen extends StatelessWidget {
 
     Widget handleAvatar() {
       if (user.account.imageUrl.isNotEmpty) {
-        return CircleAvatar(
-          radius: 50,
-          backgroundColor: Palette.mustard,
-          backgroundImage: CachedNetworkImageProvider((user.account.imageUrl)),
+        return Container(
+          height: 100,
+          width: 100,
+          decoration: BoxDecoration(
+            color: Colors.grey[100],
+            shape: BoxShape.circle,
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(200),
+            child: CachedNetworkImage(
+              fit: BoxFit.cover,
+              imageUrl: user.account.imageUrl,
+              fadeOutCurve: Curves.easeIn,
+              fadeInDuration: Duration(milliseconds: 500),
+            ),
+          ),
         );
       }
 
@@ -87,6 +99,7 @@ class ProfileScreen extends StatelessWidget {
           style: TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.w500,
+            fontSize: 20,
           ),
         ),
       );

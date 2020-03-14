@@ -1,8 +1,13 @@
 import 'package:Gig/components/big_card.dart';
+import 'package:Gig/components/filter_card.dart';
+import 'package:Gig/components/loading.dart';
 import 'package:Gig/components/round_button.dart';
 import 'package:Gig/components/title_button.dart';
+import 'package:Gig/lists/categories.dart';
 import 'package:Gig/models/image_manager.dart';
 import 'package:Gig/models/job.dart';
+import 'package:Gig/models/user.dart';
+import 'package:Gig/utils/palette.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -10,39 +15,141 @@ import 'package:provider/provider.dart';
 class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    User user = Provider.of<User>(context);
     Job job = Provider.of<Job>(context);
 
     void filterJobs() {
       Navigator.pushNamed(context, "/home/job/filter");
     }
 
+    return user.account.preferedCategories.isEmpty
+        ? BuildSelection()
+        : Scaffold(
+            appBar: AppBar(
+              titleSpacing: 0,
+              title: BuildSearchBar(),
+              actions: <Widget>[
+                RoundButton(
+                  icon: Icons.tune,
+                  onPressed: filterJobs,
+                )
+              ],
+            ),
+            body: ListView(
+              children: <Widget>[
+                BuildCarousell(
+                  title: "Recommended for you",
+                  future: job.getAvailableJobs(limit: 5),
+                ),
+                BuildCarousell(
+                  title: "Your preferences",
+                  future: job.getAvailableJobs(limit: 5),
+                ),
+                BuildCarousell(
+                  title: "Near you",
+                  future: job.getAvailableJobs(limit: 5),
+                ),
+                BuildCarousell(
+                  title: "Available jobs",
+                  future: job.getAvailableJobs(limit: 5),
+                ),
+              ],
+            ),
+          );
+  }
+}
+
+class BuildSelection extends StatefulWidget {
+  @override
+  _BuildSelectionState createState() => _BuildSelectionState();
+}
+
+class _BuildSelectionState extends State<BuildSelection> {
+  List<String> preferedCategories;
+
+  @override
+  void initState() {
+    preferedCategories = new List<String>();
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    User user = Provider.of<User>(context);
+
+    void savePreferedCategories() {
+      user.savePreferedCategories();
+    }
+
     return Scaffold(
       appBar: AppBar(
-        titleSpacing: 0,
-        title: BuildSearchBar(),
+        // title: Text("Select your categories"),
         actions: <Widget>[
           RoundButton(
-            icon: Icons.tune,
-            onPressed: filterJobs,
-          )
-        ],
-      ),
-      body: ListView(
-        children: <Widget>[
-          BuildCarousell(
-            title: "Recommended for you",
-            future: job.getAvailableJobs(limit: 5),
-          ),
-          BuildCarousell(
-            title: "Near you",
-            future: job.getAvailableJobs(limit: 5),
-          ),
-          BuildCarousell(
-            title: "Available jobs",
-            future: job.getAvailableJobs(limit: 5),
+            icon: Icons.done,
+            loading: this.preferedCategories.isEmpty,
+            onPressed: savePreferedCategories,
           ),
         ],
       ),
+      body: user.loading
+          ? Loading()
+          : SingleChildScrollView(
+              child: Column(
+                children: <Widget>[
+                  FilterCard(
+                    title: "Catogories",
+                    child: ListView.separated(
+                      shrinkWrap: true,
+                      physics: ClampingScrollPhysics(),
+                      itemCount: categories.length,
+                      itemBuilder: (context, index) {
+                        String category = categories[index];
+                        bool prefered = preferedCategories.contains(category) ?? false;
+
+                        return Material(
+                          color: Colors.transparent,
+                          child: ListTile(
+                            title: Text(
+                              category,
+                              style: TextStyle(
+                                color: prefered ? Palette.lapizBlue : Colors.grey,
+                              ),
+                            ),
+                            trailing: prefered
+                                ? Icon(
+                                    Icons.done,
+                                    color: Palette.lapizBlue,
+                                  )
+                                : Container(width: double.minPositive),
+                            onTap: () {
+                              if (prefered) {
+                                this.setState(() => preferedCategories.remove(category));
+                              } else {
+                                this.setState(() => preferedCategories.add(category));
+                              }
+
+                              print(preferedCategories.toString());
+                            },
+                          ),
+                        );
+                      },
+                      separatorBuilder: (context, index) {
+                        return Divider(
+                          indent: 20,
+                          endIndent: 20,
+                          height: 0.5,
+                          color: Colors.grey[400],
+                        );
+                      },
+                    ),
+                  ),
+                  SizedBox(
+                    height: 15,
+                  ),
+                ],
+              ),
+            ),
     );
   }
 }
@@ -54,10 +161,10 @@ class BuildSearchBar extends StatelessWidget {
       onTap: () => Navigator.pushNamed(context, "/home/job/search"),
       child: Container(
         height: 40,
-        margin: const EdgeInsets.only(left: 20),
+        margin: const EdgeInsets.only(left: 15),
         padding: const EdgeInsets.symmetric(horizontal: 15),
         decoration: BoxDecoration(
-          color: Colors.grey[200],
+          color: Colors.grey[100],
           borderRadius: BorderRadius.all(
             Radius.circular(100),
           ),

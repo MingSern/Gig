@@ -26,10 +26,27 @@ class ChatTile extends StatelessWidget {
     Widget handleAvatar() {
       if (this.imageUrl?.isNotEmpty ?? false) {
         if (this.imageUrl != "null") {
-          return CircleAvatar(
-            radius: 28,
-            backgroundColor: Palette.mustard,
-            backgroundImage: CachedNetworkImageProvider(this.imageUrl),
+          // return CircleAvatar(
+          //   radius: 28,
+          //   backgroundColor: Colors.grey[100],
+          //   backgroundImage: CachedNetworkImageProvider(this.imageUrl),
+          // );
+          return Container(
+            height: 56,
+            width: 56,
+            decoration: BoxDecoration(
+              color: Colors.grey[100],
+              shape: BoxShape.circle,
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(200),
+              child: CachedNetworkImage(
+                fit: BoxFit.cover,
+                imageUrl: this.imageUrl,
+                fadeOutCurve: Curves.easeIn,
+                fadeInDuration: Duration(milliseconds: 500),
+              ),
+            ),
           );
         }
       }

@@ -1,16 +1,13 @@
 class Recommender {
   static hybridRecommender(dynamic jobs) {}
 
-  static contentBasedFiltering(dynamic jobs) {
+  static contentBasedFiltering(dynamic jobs) {}
+
+  static collaborativeFiltering(dynamic jobs) {
     List<dynamic> ratedJob = [];
 
     for (var job in jobs) {
-      for (var anotherJob in jobs) {
-        if (job != anotherJob) {
-          double wagesRate = double.parse(job["wages"]) - double.parse(anotherJob["wages"]);
-          
-        }
-      }
+      double wagesRate = job.preferedWages - job.job["wages"];
     }
 
     // wages
@@ -18,6 +15,4 @@ class Recommender {
     // category
     // work position
   }
-
-  static collaborativeFiltering(dynamic jobs) {}
 }

@@ -9,8 +9,11 @@ class Account {
   String phoneNumber;
   String verificationId;
   String imageUrl;
+  List<dynamic> preferedCategories;
+  int preferedWages;
 
   Account(userType, email, password, fullname, businessName, phoneNumber) {
+    this.preferedCategories = new List<dynamic>();
     this.userType = userType;
     this.email = email;
     this.password = password;
@@ -25,5 +28,13 @@ class Account {
 
   void setImageUrl(String imageUrl) {
     this.imageUrl = imageUrl;
+  }
+
+  void setPreferedCategories(List<dynamic> categories) {
+    this.preferedCategories = List.from(categories);
+  }
+
+  void setPreferedWages(int wages) {
+    this.preferedWages = wages;
   }
 }

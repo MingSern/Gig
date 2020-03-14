@@ -4,6 +4,7 @@ class Field extends StatelessWidget {
   final TextInputType keyboardType;
   final String labelText;
   final String hintText;
+  final bool loading;
   final String initialValue;
   final bool obscureText;
   final int maxLines;
@@ -16,6 +17,7 @@ class Field extends StatelessWidget {
     @required this.labelText,
     @required this.onSaved,
     @required this.validator,
+    this.loading = false,
     this.initialValue = "",
     this.textCapitalization = TextCapitalization.none,
     this.maxLines = 1,
@@ -28,6 +30,7 @@ class Field extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 30),
       child: TextFormField(
+        enabled: !this.loading,
         initialValue: this.initialValue,
         textCapitalization: this.textCapitalization,
         keyboardType: this.keyboardType,
@@ -53,7 +56,7 @@ class Field extends StatelessWidget {
             borderRadius: BorderRadius.circular(25),
           ),
           errorBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.white),
+            borderSide: BorderSide(color: Colors.red),
             borderRadius: BorderRadius.circular(25),
           ),
           focusedErrorBorder: OutlineInputBorder(

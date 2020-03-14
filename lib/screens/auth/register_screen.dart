@@ -58,6 +58,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     Future<void> verifyAccount() async {
       if (validatedAndSaved()) {
+        Device.dismissKeyboard(context);
         Account account = Account(userType, email, password, fullname, businessName, phoneNumber);
 
         await user.verifyAccount(account).then((_) {
@@ -75,6 +76,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         elevation: 0,
         leading: RoundButton(
           icon: Icons.arrow_back,
+          loading: user.loading,
           onPressed: () => Device.goBack(context),
         ),
       ),
@@ -147,6 +149,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   child: PrimaryButton(
                     text: "Register",
                     onPressed: verifyAccount,
+                    loading: user.loading,
                   ),
                 ),
                 SizedBox(

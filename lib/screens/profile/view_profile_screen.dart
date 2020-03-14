@@ -80,10 +80,27 @@ class ViewProfileScreen extends StatelessWidget {
                                   ),
                                 ),
                               )
-                            : CircleAvatar(
-                                radius: 50,
-                                backgroundColor: Palette.mustard,
-                                backgroundImage: CachedNetworkImageProvider(account["imageUrl"]),
+                            // : CircleAvatar(
+                            //     radius: 50,
+                            //     backgroundColor: Colors.grey[100],
+                            //     backgroundImage: CachedNetworkImageProvider(account["imageUrl"]),
+                            //   ),
+                            : Container(
+                                height: 100,
+                                width: 100,
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[100],
+                                  shape: BoxShape.circle,
+                                ),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(200),
+                                  child: CachedNetworkImage(
+                                    fit: BoxFit.cover,
+                                    imageUrl: account["imageUrl"],
+                                    fadeOutCurve: Curves.easeIn,
+                                    fadeInDuration: Duration(milliseconds: 500),
+                                  ),
+                                ),
                               ),
                       ),
                       Expanded(

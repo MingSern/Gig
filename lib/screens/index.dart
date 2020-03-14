@@ -1,5 +1,6 @@
 import 'package:Gig/components/rounded_nav_bar.dart';
 import 'package:Gig/components/rounded_nav_bar_item.dart';
+import 'package:Gig/models/screen_controller.dart';
 import 'package:Gig/models/user.dart';
 import 'package:Gig/screens/chat/ChatScreen.dart';
 import 'package:Gig/screens/home/Employer/home_screen.dart' as Employer;
@@ -31,7 +32,7 @@ class Index extends StatefulWidget {
 }
 
 class _IndexState extends State<Index> {
-  var currentIndex = 0;
+  // var currentIndex = 0;
 
   @override
   void initState() {
@@ -41,6 +42,7 @@ class _IndexState extends State<Index> {
 
   @override
   Widget build(BuildContext context) {
+    ScreenController controller = Provider.of<ScreenController>(context);
     User user = Provider.of<User>(context);
 
     Future<bool> onWillPop() {
@@ -51,7 +53,7 @@ class _IndexState extends State<Index> {
       onWillPop: onWillPop,
       child: Scaffold(
         body: IndexedStack(
-          index: this.currentIndex,
+          index: controller.currentIndex,
           children: <Widget>[
             user.isJobSeeker() ? Jobseeker.HomeScreen() : Employer.HomeScreen(),
             ListScreen(),
@@ -62,16 +64,12 @@ class _IndexState extends State<Index> {
         bottomNavigationBar: RoundedNavBar(
           items: screens.map((Screen screen) {
             return RoundedNavBarItem(
-              currentIndex: currentIndex,
+              currentIndex: controller.currentIndex,
               index: screens.indexOf(screen),
               label: screen.label,
               activeColor: Palette.mustard,
               iconData: screen.icon,
-              onTap: () {
-                setState(() {
-                  currentIndex = screens.indexOf(screen);
-                });
-              },
+              onTap: () => controller.setIndex(screens.indexOf(screen)),
             );
           }).toList(),
         ),

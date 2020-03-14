@@ -40,7 +40,7 @@ class _SearchJobsScreenState extends State<SearchJobsScreen> {
         margin: const EdgeInsets.only(right: 20),
         padding: const EdgeInsets.symmetric(horizontal: 15),
         decoration: BoxDecoration(
-          color: Colors.grey[200],
+          color: Colors.grey[100],
           borderRadius: BorderRadius.all(
             Radius.circular(100),
           ),

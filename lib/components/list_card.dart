@@ -24,74 +24,77 @@ class ListCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-      decoration: BoxDecoration(
-        color: this.declined ? Colors.grey[100] : Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: this.declined ? Colors.transparent : Colors.grey[300],
-            blurRadius: 15.0,
-            offset: Offset(0.0, 4.0),
-          ),
-        ],
-        borderRadius: BorderRadius.circular(20.0),
-      ),
-      child: Stack(
-        alignment: AlignmentDirectional.bottomCenter,
-        children: <Widget>[
-          RawMaterialButton(
-            onPressed: this.declined ? null : this.onPressed,
-            splashColor: Colors.grey[200],
-            padding: const EdgeInsets.all(10),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
+    return Opacity(
+      opacity: this.declined ? 0.6 : 1,
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+        decoration: BoxDecoration(
+          color: this.declined ? Colors.grey[200] : Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: this.declined ? Colors.transparent : Colors.grey[300],
+              blurRadius: 15.0,
+              offset: Offset(0.0, 4.0),
             ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                BuildUser(
-                  imageUrl: this.imageUrl,
-                  fullname: this.fullname,
-                ),
-                Container(
-                  child: Text(
-                    this.workPosition,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontWeight: FontWeight.w500,
-                      fontSize: 19,
-                    ),
+          ],
+          borderRadius: BorderRadius.circular(20.0),
+        ),
+        child: Stack(
+          alignment: AlignmentDirectional.bottomCenter,
+          children: <Widget>[
+            RawMaterialButton(
+              onPressed: this.declined ? null : this.onPressed,
+              splashColor: Colors.grey[200],
+              padding: const EdgeInsets.all(10),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  BuildUser(
+                    imageUrl: this.imageUrl,
+                    fullname: this.fullname,
                   ),
-                ),
-                SizedBox(height: 5),
-                this.onAccept == null && this.onReject == null
-                    ? Container()
-                    : this.declined
-                        ? Text(
-                            "Declined",
-                            style: TextStyle(
-                              color: Colors.red,
-                              fontSize: 26,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          )
-                        : Container(height: 40),
-              ],
-            ),
-          ),
-          this.onAccept == null && this.onReject == null
-              ? Container()
-              : this.declined
-                  ? Container()
-                  : Container(
-                      margin: const EdgeInsets.symmetric(vertical: 5),
-                      child: BuildButtons(
-                        onAccept: this.onAccept,
-                        onReject: this.onReject,
+                  Container(
+                    child: Text(
+                      this.workPosition,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w500,
+                        fontSize: 19,
                       ),
                     ),
-        ],
+                  ),
+                  SizedBox(height: 5),
+                  this.onAccept == null && this.onReject == null
+                      ? Container()
+                      : this.declined
+                          ? Text(
+                              "Declined",
+                              style: TextStyle(
+                                color: Colors.red,
+                                fontSize: 26,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            )
+                          : Container(height: 40),
+                ],
+              ),
+            ),
+            this.onAccept == null && this.onReject == null
+                ? Container()
+                : this.declined
+                    ? Container()
+                    : Container(
+                        margin: const EdgeInsets.symmetric(vertical: 5),
+                        child: BuildButtons(
+                          onAccept: this.onAccept,
+                          onReject: this.onReject,
+                        ),
+                      ),
+          ],
+        ),
       ),
     );
   }
@@ -125,7 +128,7 @@ class BuildUser extends StatelessWidget {
 
       return CircleAvatar(
         radius: 35,
-        backgroundColor: Palette.mustard,
+        backgroundColor: Colors.grey[100],
         backgroundImage: CachedNetworkImageProvider(this.imageUrl),
       );
     }

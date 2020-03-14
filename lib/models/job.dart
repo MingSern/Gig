@@ -16,8 +16,8 @@ class Job extends Base {
   User user;
   dynamic job;
   QuerySnapshot availableJobs;
-  List<String> selectedCategories = [];
-  double selectedWages = 10;
+  List<String> preferedCategories = [];
+  double preferedWages = 10;
   List<String> accountIds = [];
   List<Map> accountImageUrls = [];
 
@@ -37,7 +37,7 @@ class Job extends Base {
   }
 
   // employer -----------------------------------------------------------------------------------------
-  Future<void> createJob(var workPosition, var wages, var location, var description) async {
+  Future<void> createJob(var workPosition, var wages, var location, var description, var category) async {
     isLoading(true);
 
     var key = this.createKey();
@@ -51,19 +51,20 @@ class Job extends Base {
       "wages": wages,
       "location": location,
       "description": description,
+      "category": category,
       "businessName": this.user.account.businessName,
-      "imageUrl": this.user.account.imageUrl,
+      // "imageUrl": this.user.account.imageUrl,
       "createdAt": this.getCurrentTime(),
       "pendings": [],
       "shortlists": [],
       "rejects": [],
     };
 
-    await firestore.collection(jobs).document(key).setData(data).catchError((error) {
+    var createNewJob = firestore.collection(jobs).document(key).setData(data).catchError((error) {
       setErrorMessage(error.message);
     });
 
-    await firestore
+    var createPostAtHome = firestore
         .collection(accounts)
         .document(this.user.userId)
         .collection(posts)
@@ -71,6 +72,11 @@ class Job extends Base {
         .catchError((error) {
       setErrorMessage(error.message);
     });
+
+    await Future.wait([
+      createNewJob,
+      createPostAtHome,
+    ]);
 
     isLoading(false);
   }
@@ -154,7 +160,7 @@ class Job extends Base {
     };
 
     /// update pending for [employer] and [jobseeker]
-    await firestore
+    var employerPending = firestore
         .collection(accounts)
         .document(this.user.userId)
         .collection(pendings)
@@ -164,7 +170,7 @@ class Job extends Base {
       setErrorMessage(error.message);
     });
 
-    await firestore
+    var jobseekerPending = firestore
         .collection(accounts)
         .document(jobseekerId)
         .collection(pendings)
@@ -174,19 +180,24 @@ class Job extends Base {
       setErrorMessage(error.message);
     });
 
+    await Future.wait([
+      employerPending,
+      jobseekerPending,
+    ]);
+
     /// update data for [jobs]
     var updateData = {
       "pendings": FieldValue.arrayRemove([jobseekerId]),
       "rejects": FieldValue.arrayUnion([jobseekerId]),
     };
 
-    var theJob = firestore.collection(jobs).document(key);
+    // var theJob = firestore.collection(jobs).document(key);
 
-    await theJob.updateData(updateData).catchError((error) {
+    firestore.collection(jobs).document(key).updateData(updateData).catchError((error) {
       setErrorMessage(error.message);
     });
 
-    this.setJob(await theJob.get());
+    // this.setJob(await theJob.get());
 
     isLoading(false);
   }
@@ -217,12 +228,13 @@ class Job extends Base {
       "workPosition": this.job["workPosition"],
       "imageUrls": this.job["imageUrls"],
       "name": this.user.account.fullname,
+      "category": this.job["category"],
       // "imageUrl": this.user.account.imageUrl,
       "updatedAt": currentTime,
       "status": JobStatus.pending.toString(),
     };
 
-    await firestore
+    var employerPending = firestore
         .collection(accounts)
         .document(this.job["uid"])
         .collection(pendings)
@@ -242,13 +254,14 @@ class Job extends Base {
       "location": this.job["location"],
       "description": this.job["description"],
       "businessName": this.job["businessName"],
+      "category": this.job["category"],
       // "imageUrl": this.job["imageUrl"],
       "createdAt": this.job["createdAt"],
       "updatedAt": currentTime,
       "status": JobStatus.pending.toString(),
     };
 
-    await firestore
+    var jobseekerPending = firestore
         .collection(accounts)
         .document(this.user.userId)
         .collection(pendings)
@@ -257,6 +270,11 @@ class Job extends Base {
         .catchError((error) {
       setErrorMessage(error.message);
     });
+
+    await Future.wait([
+      employerPending,
+      jobseekerPending,
+    ]);
 
     isLoading(false);
   }
@@ -289,24 +307,24 @@ class Job extends Base {
     return new DateTime.now().millisecondsSinceEpoch;
   }
 
-  void setWages(double wages) {
-    this.selectedWages = wages;
-    notifyListeners();
-  }
+  // void setWages(double wages) {
+  //   this.preferedWages = wages;
+  //   notifyListeners();
+  // }
 
-  void setCategories(String category) {
-    if (this.selectedCategories.contains(category)) {
-      this.selectedCategories.remove(category);
-    } else {
-      this.selectedCategories.add(category);
-    }
+  // void setCategories(String category) {
+  //   if (this.preferedCategories.contains(category)) {
+  //     this.preferedCategories.remove(category);
+  //   } else {
+  //     this.preferedCategories.add(category);
+  //   }
 
-    notifyListeners();
-  }
+  //   notifyListeners();
+  // }
 
-  void resetFilter() {
-    this.selectedCategories = [];
-    this.selectedWages = 10;
-    notifyListeners();
-  }
+  // void resetFilter() {
+  //   this.preferedCategories = [];
+  //   this.preferedWages = 10;
+  //   notifyListeners();
+  // }
 }

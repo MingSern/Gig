@@ -28,10 +28,27 @@ class SmallCard extends StatelessWidget {
   Widget handleAvatar() {
     if (this.imageUrl?.isNotEmpty ?? false) {
       if (this.imageUrl != "null") {
-        return CircleAvatar(
-          radius: 35,
-          backgroundColor: Palette.mustard,
-          backgroundImage: CachedNetworkImageProvider(this.imageUrl),
+        // return CircleAvatar(
+        //   radius: 35,
+        //   backgroundColor: Colors.grey[100],
+        //   backgroundImage: CachedNetworkImageProvider(this.imageUrl),
+        // );
+        return Container(
+          height: 70,
+          width: 70,
+          decoration: BoxDecoration(
+            color: Colors.grey[100],
+            shape: BoxShape.circle,
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(200),
+            child: CachedNetworkImage(
+              fit: BoxFit.cover,
+              imageUrl: this.imageUrl,
+              fadeOutCurve: Curves.easeIn,
+              fadeInDuration: Duration(milliseconds: 500),
+            ),
+          ),
         );
       }
     }
@@ -52,11 +69,11 @@ class SmallCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Opacity(
-      opacity: this.declined ? 0.5 : 1,
+      opacity: this.declined ? 0.6 : 1,
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
         decoration: BoxDecoration(
-          color: this.declined ? Colors.grey[100] : Colors.white,
+          color: this.declined ? Colors.grey[200] : Colors.white,
           boxShadow: [
             BoxShadow(
               color: this.declined ? Colors.transparent : Colors.grey[300],

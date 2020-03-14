@@ -1,5 +1,6 @@
 import 'package:Gig/components/field.dart';
 import 'package:Gig/components/round_button.dart';
+import 'package:Gig/lists/categories.dart';
 import 'package:Gig/models/job.dart';
 import 'package:Gig/utils/device.dart';
 import 'package:Gig/utils/generator.dart';
@@ -17,6 +18,7 @@ class _AddJobScreenState extends State<AddJobScreen> {
   var wages;
   var location;
   var description;
+  var category;
 
   @override
   void initState() {
@@ -31,6 +33,7 @@ class _AddJobScreenState extends State<AddJobScreen> {
     this.wages = data["wages"];
     this.location = data["location"];
     this.description = data["description"];
+    this.category = data["category"];
   }
 
   @override
@@ -50,7 +53,9 @@ class _AddJobScreenState extends State<AddJobScreen> {
 
     void createJob() {
       if (validatedAndSaved()) {
-        job.createJob(this.workPosition, this.wages, this.location, this.description).then((_) {
+        job
+            .createJob(this.workPosition, this.wages, this.location, this.description, this.category)
+            .then((_) {
           if (job.containsError) {
             job.showErrorMessage(context);
           } else {
@@ -91,6 +96,7 @@ class _AddJobScreenState extends State<AddJobScreen> {
                   keyboardType: TextInputType.text,
                   textCapitalization: TextCapitalization.words,
                   labelText: "Work position",
+                  loading: job.loading,
                   onSaved: (value) => workPosition = value,
                   validator: (value) => value.isEmpty ? "Work position is empty" : null,
                 ),
@@ -99,6 +105,7 @@ class _AddJobScreenState extends State<AddJobScreen> {
                   initialValue: this.wages,
                   keyboardType: TextInputType.number,
                   labelText: "Wages",
+                  loading: job.loading,
                   onSaved: (value) => wages = value,
                   validator: (value) => value.isEmpty ? "Wages is empty" : null,
                 ),
@@ -108,8 +115,60 @@ class _AddJobScreenState extends State<AddJobScreen> {
                   keyboardType: TextInputType.text,
                   textCapitalization: TextCapitalization.words,
                   labelText: "Location",
+                  loading: job.loading,
                   onSaved: (value) => location = value,
                   validator: (value) => value.isEmpty ? "Location is empty" : null,
+                ),
+                SizedBox(height: 10),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 0),
+                  child: DropdownButtonFormField(
+                    isExpanded: true,
+                    isDense: false,
+                    value: this.category,
+                    validator: (value) => value == null ? "Category is empty" : null,
+                    disabledHint: DropdownMenuItem(
+                      value: this.category,
+                      child: Text(
+                        this.category ?? "Blah",
+                        style: TextStyle(color: Colors.black),
+                      ),
+                    ),
+                    decoration: InputDecoration(
+                      labelText: "Category",
+                      filled: true,
+                      isDense: true,
+                      fillColor: job.loading ? Colors.grey[50] : Colors.grey[100],
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 25, vertical: 0),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.white),
+                        borderRadius: BorderRadius.circular(25),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.white),
+                        borderRadius: BorderRadius.circular(25),
+                      ),
+                      disabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.white),
+                        borderRadius: BorderRadius.circular(25),
+                      ),
+                      errorBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.red),
+                        borderRadius: BorderRadius.circular(25),
+                      ),
+                      focusedErrorBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.white),
+                        borderRadius: BorderRadius.circular(25),
+                      ),
+                    ),
+                    items: categories.map((category) {
+                      return DropdownMenuItem(
+                        value: category,
+                        child: Text(category),
+                      );
+                    }).toList(),
+                    onChanged: job.loading ? null : (value) => this.setState(() => this.category = value),
+                  ),
                 ),
                 SizedBox(height: 10),
                 Field(
@@ -118,6 +177,7 @@ class _AddJobScreenState extends State<AddJobScreen> {
                   textCapitalization: TextCapitalization.sentences,
                   maxLines: null,
                   labelText: "Description",
+                  loading: job.loading,
                   onSaved: (value) => description = value,
                   validator: (value) => value.isEmpty ? "Description is empty" : null,
                 ),

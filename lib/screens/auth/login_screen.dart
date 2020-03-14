@@ -2,6 +2,7 @@ import 'package:Gig/components/field.dart';
 import 'package:Gig/components/primary_button.dart';
 import 'package:Gig/components/title_text.dart';
 import 'package:Gig/models/user.dart';
+import 'package:Gig/utils/device.dart';
 import 'package:Gig/utils/dialogs.dart';
 import 'package:Gig/utils/palette.dart';
 import 'package:flutter/material.dart';
@@ -35,6 +36,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
     void loginAccount() {
       if (validatedAndSaved()) {
+        Device.dismissKeyboard(context);
+
         user.loginAccount(this.email, this.password).then((_) {
           if (user.containsError) {
             user.showErrorMessage(context);
@@ -72,6 +75,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     keyboardType: TextInputType.emailAddress,
                     labelText: "Email",
                     hintText: "example@mail.com",
+                    loading: user.loading,
                     onSaved: (value) => this.email = value,
                     validator: (value) => value.isEmpty ? "Email is empty" : null,
                   ),
@@ -80,6 +84,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     keyboardType: TextInputType.text,
                     labelText: "Password",
                     obscureText: true,
+                    loading: user.loading,
                     onSaved: (value) => this.password = value,
                     validator: (value) => value.isEmpty ? "Password is empty" : null,
                   ),

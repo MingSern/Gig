@@ -154,14 +154,6 @@ class ChatRoom extends Base {
   Future<void> createMessage(String message) async {
     isLoading(true);
 
-    if (!this.exists) {
-      var createdAt = new DateTime.now().millisecondsSinceEpoch;
-      await Future.wait([this.createTalkerChatRoom(createdAt), this.createListenerChatRoom(createdAt)]);
-      this.exists = true;
-    }
-
-    // Future.wait([this.updateTalkerChatRoom(), this.updateListenerChatRoom()]);
-
     var messageData = {
       "uid": this.user.userId,
       "to": this.key.split("_").where((id) => id != this.user.userId).toList().first,
@@ -169,7 +161,7 @@ class ChatRoom extends Base {
       "createdAt": new DateTime.now().millisecondsSinceEpoch,
     };
 
-    await firestore
+    firestore
         .collection("chatRooms")
         .document(this.key)
         .collection("messages")
@@ -177,6 +169,14 @@ class ChatRoom extends Base {
         .catchError((error) {
       setErrorMessage(error.message);
     });
+
+    if (!this.exists) {
+      var createdAt = new DateTime.now().millisecondsSinceEpoch;
+      await Future.wait([this.createTalkerChatRoom(createdAt), this.createListenerChatRoom(createdAt)]);
+      this.exists = true;
+    }
+
+    // Future.wait([this.updateTalkerChatRoom(), this.updateListenerChatRoom()]);
 
     this.updateLastMessage(message);
 

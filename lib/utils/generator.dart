@@ -1,5 +1,7 @@
 import 'dart:math';
 
+import 'package:Gig/lists/categories.dart';
+
 class Generator {
   static final random = new Random();
 
@@ -198,9 +200,10 @@ class Generator {
 
     var data = {
       "workPosition": jobs[random.nextInt(jobs.length)],
-      "wages": random.nextInt(100).toString(),
+      "wages": random.nextInt(30).toString(),
       "location": locations[random.nextInt(locations.length)],
       "description": "I want more detailed information.",
+      "category": categories[random.nextInt(categories.length)],
     };
 
     return data;

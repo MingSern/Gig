@@ -4,6 +4,7 @@ import 'package:Gig/components/round_button.dart';
 import 'package:Gig/components/rounded_nav_bar.dart';
 import 'package:Gig/models/chat_room.dart';
 import 'package:Gig/models/image_manager.dart';
+import 'package:Gig/models/screen_controller.dart';
 import 'package:Gig/models/user.dart';
 import 'package:Gig/utils/device.dart';
 import 'package:Gig/utils/palette.dart';
@@ -22,91 +23,101 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
 
   @override
   Widget build(BuildContext context) {
+    ScreenController controller = Provider.of<ScreenController>(context);
     ImageManager imageManager = Provider.of<ImageManager>(context);
     ChatRoom chatRoom = Provider.of<ChatRoom>(context);
     User user = Provider.of<User>(context);
 
-    return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        titleSpacing: 0,
-        title: Row(
-          children: <Widget>[
-            RoundButton(
-              icon: Icons.arrow_back,
-              name: chatRoom.listener["name"],
-              imageUrl: imageManager.getImageUrl(chatRoom.listener["uid"]),
-              onPressed: () => Device.goBack(context),
-            ),
-            Expanded(
-              child: Align(
-                alignment: Alignment(0, 0),
-                child: Text(
-                  chatRoom.listener["name"],
-                  overflow: TextOverflow.ellipsis,
+    Future<bool> onWillPop() {
+      controller.goTo(context: context, screenIndex: 2);
+
+      return Future.value(false);
+    }
+
+    return WillPopScope(
+      onWillPop: onWillPop,
+      child: Scaffold(
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          titleSpacing: 0,
+          title: Row(
+            children: <Widget>[
+              RoundButton(
+                icon: Icons.arrow_back,
+                name: chatRoom.listener["name"],
+                imageUrl: imageManager.getImageUrl(chatRoom.listener["uid"]),
+                onPressed: () => controller.goTo(context: context, screenIndex: 2),
+              ),
+              Expanded(
+                child: Align(
+                  alignment: Alignment(0, 0),
+                  child: Text(
+                    chatRoom.listener["name"],
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
               ),
+              RoundButton(
+                icon: Icons.more_horiz,
+                onPressed: () {},
+              ),
+            ],
+          ),
+          centerTitle: true,
+        ),
+        body: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: <Widget>[
+            Flexible(
+              child: StreamBuilder(
+                stream: chatRoom.getMessages(),
+                builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                  if (!snapshot.hasData) {
+                    return Container();
+                  }
+
+                  if (snapshot.hasError) {
+                    return Container();
+                  }
+
+                  return ListView.builder(
+                    shrinkWrap: true,
+                    reverse: true,
+                    physics: ClampingScrollPhysics(),
+                    itemCount: snapshot.data.documents.length,
+                    itemBuilder: (context, index) {
+                      var lastIndex = snapshot.data.documents.length - 1;
+                      var document = snapshot.data.documents.elementAt(index);
+                      var currentDate = Time.getDate(document["createdAt"]);
+                      var nextDate;
+
+                      if (index != lastIndex) {
+                        var nextDoc = snapshot.data.documents.elementAt(index + 1);
+                        nextDate = Time.getDate(nextDoc["createdAt"]);
+                      }
+
+                      return Column(
+                        children: <Widget>[
+                          user.isJobSeeker()
+                              ? index == lastIndex ? BuildWarningMessage() : Container()
+                              : Container(),
+                          currentDate != nextDate ? Date(date: currentDate) : Container(),
+                          ChatBox(
+                            uid: document["uid"],
+                            message: document["message"],
+                            createdAt: document["createdAt"],
+                          ),
+                          index == 0 ? SizedBox(height: 10) : Container(),
+                        ],
+                      );
+                    },
+                  );
+                },
+              ),
             ),
-            RoundButton(
-              icon: Icons.more_horiz,
-              onPressed: () {},
-            ),
+            Keyboard(controller: textController),
           ],
         ),
-        centerTitle: true,
-      ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: <Widget>[
-          Flexible(
-            child: StreamBuilder(
-              stream: chatRoom.getMessages(),
-              builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-                if (!snapshot.hasData) {
-                  return Container();
-                }
-
-                if (snapshot.hasError) {
-                  return Container();
-                }
-
-                return ListView.builder(
-                  shrinkWrap: true,
-                  reverse: true,
-                  physics: ClampingScrollPhysics(),
-                  itemCount: snapshot.data.documents.length,
-                  itemBuilder: (context, index) {
-                    var lastIndex = snapshot.data.documents.length - 1;
-                    var document = snapshot.data.documents.elementAt(index);
-                    var currentDate = Time.getDate(document["createdAt"]);
-                    var nextDate;
-
-                    if (index != lastIndex) {
-                      var nextDoc = snapshot.data.documents.elementAt(index + 1);
-                      nextDate = Time.getDate(nextDoc["createdAt"]);
-                    }
-
-                    return Column(
-                      children: <Widget>[
-                        user.isJobSeeker()
-                            ? index == lastIndex ? BuildWarningMessage() : Container()
-                            : Container(),
-                        currentDate != nextDate ? Date(date: currentDate) : Container(),
-                        ChatBox(
-                          uid: document["uid"],
-                          message: document["message"],
-                          createdAt: document["createdAt"],
-                        ),
-                        index == 0 ? SizedBox(height: 10) : Container(),
-                      ],
-                    );
-                  },
-                );
-              },
-            ),
-          ),
-          Keyboard(controller: textController),
-        ],
       ),
     );
   }
@@ -124,7 +135,7 @@ class BuildWarningMessage extends StatelessWidget {
         color: Palette.cherryRed.withOpacity(0.5),
       ),
       child: Text(
-        "Be aware of scam. Please keep in mind that normal employers will not ask for any bank or sensitive informations from you.",
+        "Please be aware of scams. Keep in mind that normal employers will not ask for any sensitive or bank informations from you.",
         style: TextStyle(
           color: Colors.red,
         ),

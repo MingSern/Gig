@@ -1,6 +1,7 @@
 import 'package:Gig/models/chat_room.dart';
 import 'package:Gig/models/image_manager.dart';
 import 'package:Gig/models/job.dart';
+import 'package:Gig/models/screen_controller.dart';
 import 'package:Gig/models/user.dart';
 import 'package:Gig/root.dart';
 import 'package:Gig/screens/auth/additional_info_screen.dart';
@@ -33,6 +34,7 @@ class MyApp extends StatelessWidget {
 
     final providers = [
       ChangeNotifierProvider<User>(create: (context) => User()),
+      ChangeNotifierProvider<ScreenController>(create: (context) => ScreenController()),
       ChangeNotifierProxyProvider<User, Job>(
         create: (_) => Job(),
         update: (_, user, job) => job..update(user),

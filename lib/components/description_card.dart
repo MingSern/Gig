@@ -4,12 +4,14 @@ import 'package:flutter/material.dart';
 class DescriptionCard extends StatelessWidget {
   final String title;
   final Widget child;
+  final IconData icon;
   final GestureTapCallback onEdit;
   final GestureTapCallback onDelete;
 
   DescriptionCard({
     @required this.title,
     @required this.child,
+    this.icon,
     this.onEdit,
     this.onDelete,
   });
@@ -32,12 +34,27 @@ class DescriptionCard extends StatelessWidget {
             Container(
               width: double.infinity,
               padding: const EdgeInsets.only(bottom: 10),
-              child: Text(
-                this.title,
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
+              child: Row(
+                children: <Widget>[
+                  this.icon == null
+                      ? Container()
+                      : Row(
+                          children: <Widget>[
+                            Icon(
+                              this.icon,
+                              size: 15,
+                            ),
+                            SizedBox(width: 5),
+                          ],
+                        ),
+                  Text(
+                    this.title,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                ],
               ),
             ),
             this.child,
