@@ -3,6 +3,7 @@ import 'package:Gig/components/round_button.dart';
 import 'package:Gig/lists/categories.dart';
 import 'package:Gig/models/user.dart';
 import 'package:Gig/utils/device.dart';
+import 'package:Gig/utils/dialogs.dart';
 import 'package:Gig/utils/palette.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -12,26 +13,68 @@ class FilterScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     User user = Provider.of<User>(context);
 
-    // void savePreferedCategories() async {
-    //   if (user.account.preferedCategories.isNotEmpty) {
-    //     var saveCategories = user.savePreferedCategories();
-    //     var saveWages = user.savePreferedWages();
+    return BuildFilter(
+      user: user,
+    );
+  }
+}
 
-    //     await Future.wait([saveCategories, saveWages]).then((_) {
-    //       Navigator.pop(context);
-    //     });
-    //   }
-    // }
+class BuildFilter extends StatefulWidget {
+  final User user;
+
+  BuildFilter({
+    @required this.user,
+  });
+
+  @override
+  _BuildFilterState createState() => _BuildFilterState();
+}
+
+class _BuildFilterState extends State<BuildFilter> {
+  double preferedWages;
+  List<dynamic> preferedCategories;
+
+  @override
+  void initState() {
+    preferedWages = widget.user.account.preferedWages.toDouble();
+    preferedCategories = List.from(widget.user.account.preferedCategories);
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    void savePreferedCategories() async {
+      if (preferedCategories.isNotEmpty) {
+        var saveCategories = widget.user.savePreferedCategories(preferedCategories: preferedCategories);
+        var saveWages = widget.user.savePreferedWages(preferedWages: preferedWages);
+
+        await Future.wait([saveCategories, saveWages]).then((_) {
+          Navigator.pop(context);
+        });
+      } else {
+        Dialogs.notifyDialog(
+          context: context,
+          content: "Please select at least one job category.",
+        );
+      }
+    }
 
     return Scaffold(
       appBar: AppBar(
         leading: RoundButton(
           icon: Icons.arrow_back,
-          loading: user.loading,
+          loading: widget.user.loading,
           onPressed: () => Device.goBack(context),
         ),
         title: Text("Filter by"),
         centerTitle: true,
+        actions: <Widget>[
+          RoundButton(
+            icon: Icons.done,
+            loading: widget.user.loading,
+            onPressed: savePreferedCategories,
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -39,18 +82,18 @@ class FilterScreen extends StatelessWidget {
           children: <Widget>[
             FilterCard(
               title: "Expected wages:",
-              value: "RM ${user.account.preferedWages}/hr",
+              value: "RM ${preferedWages.toStringAsFixed(2)}/hr",
               child: Column(
                 children: <Widget>[
                   SizedBox(height: 10),
                   Slider(
                     activeColor: Palette.mustard,
-                    value: user.account.preferedWages.toDouble(),
-                    onChanged: (value) => user.setWages(value.toInt()),
+                    value: preferedWages,
+                    onChanged: (value) => this.setState(() => preferedWages = value),
                     divisions: 50,
                     min: 0,
                     max: 50,
-                    label: "RM ${user.account.preferedWages}/hr",
+                    label: "RM ${preferedWages.toStringAsFixed(2)}/hr",
                   ),
                 ],
               ),
@@ -62,25 +105,30 @@ class FilterScreen extends StatelessWidget {
                 physics: ClampingScrollPhysics(),
                 itemCount: categories.length,
                 itemBuilder: (context, index) {
-                  bool prefered = user.account.preferedCategories.contains(categories[index]);
+                  bool prefered = preferedCategories.contains(categories[index]);
 
                   return Material(
                     color: Colors.transparent,
                     child: ListTile(
-                      title: Text(
-                        categories[index],
-                        style: TextStyle(
-                          color: prefered ? Palette.lapizBlue : Colors.grey,
+                        title: Text(
+                          categories[index],
+                          style: TextStyle(
+                            color: prefered ? Palette.lapizBlue : Colors.grey,
+                          ),
                         ),
-                      ),
-                      trailing: prefered
-                          ? Icon(
-                              Icons.done,
-                              color: Palette.lapizBlue,
-                            )
-                          : Container(width: double.minPositive),
-                      onTap: () => user.setCategories(categories[index]),
-                    ),
+                        trailing: prefered
+                            ? Icon(
+                                Icons.done,
+                                color: Palette.lapizBlue,
+                              )
+                            : Container(width: double.minPositive),
+                        onTap: () {
+                          if (preferedCategories.contains(categories[index])) {
+                            this.setState(() => preferedCategories.remove(categories[index]));
+                          } else {
+                            this.setState(() => preferedCategories.add(categories[index]));
+                          }
+                        }),
                   );
                 },
                 separatorBuilder: (context, index) {

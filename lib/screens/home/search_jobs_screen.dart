@@ -3,6 +3,7 @@ import 'package:Gig/components/round_button.dart';
 import 'package:Gig/components/small_card.dart';
 import 'package:Gig/models/image_manager.dart';
 import 'package:Gig/models/job.dart';
+import 'package:Gig/utils/algorithm.dart';
 import 'package:Gig/utils/device.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -80,6 +81,44 @@ class _SearchJobsScreenState extends State<SearchJobsScreen> {
       Navigator.pushNamed(context, "/home/job/info");
     }
 
+    List<DocumentSnapshot> filterDocument() {
+      return job.availableJobs.where((document) {
+        if (document["uid"] != null) {
+          imageManager.addAccountId(document["uid"]);
+        }
+
+        var keyword = textController.text.toLowerCase().replaceAll(" ", "");
+        return Algorithm.search(document: document, keyword: keyword);
+      }).toList();
+    }
+
+    List<Widget> mapDocuments() {
+      List<DocumentSnapshot> filteredDocument = filterDocument();
+
+      if (filteredDocument.isEmpty) {
+        return [
+          Container(
+            height: Device.getMaxHeight(context) * 0.4,
+            child: Center(
+              child: Text("No result"),
+            ),
+          )
+        ];
+      }
+
+      return filteredDocument.map((document) {
+        return SmallCard(
+          workPosition: document["workPosition"],
+          businessName: document["businessName"],
+          imageUrl: imageManager.getImageUrl(document["uid"]),
+          wages: document["wages"],
+          createdAt: document["createdAt"],
+          location: document["location"],
+          onPressed: () => viewJobInfo(document),
+        );
+      }).toList();
+    }
+
     return Scaffold(
       appBar: AppBar(
         leading: RoundButton(
@@ -89,67 +128,16 @@ class _SearchJobsScreenState extends State<SearchJobsScreen> {
         titleSpacing: 0,
         title: searchBar(),
       ),
-      body: FutureBuilder(
-        future: job.getAvailableJobs(),
-        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-          if (snapshot.hasError) {
-            return Container();
-          }
-
-          if (!snapshot.hasData) {
-            return Container();
-          }
-
-          if (textController.text == "") {
-            return ListView(
+      body: textController.text == ""
+          ? ListView(
               children: <Widget>[
-                SizedBox(height: 130),
                 EmptyState(
                   imagePath: "assets/empty_search.png",
                   message: "You can search jobs by the business name 💼, work position 👷 or location 📍",
                 ),
               ],
-            );
-          }
-
-          return ListView(
-            children: snapshot.data.documents.map((document) {
-              if (document["uid"] != null) {
-                imageManager.addAccountId(document["uid"]);
-              }
-
-              var keyword = textController.text.toLowerCase().replaceAll(" ", "");
-
-              if (document["workPosition"].toLowerCase().replaceAll(" ", "").contains(keyword) ||
-                  document["businessName"].toLowerCase().replaceAll(" ", "").contains(keyword) ||
-                  document["description"].toLowerCase().replaceAll(" ", "").contains(keyword) ||
-                  document["location"].toLowerCase().replaceAll(" ", "").contains(keyword)) {
-                return SmallCard(
-                  workPosition: document["workPosition"],
-                  businessName: document["businessName"],
-                  imageUrl: imageManager.getImageUrl(document["uid"]),
-                  wages: document["wages"],
-                  createdAt: document["createdAt"],
-                  location: document["location"],
-                  onPressed: () => viewJobInfo(document),
-                );
-              }
-
-              int lastIndex = snapshot.data.documents.length - 1;
-              int index = snapshot.data.documents.indexOf(document);
-
-              return index == lastIndex
-                  ? Container(
-                      height: Device.getMaxHeight(context) / 2,
-                      child: Center(
-                        child: Text("No result"),
-                      ),
-                    )
-                  : Container();
-            }).toList(),
-          );
-        },
-      ),
+            )
+          : ListView(children: mapDocuments()),
     );
   }
 }

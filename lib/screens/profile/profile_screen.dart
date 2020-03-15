@@ -2,6 +2,7 @@ import 'package:Gig/components/description_card.dart';
 import 'package:Gig/components/empty_state.dart';
 import 'package:Gig/components/round_button.dart';
 import 'package:Gig/components/secondary_button.dart';
+import 'package:Gig/models/screen_controller.dart';
 import 'package:Gig/models/user.dart';
 import 'package:Gig/utils/device.dart';
 import 'package:Gig/utils/dialogs.dart';
@@ -15,6 +16,7 @@ class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     User user = Provider.of<User>(context);
+    ScreenController controller = Provider.of<ScreenController>(context);
 
     void logout() {
       Dialogs.confirmationDialog(
@@ -24,6 +26,7 @@ class ProfileScreen extends StatelessWidget {
         onConfirm: "Logout",
       ).then((onConfirm) {
         if (onConfirm ?? false) {
+          controller.goTo(context: context, screenIndex: 0);
           user.logoutAccount();
         }
       });
@@ -244,11 +247,15 @@ class ProfileScreen extends StatelessWidget {
                 }
 
                 if (snapshot.data.documents.length == 0) {
+                  user.setProfileCompleted(false);
+
                   return EmptyState(
                     imagePath: "assets/empty_profile.png",
                     message: "Add description to boost your profile 🔥",
                   );
                 }
+
+                user.setProfileCompleted(true);
 
                 return ListView.builder(
                   shrinkWrap: true,

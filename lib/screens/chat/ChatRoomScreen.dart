@@ -6,7 +6,6 @@ import 'package:Gig/models/chat_room.dart';
 import 'package:Gig/models/image_manager.dart';
 import 'package:Gig/models/screen_controller.dart';
 import 'package:Gig/models/user.dart';
-import 'package:Gig/utils/device.dart';
 import 'package:Gig/utils/palette.dart';
 import 'package:Gig/utils/time.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';

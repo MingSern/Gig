@@ -3,6 +3,7 @@ import 'package:Gig/components/small_card.dart';
 import 'package:Gig/models/image_manager.dart';
 import 'package:Gig/models/job.dart';
 import 'package:Gig/utils/device.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -11,7 +12,9 @@ class ShowJobsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     ImageManager imageManager = Provider.of<ImageManager>(context);
     Job job = Provider.of<Job>(context);
-    final String title = ModalRoute.of(context).settings.arguments;
+    final Map<String, dynamic> data = ModalRoute.of(context).settings.arguments;
+    final String title = data["title"];
+    final List<DocumentSnapshot> documents = data["documents"];
 
     void viewJobInfo(document) {
       job.setJob(document);
@@ -28,7 +31,7 @@ class ShowJobsScreen extends StatelessWidget {
         ),
       ),
       body: ListView(
-        children: job.availableJobs.documents.map((document) {
+        children: documents.map((document) {
           if (document["uid"] != null) {
             imageManager.addAccountId(document["uid"]);
           }

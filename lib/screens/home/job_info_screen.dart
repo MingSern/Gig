@@ -11,6 +11,7 @@ import 'package:Gig/models/job.dart';
 import 'package:Gig/models/user.dart';
 import 'package:Gig/utils/checker.dart';
 import 'package:Gig/utils/device.dart';
+import 'package:Gig/utils/dialogs.dart';
 import 'package:Gig/utils/generator.dart';
 import 'package:Gig/utils/lorem.dart';
 import 'package:Gig/utils/palette.dart';
@@ -40,11 +41,19 @@ class JobInfoScreen extends StatelessWidget {
     }
 
     void applyJob() {
-      job.applyJob().then((_) {
-        if (job.containsError) {
-          job.showErrorMessage(context);
-        }
-      });
+      if (user.profileCompleted) {
+        job.applyJob().then((_) {
+          if (job.containsError) {
+            job.showErrorMessage(context);
+          }
+        });
+      } else {
+        Dialogs.notifyDialog(
+          context: context,
+          content:
+              "Before you can apply for a job, make sure you have added some descriptions on your profile.",
+        );
+      }
     }
 
     bool checkJobApplied() {
@@ -112,14 +121,39 @@ class JobInfoScreen extends StatelessWidget {
       Navigator.pushNamed(context, "/profile/view");
     }
 
+    void onDelete() {
+      Dialogs.confirmationDialog(
+        context: context,
+        title: "Delete",
+        content: "Are you sure you want to delete this job?",
+        onConfirm: "Delete",
+      ).then((onConfirm) {
+        if (onConfirm ?? false) {
+          job.deleteJob(job.job["key"]).then((_) {
+            Navigator.pop(context);
+          });
+        }
+      });
+    }
+
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
         title: Text("Job Info"),
         leading: RoundButton(
           icon: Icons.arrow_back,
+          loading: job.loading,
           onPressed: () => Device.goBack(context),
         ),
+        actions: <Widget>[
+          job.job["uid"] == user.userId
+              ? RoundButton(
+                  icon: Icons.delete_outline,
+                  loading: job.loading,
+                  onPressed: onDelete,
+                )
+              : Container()
+        ],
       ),
       body: SingleChildScrollView(
         child: Column(

@@ -15,20 +15,24 @@ final jobs = "jobs";
 class Job extends Base {
   User user;
   dynamic job;
-  QuerySnapshot availableJobs;
+  List<DocumentSnapshot> availableJobs;
   List<String> preferedCategories = [];
   double preferedWages = 10;
   List<String> accountIds = [];
   List<Map> accountImageUrls = [];
+
+  Job() {
+    this.getAvailableJobs();
+  }
 
   void update(User user) {
     this.user = user;
     notifyListeners();
   }
 
-  void setAvailableJobs(QuerySnapshot availableJobs) {
-    this.availableJobs = availableJobs;
-    // notifyListeners();
+  void setAvailableJobs(List<DocumentSnapshot> availableJobs) {
+    this.availableJobs = List.from(availableJobs);
+    notifyListeners();
   }
 
   void setJob(dynamic job) {
@@ -68,7 +72,8 @@ class Job extends Base {
         .collection(accounts)
         .document(this.user.userId)
         .collection(posts)
-        .add(data)
+        .document(key)
+        .setData(data)
         .catchError((error) {
       setErrorMessage(error.message);
     });
@@ -76,6 +81,31 @@ class Job extends Base {
     await Future.wait([
       createNewJob,
       createPostAtHome,
+    ]);
+
+    isLoading(false);
+  }
+
+  Future<void> deleteJob(String documentId) async {
+    isLoading(true);
+
+    var deleteTheJob = firestore.collection(jobs).document(documentId).delete().catchError((error) {
+      setErrorMessage(error.message);
+    });
+
+    var deletePostAtHome = firestore
+        .collection(accounts)
+        .document(this.user.userId)
+        .collection(posts)
+        .document(documentId)
+        .delete()
+        .catchError((error) {
+      setErrorMessage(error.message);
+    });
+
+    await Future.wait([
+      deleteTheJob,
+      deletePostAtHome,
     ]);
 
     isLoading(false);
@@ -90,8 +120,8 @@ class Job extends Base {
         .snapshots();
   }
 
-  Future<QuerySnapshot> getAvailableJobs({int limit}) async {
-    var availableJobs;
+  Future<void> getAvailableJobs({int limit}) async {
+    QuerySnapshot availableJobs;
 
     if (limit != null) {
       availableJobs =
@@ -100,9 +130,7 @@ class Job extends Base {
       availableJobs = await firestore.collection(jobs).orderBy("createdAt", descending: true).getDocuments();
     }
 
-    this.setAvailableJobs(availableJobs);
-
-    return availableJobs;
+    this.setAvailableJobs(availableJobs.documents);
   }
 
   Future<void> acceptPending(String jobseekerId, String key) async {

@@ -17,6 +17,7 @@ class User extends Base {
   String shortlisted = "0";
   String applied = "0";
   dynamic otherUser;
+  bool profileCompleted = false;
   Debounce debounce;
 
   User() {
@@ -374,11 +375,6 @@ class User extends Base {
   void setWages(int wages) {
     this.account.preferedWages = wages;
 
-    debounce.run(() {
-      this.savePreferedWages();
-      print("save Wages");
-    });
-
     notifyListeners();
   }
 
@@ -389,19 +385,14 @@ class User extends Base {
       this.account.preferedCategories.add(category);
     }
 
-    debounce.run(() {
-      this.savePreferedCategories();
-      print("save Categoris");
-    });
-
     notifyListeners();
   }
 
-  Future<void> savePreferedWages() async {
+  Future<void> savePreferedWages({double preferedWages}) async {
     isLoading(true);
 
     var updateWages = {
-      "preferedWages": this.account.preferedWages,
+      "preferedWages": preferedWages.toInt() ?? this.account.preferedWages,
     };
 
     await firestore
@@ -412,14 +403,18 @@ class User extends Base {
       setErrorMessage(onError.toString());
     });
 
+    if (preferedWages != null) {
+      this.account.setPreferedWages(preferedWages.toInt());
+    }
+
     isLoading(false);
   }
 
-  Future<void> savePreferedCategories() async {
+  Future<void> savePreferedCategories({List<dynamic> preferedCategories}) async {
     isLoading(true);
 
     var updateCategories = {
-      "preferedCategories": this.account.preferedCategories,
+      "preferedCategories": preferedCategories ?? this.account.preferedCategories,
     };
 
     await firestore
@@ -430,6 +425,14 @@ class User extends Base {
       setErrorMessage(onError.toString());
     });
 
+    if (preferedCategories != null) {
+      this.account.setPreferedCategories(preferedCategories);
+    }
+
     isLoading(false);
+  }
+
+  void setProfileCompleted(bool profileCompleted) {
+    this.profileCompleted = profileCompleted;
   }
 }

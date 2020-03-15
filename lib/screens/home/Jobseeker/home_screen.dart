@@ -3,10 +3,13 @@ import 'package:Gig/components/filter_card.dart';
 import 'package:Gig/components/loading.dart';
 import 'package:Gig/components/round_button.dart';
 import 'package:Gig/components/title_button.dart';
+import 'package:Gig/enum/enum.dart';
 import 'package:Gig/lists/categories.dart';
 import 'package:Gig/models/image_manager.dart';
 import 'package:Gig/models/job.dart';
 import 'package:Gig/models/user.dart';
+import 'package:Gig/utils/algorithm.dart';
+import 'package:Gig/utils/dialogs.dart';
 import 'package:Gig/utils/palette.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -22,6 +25,10 @@ class HomeScreen extends StatelessWidget {
       Navigator.pushNamed(context, "/home/job/filter");
     }
 
+    Future<void> onRefresh() async {
+      await job.getAvailableJobs();
+    }
+
     return user.account.preferedCategories.isEmpty
         ? BuildSelection()
         : Scaffold(
@@ -35,27 +42,121 @@ class HomeScreen extends StatelessWidget {
                 )
               ],
             ),
-            body: ListView(
-              children: <Widget>[
-                BuildCarousell(
-                  title: "Recommended for you",
-                  future: job.getAvailableJobs(limit: 5),
-                ),
-                BuildCarousell(
-                  title: "Your preferences",
-                  future: job.getAvailableJobs(limit: 5),
-                ),
-                BuildCarousell(
-                  title: "Near you",
-                  future: job.getAvailableJobs(limit: 5),
-                ),
-                BuildCarousell(
-                  title: "Available jobs",
-                  future: job.getAvailableJobs(limit: 5),
-                ),
-              ],
-            ),
+            body: job.availableJobs == null
+                ? Loading()
+                : RefreshIndicator(
+                    onRefresh: onRefresh,
+                    child: ListView(
+                      children: <Widget>[
+                        BuildCarousell(
+                          title: "Recommended for you",
+                          documents: job.availableJobs,
+                          limit: 5,
+                        ),
+                        BuildCarousell(
+                          title: "Your preferences",
+                          documents: job.availableJobs,
+                          algorithm: Algo.preferences,
+                          limit: 5,
+                        ),
+                        BuildCarousell(
+                          title: "Near you",
+                          documents: job.availableJobs,
+                          limit: 5,
+                        ),
+                        BuildCarousell(
+                          title: "Available jobs",
+                          documents: job.availableJobs,
+                          limit: 5,
+                        ),
+                      ],
+                    ),
+                  ),
           );
+  }
+}
+
+class BuildCarousell extends StatelessWidget {
+  final String title;
+  final List<DocumentSnapshot> documents;
+  final int limit;
+  final Algo algorithm;
+
+  BuildCarousell({
+    @required this.title,
+    @required this.documents,
+    @required this.limit,
+    this.algorithm = Algo.none,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    ImageManager imageManager = Provider.of<ImageManager>(context);
+    User user = Provider.of<User>(context);
+    Job job = Provider.of<Job>(context);
+
+    void viewJobInfo(document) {
+      job.setJob(document);
+      Navigator.pushNamed(context, "/home/job/info");
+    }
+
+    List<DocumentSnapshot> filterDocuments() {
+      return documents.where((document) {
+        if (document["uid"] != null) {
+          imageManager.addAccountId(document["uid"]);
+        }
+
+        switch (this.algorithm) {
+          case Algo.none:
+            return Algorithm.none();
+            break;
+          case Algo.preferences:
+            return Algorithm.preferences(document: document, user: user);
+            break;
+          default:
+            return Algorithm.none();
+            break;
+        }
+      }).toList();
+    }
+
+    List<Widget> mapDocuments() {
+      List<DocumentSnapshot> filteredDocuments = filterDocuments();
+
+      List<Widget> mappedDocuments = filteredDocuments
+          .map((document) {
+            return BigCard(
+              workPosition: document["workPosition"],
+              businessName: document["businessName"],
+              imageUrl: document["imageUrls"]?.first ?? "https://tinyurl.com/wby7c6p",
+              wages: document["wages"],
+              location: document["location"],
+              createdAt: document["createdAt"],
+              onPressed: () => viewJobInfo(document),
+            );
+          })
+          .toList()
+          .sublist(0, limit > filteredDocuments.length ? filteredDocuments.length : limit);
+
+      return mappedDocuments;
+    }
+
+    return Column(
+      children: <Widget>[
+        TitleButton(
+          title: this.title,
+          documents: filterDocuments(),
+        ),
+        Container(
+          height: 255,
+          child: ListView(
+            scrollDirection: Axis.horizontal,
+            physics: BouncingScrollPhysics(),
+            children: mapDocuments(),
+          ),
+        ),
+      ],
+    );
   }
 }
 
@@ -78,16 +179,23 @@ class _BuildSelectionState extends State<BuildSelection> {
     User user = Provider.of<User>(context);
 
     void savePreferedCategories() {
-      user.savePreferedCategories();
+      if (preferedCategories.isNotEmpty) {
+        user.savePreferedCategories(preferedCategories: preferedCategories);
+      } else {
+        Dialogs.notifyDialog(
+          context: context,
+          content: "Please select at least one job category.",
+        );
+      }
     }
 
     return Scaffold(
       appBar: AppBar(
-        // title: Text("Select your categories"),
+        title: Text("Your preferences"),
         actions: <Widget>[
           RoundButton(
             icon: Icons.done,
-            loading: this.preferedCategories.isEmpty,
+            loading: user.loading,
             onPressed: savePreferedCategories,
           ),
         ],
@@ -128,8 +236,6 @@ class _BuildSelectionState extends State<BuildSelection> {
                               } else {
                                 this.setState(() => preferedCategories.add(category));
                               }
-
-                              print(preferedCategories.toString());
                             },
                           ),
                         );
@@ -187,74 +293,6 @@ class BuildSearchBar extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
-}
-
-class BuildCarousell extends StatelessWidget {
-  final String title;
-  final Future<QuerySnapshot> future;
-
-  BuildCarousell({
-    @required this.title,
-    @required this.future,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    ImageManager imageManager = Provider.of<ImageManager>(context);
-    Job job = Provider.of<Job>(context);
-
-    void viewJobInfo(document) {
-      job.setJob(document);
-      Navigator.pushNamed(context, "/home/job/info");
-    }
-
-    return FutureBuilder(
-      future: this.future,
-      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-        if (snapshot.hasError) {
-          return Container();
-        }
-
-        if (!snapshot.hasData) {
-          return Container();
-        }
-
-        if (snapshot.data.documents.length == 0) {
-          return Container();
-        }
-
-        return Column(
-          children: <Widget>[
-            TitleButton(
-              title: this.title,
-            ),
-            Container(
-              height: 255,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                physics: BouncingScrollPhysics(),
-                children: snapshot.data.documents.map((document) {
-                  if (document["uid"] != null) {
-                    imageManager.addAccountId(document["uid"]);
-                  }
-
-                  return BigCard(
-                    workPosition: document["workPosition"],
-                    businessName: document["businessName"],
-                    imageUrl: document["imageUrls"]?.first ?? "https://tinyurl.com/wby7c6p",
-                    wages: document["wages"],
-                    location: document["location"],
-                    createdAt: document["createdAt"],
-                    onPressed: () => viewJobInfo(document),
-                  );
-                }).toList(),
-              ),
-            ),
-          ],
-        );
-      },
     );
   }
 }

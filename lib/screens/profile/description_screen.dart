@@ -55,6 +55,7 @@ class DescriptionScreen extends StatelessWidget {
       appBar: AppBar(
         leading: RoundButton(
           icon: Icons.arrow_back,
+          loading: user.loading,
           onPressed: () => Device.goBack(context),
         ),
         titleSpacing: 0.0,
@@ -63,6 +64,7 @@ class DescriptionScreen extends StatelessWidget {
         actions: <Widget>[
           RoundButton(
             icon: Icons.done,
+            loading: user.loading,
             onPressed: isAdding ? createDescription : editDescription,
           ),
         ],

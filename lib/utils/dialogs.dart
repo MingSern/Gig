@@ -60,4 +60,27 @@ class Dialogs {
       ),
     );
   }
+
+  static notifyDialog({
+    @required BuildContext context,
+    String content =
+        'Before you can create a job, make sure you have added some descriptions on your profile.',
+    String onConfirm = 'Okay',
+  }) {
+    return showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        content: Text(content),
+        actions: <Widget>[
+          FlatButton(
+            child: Text(
+              onConfirm.toUpperCase(),
+              style: TextStyle(color: Palette.lapizBlue),
+            ),
+            onPressed: () => Navigator.pop(context, false),
+          ),
+        ],
+      ),
+    );
+  }
 }

@@ -2,6 +2,7 @@ import 'package:Gig/components/empty_state.dart';
 import 'package:Gig/components/small_card.dart';
 import 'package:Gig/models/job.dart';
 import 'package:Gig/models/user.dart';
+import 'package:Gig/utils/dialogs.dart';
 import 'package:Gig/utils/palette.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -16,6 +17,27 @@ class HomeScreen extends StatelessWidget {
     void viewJobInfo(document) {
       job.setJob(document);
       Navigator.pushNamed(context, "/home/job/info");
+    }
+
+    void createJob() {
+      if (user.profileCompleted) {
+        Navigator.pushNamed(context, "/home/job/add");
+      } else {
+        Dialogs.notifyDialog(context: context);
+      }
+    }
+
+    void onDelete(dynamic document) {
+      Dialogs.confirmationDialog(
+        context: context,
+        title: "Delete",
+        content: "Are you sure you want to delete this job?",
+        onConfirm: "Delete",
+      ).then((onConfirm) {
+        if (onConfirm ?? false) {
+          job.deleteJob(document["key"]);
+        }
+      });
     }
 
     return Scaffold(
@@ -56,13 +78,14 @@ class HomeScreen extends StatelessWidget {
                 location: document["location"],
                 createdAt: document["createdAt"],
                 onPressed: () => viewJobInfo(document),
+                onLongPress: () => onDelete(document),
               );
             }).toList(),
           );
         },
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => Navigator.pushNamed(context, "/home/job/add"),
+        onPressed: createJob,
         highlightElevation: 15,
         backgroundColor: Palette.ashGrey,
         child: Icon(

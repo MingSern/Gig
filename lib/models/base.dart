@@ -1,4 +1,4 @@
-import 'package:Gig/components/primary_button.dart';
+import 'package:Gig/utils/palette.dart';
 import 'package:flutter/material.dart';
 
 class Base extends ChangeNotifier {
@@ -31,8 +31,11 @@ class Base extends ChangeNotifier {
         title: Text('Oops!'),
         content: Text(this.errorMessage),
         actions: <Widget>[
-          PrimaryButton(
-            text: "Okay",
+          FlatButton(
+            child: Text(
+              "OKAY",
+              style: TextStyle(color: Palette.lapizBlue),
+            ),
             onPressed: () {
               this.clearErrorMessage();
               Navigator.pop(context);

@@ -12,6 +12,7 @@ class SmallCard extends StatelessWidget {
   final String location;
   final num createdAt;
   final GestureTapCallback onPressed;
+  final GestureTapCallback onLongPress;
   final bool declined;
 
   SmallCard({
@@ -22,6 +23,7 @@ class SmallCard extends StatelessWidget {
     @required this.location,
     @required this.createdAt,
     @required this.onPressed,
+    this.onLongPress,
     this.declined = false,
   });
 
@@ -84,6 +86,7 @@ class SmallCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(20.0),
         ),
         child: RawMaterialButton(
+          onLongPress: this.onLongPress,
           onPressed: this.declined ? null : this.onPressed,
           splashColor: Colors.grey[200],
           padding: const EdgeInsets.all(10),

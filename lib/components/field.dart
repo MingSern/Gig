@@ -11,6 +11,7 @@ class Field extends StatelessWidget {
   final Function(String) onSaved;
   final Function(String) validator;
   final TextCapitalization textCapitalization;
+  final Widget prefix;
 
   Field({
     @required this.keyboardType,
@@ -23,6 +24,7 @@ class Field extends StatelessWidget {
     this.maxLines = 1,
     this.obscureText = false,
     this.hintText = "",
+    this.prefix,
   });
 
   @override
@@ -38,6 +40,7 @@ class Field extends StatelessWidget {
         obscureText: this.obscureText,
         maxLines: this.maxLines,
         decoration: InputDecoration(
+          prefix: this.prefix,
           labelText: this.labelText,
           hintText: this.hintText,
           filled: true,

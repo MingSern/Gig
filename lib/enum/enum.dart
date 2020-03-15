@@ -13,3 +13,8 @@ enum JobStatus {
   shortlisted,
   declined,
 }
+
+enum Algo {
+  none,
+  preferences,
+}
