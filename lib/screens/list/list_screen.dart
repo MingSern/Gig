@@ -38,11 +38,11 @@ class ListScreen extends StatelessWidget {
           children: <Widget>[
             BuildLists(
               type: JobStatus.pending,
-              stream: job.getPendings(),
+              stream: job.getPendingsAndShortLists(),
             ),
             BuildLists(
               type: JobStatus.shortlisted,
-              stream: job.getShortlists(),
+              stream: job.getPendingsAndShortLists(),
             ),
           ],
         ),
@@ -81,7 +81,7 @@ class BuildTab extends StatelessWidget {
 
 class BuildLists extends StatelessWidget {
   final dynamic type;
-  final Stream<QuerySnapshot> stream;
+  final Stream<DocumentSnapshot> stream;
 
   BuildLists({
     @required this.type,
@@ -137,7 +137,7 @@ class BuildLists extends StatelessWidget {
 
     return StreamBuilder(
       stream: this.stream,
-      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+      builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
         if (snapshot.hasError) {
           return Container();
         }
@@ -146,30 +146,62 @@ class BuildLists extends StatelessWidget {
           return Container();
         }
 
-        if (snapshot.data.documents.length == 0) {
+        // return Text(snapshot.data["pendings"].length.toString());
+
+        List pendings = snapshot.data["pendings"];
+        List shortlists = snapshot.data["shortlists"];
+
+        pendings.sort((b, a) {
+          return a["updatedAt"].compareTo(b["updatedAt"]);
+        });
+
+        shortlists.sort((b, a) {
+          return a["updatedAt"].compareTo(b["updatedAt"]);
+        });
+
+        if (this.type == JobStatus.pending && pendings.length == 0) {
           return EmptyState(
             imagePath: "assets/empty_list.png",
-            message: this.type == JobStatus.pending
-                ? user.isJobSeeker() ? "You haven't apply any jobs 🤷" : "No one apply for your jobs 🤷"
-                : "Seems like you haven't been accepted 🤷",
+            message: user.isJobSeeker() ? "You haven't apply any jobs 🤷" : "No one apply for your jobs 🤷",
+          );
+        } else if (this.type == JobStatus.shortlisted && shortlists?.length == 0) {
+          return EmptyState(
+            imagePath: "assets/empty_list.png",
+            message: user.isJobSeeker()
+                ? "Seems like you haven't been accepted 🤷"
+                : "Seems like you haven't been accept any jobseekers 🤷",
           );
         }
 
+        // if (snapshot.data.documents.length == 0) {
+        //   return EmptyState(
+        //     imagePath: "assets/empty_list.png",
+        //     message: this.type == JobStatus.pending
+        //         ? user.isJobSeeker() ? "You haven't apply any jobs 🤷" : "No one apply for your jobs 🤷"
+        //         : "Seems like you haven't been accepted 🤷",
+        //   );
+        // }
+
         return ListView.builder(
-          itemCount: snapshot.data.documents.length,
+          itemCount: this.type == JobStatus.pending ? pendings.length : shortlists.length,
           itemBuilder: (context, index) {
-            var document = snapshot.data.documents.elementAt(index);
+            var document =
+                this.type == JobStatus.pending ? pendings.elementAt(index) : shortlists.elementAt(index);
             var currentDate = Time.getDate(document["updatedAt"]);
             var previousDate;
 
             if (index != 0) {
-              var previousDoc = snapshot.data.documents.elementAt(index - 1);
+              var previousDoc = this.type == JobStatus.pending
+                  ? pendings.elementAt(index - 1)
+                  : shortlists.elementAt(index - 1);
               previousDate = Time.getDate(previousDoc["updatedAt"]);
             }
 
             if (document["uid"] != null) {
               imageManager.addAccountId(document["uid"]);
             }
+
+            // return Text(document.toString());
 
             return Column(
               children: <Widget>[
@@ -197,10 +229,20 @@ class BuildLists extends StatelessWidget {
                         imageUrl: imageManager.getImageUrl(document["uid"]),
                         wages: document["wages"],
                         location: document["location"],
-                        createdAt: document["createdAt"],
+                        createdAt: document["updatedAt"],
                         declined: checkJobStatus(document["status"]),
                         onPressed: () => viewJobInfo(document),
                       ),
+                // : SmallCard(
+                //     workPosition: document["workPosition"],
+                //     businessName: "asdad",
+                //     imageUrl: imageManager.getImageUrl(document["uid"]),
+                //     wages: "asdad",
+                //     location: "asdad",
+                //     createdAt: document["updatedAt"],
+                //     declined: checkJobStatus(document["status"]),
+                //     onPressed: () => viewJobInfo(document),
+                //   ),
               ],
             );
           },

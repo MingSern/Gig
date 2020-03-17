@@ -166,6 +166,8 @@ class User extends Base {
         "email": this.account.email,
         "phoneNumber": this.account.phoneNumber,
         "imageUrl": this.account.imageUrl,
+        "pendings": [],
+        "shortlists": [],
       };
 
       if (this.account.userType == UserType.employer) {

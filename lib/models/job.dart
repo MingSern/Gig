@@ -61,7 +61,7 @@ class Job extends Base {
       "createdAt": this.getCurrentTime(),
       "pendings": [],
       "shortlists": [],
-      "rejects": [],
+      "declines": [],
     };
 
     var createNewJob = firestore.collection(jobs).document(key).setData(data).catchError((error) {
@@ -121,6 +121,8 @@ class Job extends Base {
   }
 
   Future<void> getAvailableJobs({int limit}) async {
+    isLoading(true);
+
     QuerySnapshot availableJobs;
 
     if (limit != null) {
@@ -131,6 +133,8 @@ class Job extends Base {
     }
 
     this.setAvailableJobs(availableJobs.documents);
+
+    isLoading(false);
   }
 
   Future<void> acceptPending(String jobseekerId, String key) async {
@@ -159,73 +163,76 @@ class Job extends Base {
   }
 
   Future<void> movePendingToShortlist(String uid, String key) async {
-    var ref = firestore.collection(accounts).document(uid).collection(pendings).document(key);
-    var doc = await ref.get();
+    isLoading(true);
 
-    await ref.delete().catchError((error) {
+    DocumentSnapshot document = await firestore.collection(accounts).document(uid).get();
+    List documentPendings = List.from(document.data["pendings"]);
+    List theAcceptedJob = documentPendings.where((job) => job["key"] == key).toList();
+    Map newShortlist = theAcceptedJob.first;
+
+    /// update pending and shortlist data for [jobseeker] and [employer]
+    documentPendings.removeWhere((job) => job["key"] == key);
+    newShortlist["status"] = JobStatus.shortlisted.toString();
+    newShortlist["updatedAt"] = this.getCurrentTime();
+
+    var updateData = {
+      "pendings": documentPendings,
+      "shortlists": FieldValue.arrayUnion([newShortlist]),
+    };
+
+    await firestore.collection(accounts).document(uid).updateData(updateData).catchError((error) {
       setErrorMessage(error.message);
     });
 
-    /// update data for [jobs]
-    doc.data["status"] = JobStatus.shortlisted.toString();
-    doc.data["updatedAt"] = this.getCurrentTime();
-
-    await firestore
-        .collection(accounts)
-        .document(uid)
-        .collection(shortlists)
-        .add(doc.data)
-        .catchError((error) {
-      setErrorMessage(error.message);
-    });
+    isLoading(false);
   }
 
   Future<void> declinePending(String jobseekerId, String key) async {
     isLoading(true);
 
-    var status = {
-      "status": JobStatus.declined.toString(),
-    };
-
-    /// update pending for [employer] and [jobseeker]
-    var employerPending = firestore
-        .collection(accounts)
-        .document(this.user.userId)
-        .collection(pendings)
-        .document(key)
-        .updateData(status)
-        .catchError((error) {
-      setErrorMessage(error.message);
-    });
-
-    var jobseekerPending = firestore
-        .collection(accounts)
-        .document(jobseekerId)
-        .collection(pendings)
-        .document(key)
-        .updateData(status)
-        .catchError((error) {
-      setErrorMessage(error.message);
-    });
-
     await Future.wait([
-      employerPending,
-      jobseekerPending,
+      this.updateJobToDecline(this.user.userId, key), // update pending to shortlist for [employer]
+      this.updateJobToDecline(jobseekerId, key), // update pending to shortlist for [jobseeker]
     ]);
 
     /// update data for [jobs]
     var updateData = {
       "pendings": FieldValue.arrayRemove([jobseekerId]),
-      "rejects": FieldValue.arrayUnion([jobseekerId]),
+      "declines": FieldValue.arrayUnion([jobseekerId]),
     };
 
-    // var theJob = firestore.collection(jobs).document(key);
+    var theJob = firestore.collection(jobs).document(key);
 
-    firestore.collection(jobs).document(key).updateData(updateData).catchError((error) {
+    await theJob.updateData(updateData).catchError((error) {
       setErrorMessage(error.message);
     });
 
-    // this.setJob(await theJob.get());
+    this.setJob(await theJob.get());
+
+    isLoading(false);
+  }
+
+  Future<void> updateJobToDecline(String uid, String key) async {
+    isLoading(true);
+
+    DocumentSnapshot document = await firestore.collection(accounts).document(uid).get();
+    List documentPendings = List.from(document.data["pendings"]);
+    List theDeclinedJob = documentPendings.where((job) => job["key"] == key).toList();
+    Map declinedJob = theDeclinedJob.first;
+
+    /// update pending data for [jobseeker] and [employer]
+    documentPendings.removeWhere((job) => job["key"] == key);
+    declinedJob["status"] = JobStatus.declined.toString();
+    declinedJob["updatedAt"] = this.getCurrentTime();
+    documentPendings.add(declinedJob);
+
+    var updateData = {
+      "pendings": documentPendings,
+    };
+
+    await firestore.collection(accounts).document(uid).updateData(updateData).catchError((error) {
+      setErrorMessage(error.message);
+    });
 
     isLoading(false);
   }
@@ -250,51 +257,52 @@ class Job extends Base {
     this.setJob(await theJob.get());
 
     /// set data to [employer]
-    var data = {
-      "key": this.job["key"],
-      "uid": this.user.userId,
-      "workPosition": this.job["workPosition"],
-      "imageUrls": this.job["imageUrls"],
-      "name": this.user.account.fullname,
-      "category": this.job["category"],
-      // "imageUrl": this.user.account.imageUrl,
-      "updatedAt": currentTime,
-      "status": JobStatus.pending.toString(),
+    var updateEmployersPendingData = {
+      "pendings": FieldValue.arrayUnion([
+        {
+          "key": this.job["key"],
+          "uid": this.user.userId,
+          "workPosition": this.job["workPosition"],
+          "imageUrls": this.job["imageUrls"],
+          "name": this.user.account.fullname,
+          "updatedAt": currentTime,
+          "status": JobStatus.pending.toString(),
+        }
+      ]),
     };
 
     var employerPending = firestore
         .collection(accounts)
         .document(this.job["uid"])
-        .collection(pendings)
-        .document(this.job["key"])
-        .setData(data)
+        .updateData(updateEmployersPendingData)
         .catchError((error) {
       setErrorMessage(error.message);
     });
 
     /// set data to [jobseeker]
-    var employerData = {
-      "key": this.job["key"],
-      "uid": this.job["uid"],
-      "workPosition": this.job["workPosition"],
-      "imageUrls": this.job["imageUrls"],
-      "wages": this.job["wages"],
-      "location": this.job["location"],
-      "description": this.job["description"],
-      "businessName": this.job["businessName"],
-      "category": this.job["category"],
-      // "imageUrl": this.job["imageUrl"],
-      "createdAt": this.job["createdAt"],
-      "updatedAt": currentTime,
-      "status": JobStatus.pending.toString(),
+    var updateJobseekersPendingData = {
+      "pendings": FieldValue.arrayUnion([
+        {
+          "key": this.job["key"],
+          "uid": this.job["uid"],
+          "workPosition": this.job["workPosition"],
+          "imageUrls": this.job["imageUrls"],
+          "wages": this.job["wages"],
+          "location": this.job["location"],
+          "description": this.job["description"],
+          "businessName": this.job["businessName"],
+          "category": this.job["category"],
+          "createdAt": this.job["createdAt"],
+          "updatedAt": currentTime,
+          "status": JobStatus.pending.toString(),
+        }
+      ]),
     };
 
     var jobseekerPending = firestore
         .collection(accounts)
         .document(this.user.userId)
-        .collection(pendings)
-        .document(this.job["key"])
-        .setData(employerData)
+        .updateData(updateJobseekersPendingData)
         .catchError((error) {
       setErrorMessage(error.message);
     });
@@ -307,22 +315,8 @@ class Job extends Base {
     isLoading(false);
   }
 
-  Stream<QuerySnapshot> getPendings() {
-    return firestore
-        .collection(accounts)
-        .document(this.user.userId)
-        .collection(pendings)
-        .orderBy("updatedAt", descending: true)
-        .snapshots();
-  }
-
-  Stream<QuerySnapshot> getShortlists() {
-    return firestore
-        .collection(accounts)
-        .document(this.user.userId)
-        .collection("shortlists")
-        .orderBy("updatedAt", descending: true)
-        .snapshots();
+  Stream<DocumentSnapshot> getPendingsAndShortLists() {
+    return firestore.collection(accounts).document(this.user.userId).snapshots();
   }
 
   // methods -----------------------------------------------------------------------------------------
@@ -335,24 +329,92 @@ class Job extends Base {
     return new DateTime.now().millisecondsSinceEpoch;
   }
 
-  // void setWages(double wages) {
-  //   this.preferedWages = wages;
-  //   notifyListeners();
-  // }
+  Future<List> jaccardCategory() async {
+    List<String> preferedCategories = List.from(user.account.preferedCategories);
+    QuerySnapshot snapshot = await firestore
+        .collection(accounts)
+        .where("userType", isEqualTo: "UserType.jobseeker")
+        .getDocuments();
 
-  // void setCategories(String category) {
-  //   if (this.preferedCategories.contains(category)) {
-  //     this.preferedCategories.remove(category);
-  //   } else {
-  //     this.preferedCategories.add(category);
-  //   }
+    List<dynamic> otherUsers = snapshot.documents.where((document) {
+      bool documentExist = document.data["preferedCategories"] != null;
+      bool notCurrentUser = document.data["uid"] != this.user.userId;
 
-  //   notifyListeners();
-  // }
+      return (documentExist && notCurrentUser);
+    }).toList();
 
-  // void resetFilter() {
-  //   this.preferedCategories = [];
-  //   this.preferedWages = 10;
-  //   notifyListeners();
+    otherUsers = otherUsers.map((otherUser) {
+      List<String> categories = List.from(preferedCategories);
+      categories.removeWhere((category) => !otherUser["preferedCategories"].contains(category));
+
+      List otherPreferedCategories = otherUser["preferedCategories"];
+      int other = otherPreferedCategories.length; // |A|
+      int user = preferedCategories.length; // |B|
+      int intersaction = categories.length; // |A n B|
+      int otherUnionUser = other + user; // |A u B|
+
+      double similarityIndex = intersaction / (otherUnionUser - intersaction);
+
+      return {
+        "uid": otherUser["uid"],
+        "preferedCategories": otherUser["preferedCategories"],
+        "A": user,
+        "B": other,
+        "A n B": intersaction,
+        "A u B": otherUnionUser,
+        "similarityIndex": similarityIndex,
+      };
+    }).toList();
+
+    otherUsers.sort((b, a) {
+      return a["similarityIndex"].compareTo(b["similarityIndex"]);
+    });
+
+    return otherUsers;
+  }
+
+  // Future<List> jaccardAppliedJobs() async {
+  //   QuerySnapshot snapshot = await firestore
+  //       .collection(accounts)
+  //       .where("userType", isEqualTo: "UserType.jobseeker")
+  //       .getDocuments();
+
+  //   List<dynamic> otherJobSeeker = snapshot.documents.where((document) {
+  //     return document["uid"];
+  //   }).toList();
+
+  //   QuerySnapshot anotherSnapshot = await firestore
+  //       .collection(accounts)
+  //       .where("uid", isEqualTo: otherJobSeeker)
+  //       .getDocuments(;);
+
+  //   otherUsers = otherUsers.map((otherUser) {
+  //     List<String> categories = List.from(preferedCategories);
+  //     categories.removeWhere((category) => !otherUser["preferedCategories"].contains(category));
+
+  //     List otherPreferedCategories = otherUser["preferedCategories"];
+  //     int other = otherPreferedCategories.length; // |A|
+  //     int user = preferedCategories.length; // |B|
+  //     int intersaction = categories.length; // |A n B|
+  //     int otherUnionUser = other + user; // |A u B|
+
+  //     double similarityIndex = intersaction / (otherUnionUser - intersaction);
+
+  //     return {
+  //       "uid": otherUser["uid"],
+  //       "preferedCategories": otherUser["preferedCategories"],
+  //       "A": user,
+  //       "B": other,
+  //       "A n B": intersaction,
+  //       "A u B": otherUnionUser,
+  //       "similarityIndex": similarityIndex,
+  //     };
+  //   }).toList();
+
+  //   otherUsers.sort((b, a) {
+  //     return a["similarityIndex"].compareTo(b["similarityIndex"]);
+  //   });
+
+  //   return otherUsers;
   // }
 }

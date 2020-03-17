@@ -12,11 +12,21 @@ class Algorithm {
     return match;
   }
 
-  static bool preferences({@required document, @required User user}) {
+  static bool hybridPreferences({@required document, @required User user}) {
     int difference = user.account.preferedWages - int.parse(document["wages"]);
     bool match = user.account.preferedCategories.contains(document["category"]);
 
     if ((difference > -5 && difference < 5) || match) {
+      return true;
+    }
+
+    return false;
+  }
+
+  static bool wagesPreferences({@required document, @required User user}) {
+    int difference = user.account.preferedWages - int.parse(document["wages"]);
+
+    if ((difference > -5 && difference < 5)) {
       return true;
     }
 

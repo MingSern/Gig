@@ -26,8 +26,8 @@ class ProfileScreen extends StatelessWidget {
         onConfirm: "Logout",
       ).then((onConfirm) {
         if (onConfirm ?? false) {
-          controller.goTo(context: context, screenIndex: 0);
           user.logoutAccount();
+          controller.goTo(context: context, screenIndex: 0);
         }
       });
     }

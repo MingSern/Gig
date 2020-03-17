@@ -123,43 +123,6 @@ class Generator {
   }
 
   static Map generateJobData() {
-    var jobs = [
-      "Sales representative",
-      "Sales manager",
-      "Salesperson",
-      "Salesman",
-      "Saleswoman",
-      "Cashier",
-      "Seller",
-      "Merchant",
-      "Distributor",
-      "Advertising agent",
-      "Grocer",
-      "Greengrocer",
-      "Baker",
-      "Butcher",
-      "Florist",
-      "Artist",
-      "Painter",
-      "Sculptor",
-      "Architect",
-      "Composer",
-      "Conductor",
-      "Musician",
-      "Pianist",
-      "Violinist",
-      "Guitarist",
-      "Drummer",
-      "Player",
-      "Singer",
-      "Designer",
-      "Fashion designer",
-      "Dress designer",
-      "Interior designer",
-      "Furniture designer",
-      "Graphic designer",
-    ];
-
     var locations = [
       "Hialeah",
       "Lock Haven",
@@ -198,12 +161,17 @@ class Generator {
       "Kampung Rid",
     ];
 
+    var randomJob = jobCategories[random.nextInt(jobCategories.length)];
+    var category = randomJob["category"];
+    var workPositions = randomJob["workPosition"];
+    var randomWorkPosition = workPositions[random.nextInt(workPositions.length)];
+
     var data = {
-      "workPosition": jobs[random.nextInt(jobs.length)],
-      "wages": random.nextInt(30).toString(),
+      "workPosition": randomWorkPosition,
+      "wages": (random.nextInt(30) + 1).toString(),
       "location": locations[random.nextInt(locations.length)],
       "description": "I want more detailed information.",
-      "category": categories[random.nextInt(categories.length)],
+      "category": category,
     };
 
     return data;
@@ -223,6 +191,9 @@ class Generator {
       "https://tinyurl.com/tgzxkxb",
       "https://tinyurl.com/utt78f8",
       "https://tinyurl.com/qmxp6d2",
+      "https://tinyurl.com/rzpamuq",
+      "https://tinyurl.com/w9v88oe",
+      "https://tinyurl.com/qvlvpea",
     ];
 
     return imageUrls[random.nextInt(imageUrls.length)];

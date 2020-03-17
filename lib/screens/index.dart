@@ -32,8 +32,6 @@ class Index extends StatefulWidget {
 }
 
 class _IndexState extends State<Index> {
-  // var currentIndex = 0;
-
   @override
   void initState() {
     Firebase.notificationSetup();

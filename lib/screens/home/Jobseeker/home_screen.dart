@@ -72,6 +72,16 @@ class HomeScreen extends StatelessWidget {
                       ],
                     ),
                   ),
+            floatingActionButton: FloatingActionButton(onPressed: () async {
+              print({
+                "currentUser": true,
+                "uid": user.userId,
+                "preferedCategories": user.account.preferedCategories,
+              });
+              List something = await job.jaccardCategory();
+
+              print(something);
+            }),
           );
   }
 }
@@ -101,7 +111,7 @@ class BuildCarousell extends StatelessWidget {
     }
 
     List<DocumentSnapshot> filterDocuments() {
-      return documents.where((document) {
+      List<DocumentSnapshot> filteredDocuments = this.documents.where((document) {
         if (document["uid"] != null) {
           imageManager.addAccountId(document["uid"]);
         }
@@ -111,32 +121,48 @@ class BuildCarousell extends StatelessWidget {
             return Algorithm.none();
             break;
           case Algo.preferences:
-            return Algorithm.preferences(document: document, user: user);
+            return Algorithm.hybridPreferences(document: document, user: user);
             break;
           default:
             return Algorithm.none();
             break;
         }
       }).toList();
+
+      return filteredDocuments;
     }
 
     List<Widget> mapDocuments() {
       List<DocumentSnapshot> filteredDocuments = filterDocuments();
 
-      List<Widget> mappedDocuments = filteredDocuments
-          .map((document) {
-            return BigCard(
-              workPosition: document["workPosition"],
-              businessName: document["businessName"],
-              imageUrl: document["imageUrls"]?.first ?? "https://tinyurl.com/wby7c6p",
-              wages: document["wages"],
-              location: document["location"],
-              createdAt: document["createdAt"],
-              onPressed: () => viewJobInfo(document),
-            );
-          })
-          .toList()
-          .sublist(0, limit > filteredDocuments.length ? filteredDocuments.length : limit);
+      if (filteredDocuments.isEmpty || filteredDocuments == null || filteredDocuments.length < 1) {
+        return [
+          BigCard(
+            workPosition: "Empty",
+            businessName: "Empty",
+            imageUrl: "Empty",
+            wages: "Empty",
+            location: "Empty",
+            createdAt: 123124918479,
+            onPressed: () {},
+          )
+        ];
+      }
+
+      bool limitIsBigger = this.limit > filteredDocuments.length;
+      filteredDocuments = filteredDocuments.sublist(0, limitIsBigger ? filteredDocuments.length : this.limit);
+
+      List<Widget> mappedDocuments = filteredDocuments.map((document) {
+        return BigCard(
+          workPosition: document["workPosition"],
+          businessName: document["businessName"],
+          imageUrl: document["imageUrls"]?.first,
+          wages: document["wages"],
+          location: document["location"],
+          createdAt: document["createdAt"],
+          onPressed: () => viewJobInfo(document),
+        );
+      }).toList();
 
       return mappedDocuments;
     }
@@ -176,11 +202,14 @@ class _BuildSelectionState extends State<BuildSelection> {
 
   @override
   Widget build(BuildContext context) {
+    Job job = Provider.of<Job>(context);
     User user = Provider.of<User>(context);
 
     void savePreferedCategories() {
       if (preferedCategories.isNotEmpty) {
-        user.savePreferedCategories(preferedCategories: preferedCategories);
+        user.savePreferedCategories(preferedCategories: preferedCategories).then((_) {
+          job.getAvailableJobs();
+        });
       } else {
         Dialogs.notifyDialog(
           context: context,
