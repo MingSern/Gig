@@ -1,6 +1,7 @@
 import 'package:Gig/enum/enum.dart';
 import 'package:Gig/models/base.dart';
 import 'package:Gig/models/user.dart';
+import 'package:Gig/utils/algorithm.dart';
 import 'package:Gig/utils/generator.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -16,6 +17,7 @@ class Job extends Base {
   User user;
   dynamic job;
   List<DocumentSnapshot> availableJobs;
+  List<DocumentSnapshot> preferedJobs;
   List<String> preferedCategories = [];
   double preferedWages = 10;
   List<String> accountIds = [];
@@ -32,12 +34,21 @@ class Job extends Base {
 
   void setAvailableJobs(List<DocumentSnapshot> availableJobs) {
     this.availableJobs = List.from(availableJobs);
+    this.preferedJobs = Algorithm.hybridListPreferences(
+      documents: this.availableJobs,
+      user: this.user,
+    );
+
+    this.preferedJobs.removeWhere((job) {
+      return this.availableJobs.sublist(0, 5).contains(job);
+    });
+
     notifyListeners();
   }
 
   void setJob(dynamic job) {
     this.job = job;
-    // notifyListeners();
+    notifyListeners();
   }
 
   // employer -----------------------------------------------------------------------------------------
@@ -57,7 +68,6 @@ class Job extends Base {
       "description": description,
       "category": category,
       "businessName": this.user.account.businessName,
-      // "imageUrl": this.user.account.imageUrl,
       "createdAt": this.getCurrentTime(),
       "pendings": [],
       "shortlists": [],
@@ -141,8 +151,10 @@ class Job extends Base {
     isLoading(true);
 
     await Future.wait([
-      this.movePendingToShortlist(this.user.userId, key), // update pending to shortlist for [employer]
-      this.movePendingToShortlist(jobseekerId, key), // update pending to shortlist for [jobseeker]
+      this.movePendingToShortlist(
+          this.user.userId, key, jobseekerId), // update pending to shortlist for [employer]
+      this.movePendingToShortlist(
+          jobseekerId, key, this.user.userId) // update pending to shortlist for [jobseeker]
     ]);
 
     /// update data for [jobs]
@@ -158,20 +170,21 @@ class Job extends Base {
     });
 
     this.setJob(await theJob.get());
+    this.getAvailableJobs();
 
     isLoading(false);
   }
 
-  Future<void> movePendingToShortlist(String uid, String key) async {
+  Future<void> movePendingToShortlist(String uid, String key, String oid) async {
     isLoading(true);
 
     DocumentSnapshot document = await firestore.collection(accounts).document(uid).get();
     List documentPendings = List.from(document.data["pendings"]);
-    List theAcceptedJob = documentPendings.where((job) => job["key"] == key).toList();
+    List theAcceptedJob = documentPendings.where((job) => job["key"] == key && job["uid"] == oid).toList();
     Map newShortlist = theAcceptedJob.first;
 
     /// update pending and shortlist data for [jobseeker] and [employer]
-    documentPendings.removeWhere((job) => job["key"] == key);
+    documentPendings.removeWhere((job) => job["key"] == key && job["uid"] == oid);
     newShortlist["status"] = JobStatus.shortlisted.toString();
     newShortlist["updatedAt"] = this.getCurrentTime();
 
@@ -187,12 +200,14 @@ class Job extends Base {
     isLoading(false);
   }
 
-  Future<void> declinePending(String jobseekerId, String key) async {
+  Future<void> declinePending(String jobseekerId, String key, String message) async {
     isLoading(true);
 
     await Future.wait([
-      this.updateJobToDecline(this.user.userId, key), // update pending to shortlist for [employer]
-      this.updateJobToDecline(jobseekerId, key), // update pending to shortlist for [jobseeker]
+      this.updateJobToDecline(
+          this.user.userId, key, jobseekerId, message), // update pending to shortlist for [employer]
+      this.updateJobToDecline(
+          jobseekerId, key, this.user.userId, message), // update pending to shortlist for [jobseeker]
     ]);
 
     /// update data for [jobs]
@@ -208,22 +223,24 @@ class Job extends Base {
     });
 
     this.setJob(await theJob.get());
+    this.getAvailableJobs();
 
     isLoading(false);
   }
 
-  Future<void> updateJobToDecline(String uid, String key) async {
+  Future<void> updateJobToDecline(String uid, String key, String oid, String message) async {
     isLoading(true);
 
     DocumentSnapshot document = await firestore.collection(accounts).document(uid).get();
     List documentPendings = List.from(document.data["pendings"]);
-    List theDeclinedJob = documentPendings.where((job) => job["key"] == key).toList();
+    List theDeclinedJob = documentPendings.where((job) => job["key"] == key && job["uid"] == oid).toList();
     Map declinedJob = theDeclinedJob.first;
 
     /// update pending data for [jobseeker] and [employer]
-    documentPendings.removeWhere((job) => job["key"] == key);
+    documentPendings.removeWhere((job) => job["key"] == key && job["uid"] == oid);
     declinedJob["status"] = JobStatus.declined.toString();
     declinedJob["updatedAt"] = this.getCurrentTime();
+    declinedJob["message"] = message.trim();
     documentPendings.add(declinedJob);
 
     var updateData = {
@@ -255,6 +272,7 @@ class Job extends Base {
     });
 
     this.setJob(await theJob.get());
+    this.getAvailableJobs();
 
     /// set data to [employer]
     var updateEmployersPendingData = {
@@ -345,23 +363,23 @@ class Job extends Base {
 
     otherUsers = otherUsers.map((otherUser) {
       List<String> categories = List.from(preferedCategories);
-      categories.removeWhere((category) => !otherUser["preferedCategories"].contains(category));
-
       List otherPreferedCategories = otherUser["preferedCategories"];
-      int other = otherPreferedCategories.length; // |A|
-      int user = preferedCategories.length; // |B|
-      int intersaction = categories.length; // |A n B|
-      int otherUnionUser = other + user; // |A u B|
 
-      double similarityIndex = intersaction / (otherUnionUser - intersaction);
+      int a = categories.length;
+      int b = otherPreferedCategories.length;
+      int sum = a + b;
+      int intersaction = categories.where((item) => otherPreferedCategories.contains(item)).toList().length;
+      int union = sum - intersaction < 0 ? -(sum - intersaction) : sum - intersaction;
+
+      double similarityIndex = intersaction / union;
 
       return {
         "uid": otherUser["uid"],
         "preferedCategories": otherUser["preferedCategories"],
-        "A": user,
-        "B": other,
+        "A": a,
+        "B": b,
         "A n B": intersaction,
-        "A u B": otherUnionUser,
+        "A u B": union,
         "similarityIndex": similarityIndex,
       };
     }).toList();

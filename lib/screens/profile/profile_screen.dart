@@ -131,7 +131,7 @@ class ProfileScreen extends StatelessWidget {
           mainAxisSize: MainAxisSize.max,
           children: <Widget>[
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.start,
               mainAxisSize: MainAxisSize.max,
               children: <Widget>[
                 Padding(
@@ -144,14 +144,45 @@ class ProfileScreen extends StatelessWidget {
                     ),
                   ),
                 ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Text(
+                      user.account.businessName.isEmpty ? user.account.fullname : user.account.businessName,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20,
+                        color: Colors.black.withOpacity(0.8),
+                      ),
+                    ),
+                    Text(
+                      user.account.email,
+                      style: TextStyle(
+                        color: Colors.grey,
+                      ),
+                    ),
+                    Text(
+                      user.account.phoneNumber,
+                      style: TextStyle(
+                        color: Colors.grey,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            Row(
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
                 Expanded(
                   child: Container(
-                    height: 70,
+                    padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(100),
-                        bottomLeft: Radius.circular(100),
+                        topRight: Radius.circular(100),
+                        bottomRight: Radius.circular(100),
                       ),
                       boxShadow: [
                         BoxShadow(
@@ -163,74 +194,45 @@ class ProfileScreen extends StatelessWidget {
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.max,
-                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: <Widget>[
-                        user.isEmployer()
-                            ? Container()
-                            : Padding(
-                                padding: const EdgeInsets.all(10.0),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: <Widget>[
-                                    Text(
-                                      user.applied,
-                                      style: TextStyle(fontSize: 20),
-                                    ),
-                                    Text("Applied"),
-                                  ],
-                                ),
+                        Column(
+                          children: <Widget>[
+                            Text(
+                              user.applied,
+                              style: TextStyle(
+                                fontSize: 18,
                               ),
-                        Padding(
-                          padding: const EdgeInsets.all(10.0),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: <Widget>[
-                              Text(
-                                user.shortlisted,
-                                style: TextStyle(fontSize: 20),
+                            ),
+                            Text("Applied"),
+                          ],
+                        ),
+                        Column(
+                          children: <Widget>[
+                            Text(
+                              user.shortlisted,
+                              style: TextStyle(
+                                fontSize: 18,
                               ),
-                              Text("Shortlisted"),
-                            ],
-                          ),
+                            ),
+                            Text("Shortlisted"),
+                          ],
                         ),
                       ],
                     ),
                   ),
                 ),
-              ],
-            ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0),
-              child: Row(
-                mainAxisSize: MainAxisSize.max,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Text(
-                        user.account.businessName.isEmpty ? user.account.fullname : user.account.businessName,
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20,
-                          color: Colors.black.withOpacity(0.8),
-                        ),
-                      ),
-                      Text(
-                        user.account.email,
-                        style: TextStyle(
-                          color: Colors.grey,
-                        ),
-                      ),
-                    ],
-                  ),
-                  SecondaryButton(
-                    text: "Add description",
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  child: SecondaryButton(
+                    width: 125,
+                    icon: Icons.add,
+                    text: "Description",
                     onPressed: addDescription,
                     smaller: true,
-                  )
-                ],
-              ),
+                  ),
+                ),
+              ],
             ),
             SizedBox(
               height: 15,

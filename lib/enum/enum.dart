@@ -14,7 +14,8 @@ enum JobStatus {
   declined,
 }
 
-enum Algo {
-  none,
-  preferences,
+enum WarningLevel {
+  clear,
+  caution,
+  danger,
 }

@@ -7,10 +7,12 @@ class SecondaryButton extends StatelessWidget {
   final double width;
   final bool smaller;
   final bool loading;
+  final IconData icon;
 
   SecondaryButton({
     @required this.text,
     @required this.onPressed,
+    this.icon,
     this.width = 150,
     this.smaller = false,
     this.loading = false,
@@ -44,22 +46,34 @@ class SecondaryButton extends StatelessWidget {
                     backgroundColor: Colors.transparent,
                   ),
                 )
-              : this.smaller
-                  ? Text(
-                      this.text,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 13,
-                      ),
-                    )
-                  : Text(
-                      this.text,
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                        fontSize: 15,
-                      ),
-                    ),
+              : Row(
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    this.icon != null
+                        ? Icon(
+                            this.icon,
+                            color: Colors.white,
+                          )
+                        : Container(),
+                    this.smaller
+                        ? Text(
+                            this.text,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 13,
+                            ),
+                          )
+                        : Text(
+                            this.text,
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                              fontSize: 15,
+                            ),
+                          ),
+                  ],
+                ),
           onPressed: this.loading ? null : this.onPressed,
         ),
       ),

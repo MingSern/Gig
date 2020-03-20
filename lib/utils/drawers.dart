@@ -4,9 +4,11 @@ class Drawers {
   static bottom({
     @required BuildContext context,
     @required List<Widget> children,
+    bool isScrollControlled = false,
   }) {
     return showModalBottomSheet(
       context: context,
+      isScrollControlled: isScrollControlled,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(10),
@@ -28,6 +30,29 @@ class Drawers {
               color: Colors.grey,
             );
           },
+        );
+      },
+    );
+  }
+
+  static keyboard({
+    @required BuildContext context,
+    @required Widget child,
+    bool isScrollControlled = true,
+  }) {
+    return showModalBottomSheet(
+      context: context,
+      isScrollControlled: isScrollControlled,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(10),
+          topRight: Radius.circular(10),
+        ),
+      ),
+      builder: (context) {
+        return Padding(
+          padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+          child: child,
         );
       },
     );

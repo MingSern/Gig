@@ -95,28 +95,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 SizedBox(
                   height: 40,
                 ),
-                Field(
-                  initialValue: this.fullname,
-                  labelText: "Fullname",
-                  keyboardType: TextInputType.text,
-                  textCapitalization: TextCapitalization.words,
-                  onSaved: (value) => this.fullname = value,
-                  validator: (value) => value.isEmpty ? "Full name is empty" : null,
-                ),
                 userType == UserType.jobseeker
-                    ? Container()
-                    : Column(
-                        children: <Widget>[
-                          SizedBox(height: 10),
-                          Field(
-                            initialValue: this.businessName,
-                            labelText: "Business/Company name",
-                            keyboardType: TextInputType.text,
-                            textCapitalization: TextCapitalization.words,
-                            onSaved: (value) => this.businessName = value,
-                            validator: (value) => value.isEmpty ? "Business/Company name is empty" : null,
-                          ),
-                        ],
+                    ? Field(
+                        initialValue: this.fullname,
+                        labelText: "Fullname",
+                        keyboardType: TextInputType.text,
+                        textCapitalization: TextCapitalization.words,
+                        onSaved: (value) => this.fullname = value,
+                        validator: (value) => value.isEmpty ? "Full name is empty" : null,
+                      )
+                    : Field(
+                        initialValue: this.businessName,
+                        labelText: "Business/Company name",
+                        keyboardType: TextInputType.text,
+                        textCapitalization: TextCapitalization.words,
+                        onSaved: (value) => this.businessName = value,
+                        validator: (value) => value.isEmpty ? "Business/Company name is empty" : null,
                       ),
                 SizedBox(height: 10),
                 Field(

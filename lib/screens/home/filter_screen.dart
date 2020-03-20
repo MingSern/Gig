@@ -1,6 +1,7 @@
 import 'package:Gig/components/filter_card.dart';
 import 'package:Gig/components/round_button.dart';
 import 'package:Gig/lists/categories.dart';
+import 'package:Gig/models/job.dart';
 import 'package:Gig/models/user.dart';
 import 'package:Gig/utils/device.dart';
 import 'package:Gig/utils/dialogs.dart';
@@ -31,18 +32,20 @@ class BuildFilter extends StatefulWidget {
 }
 
 class _BuildFilterState extends State<BuildFilter> {
-  double preferedWages;
+  RangeValues preferedWages;
   List<dynamic> preferedCategories;
 
   @override
   void initState() {
-    preferedWages = widget.user.account.preferedWages.toDouble();
+    preferedWages = widget.user.account.preferedWages;
     preferedCategories = List.from(widget.user.account.preferedCategories);
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
+    Job job = Provider.of<Job>(context);
+
     void savePreferedCategories() async {
       if (preferedCategories.isNotEmpty) {
         var saveCategories = widget.user.savePreferedCategories(preferedCategories: preferedCategories);
@@ -50,6 +53,7 @@ class _BuildFilterState extends State<BuildFilter> {
 
         await Future.wait([saveCategories, saveWages]).then((_) {
           Navigator.pop(context);
+          job.getAvailableJobs();
         });
       } else {
         Dialogs.notifyDialog(
@@ -66,7 +70,7 @@ class _BuildFilterState extends State<BuildFilter> {
           loading: widget.user.loading,
           onPressed: () => Device.goBack(context),
         ),
-        title: Text("Filter by"),
+        title: Text("Edit Preferences"),
         centerTitle: true,
         actions: <Widget>[
           RoundButton(
@@ -82,18 +86,22 @@ class _BuildFilterState extends State<BuildFilter> {
           children: <Widget>[
             FilterCard(
               title: "Expected wages:",
-              value: "RM ${preferedWages.toStringAsFixed(2)}/hr",
+              value:
+                  "RM ${preferedWages.start.toStringAsFixed(0)} ~ ${preferedWages.end.toStringAsFixed(2)}/hr",
               child: Column(
                 children: <Widget>[
                   SizedBox(height: 10),
-                  Slider(
+                  RangeSlider(
                     activeColor: Palette.mustard,
-                    value: preferedWages,
+                    values: preferedWages,
                     onChanged: (value) => this.setState(() => preferedWages = value),
-                    divisions: 49,
+                    divisions: 99,
                     min: 1,
-                    max: 50,
-                    label: "RM ${preferedWages.toStringAsFixed(2)}/hr",
+                    max: 100,
+                    labels: RangeLabels(
+                      "RM ${preferedWages.start.toStringAsFixed(2)}/hr",
+                      "RM ${preferedWages.end.toStringAsFixed(2)}/hr",
+                    ),
                   ),
                 ],
               ),

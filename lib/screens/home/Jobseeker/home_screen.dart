@@ -1,14 +1,14 @@
 import 'package:Gig/components/big_card.dart';
+import 'package:Gig/components/empty_state.dart';
 import 'package:Gig/components/filter_card.dart';
 import 'package:Gig/components/loading.dart';
+import 'package:Gig/components/primary_button.dart';
 import 'package:Gig/components/round_button.dart';
 import 'package:Gig/components/title_button.dart';
-import 'package:Gig/enum/enum.dart';
 import 'package:Gig/lists/categories.dart';
 import 'package:Gig/models/image_manager.dart';
 import 'package:Gig/models/job.dart';
 import 'package:Gig/models/user.dart';
-import 'package:Gig/utils/algorithm.dart';
 import 'package:Gig/utils/dialogs.dart';
 import 'package:Gig/utils/palette.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -16,6 +16,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class HomeScreen extends StatelessWidget {
+  final PageController controller = new PageController();
+
   @override
   Widget build(BuildContext context) {
     User user = Provider.of<User>(context);
@@ -30,7 +32,33 @@ class HomeScreen extends StatelessWidget {
     }
 
     return user.account.preferedCategories.isEmpty
-        ? BuildSelection()
+        ? PageView(
+            controller: controller,
+            children: <Widget>[
+              Scaffold(
+                appBar: AppBar(title: Text("Home")),
+                body: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.max,
+                  children: <Widget>[
+                    EmptyState(
+                      imagePath: "assets/get_started.png",
+                      message: "Get started by selecting job categories that you like! 🔥",
+                    ),
+                    PrimaryButton(
+                      text: "Get Started",
+                      onPressed: () => controller.animateToPage(
+                        1,
+                        duration: Duration(milliseconds: 500),
+                        curve: Curves.fastOutSlowIn,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              BuildSelection()
+            ],
+          )
         : Scaffold(
             appBar: AppBar(
               titleSpacing: 0,
@@ -51,37 +79,31 @@ class HomeScreen extends StatelessWidget {
                         BuildCarousell(
                           title: "Recommended for you",
                           documents: job.availableJobs,
-                          limit: 5,
+                          limit: 10,
                         ),
                         BuildCarousell(
                           title: "Your preferences",
-                          documents: job.availableJobs,
-                          algorithm: Algo.preferences,
-                          limit: 5,
-                        ),
-                        BuildCarousell(
-                          title: "Near you",
-                          documents: job.availableJobs,
-                          limit: 5,
+                          documents: job.preferedJobs,
+                          limit: 10,
                         ),
                         BuildCarousell(
                           title: "Available jobs",
                           documents: job.availableJobs,
-                          limit: 5,
+                          limit: 10,
                         ),
                       ],
                     ),
                   ),
-            floatingActionButton: FloatingActionButton(onPressed: () async {
-              print({
-                "currentUser": true,
-                "uid": user.userId,
-                "preferedCategories": user.account.preferedCategories,
-              });
-              List something = await job.jaccardCategory();
+            // floatingActionButton: FloatingActionButton(onPressed: () async {
+            //   print({
+            //     "currentUser": true,
+            //     "uid": user.userId,
+            //     "preferedCategories": user.account.preferedCategories,
+            //   });
+            //   List result = await job.jaccardCategory();
 
-              print(something);
-            }),
+            //   print(result);
+            // }),
           );
   }
 }
@@ -90,19 +112,16 @@ class BuildCarousell extends StatelessWidget {
   final String title;
   final List<DocumentSnapshot> documents;
   final int limit;
-  final Algo algorithm;
 
   BuildCarousell({
     @required this.title,
     @required this.documents,
     @required this.limit,
-    this.algorithm = Algo.none,
   });
 
   @override
   Widget build(BuildContext context) {
     ImageManager imageManager = Provider.of<ImageManager>(context);
-    User user = Provider.of<User>(context);
     Job job = Provider.of<Job>(context);
 
     void viewJobInfo(document) {
@@ -110,32 +129,8 @@ class BuildCarousell extends StatelessWidget {
       Navigator.pushNamed(context, "/home/job/info");
     }
 
-    List<DocumentSnapshot> filterDocuments() {
-      List<DocumentSnapshot> filteredDocuments = this.documents.where((document) {
-        if (document["uid"] != null) {
-          imageManager.addAccountId(document["uid"]);
-        }
-
-        switch (this.algorithm) {
-          case Algo.none:
-            return Algorithm.none();
-            break;
-          case Algo.preferences:
-            return Algorithm.hybridPreferences(document: document, user: user);
-            break;
-          default:
-            return Algorithm.none();
-            break;
-        }
-      }).toList();
-
-      return filteredDocuments;
-    }
-
     List<Widget> mapDocuments() {
-      List<DocumentSnapshot> filteredDocuments = filterDocuments();
-
-      if (filteredDocuments.isEmpty || filteredDocuments == null || filteredDocuments.length < 1) {
+      if (this.documents.isEmpty || this.documents == null || this.documents.length < 1) {
         return [
           BigCard(
             workPosition: "Empty",
@@ -149,10 +144,15 @@ class BuildCarousell extends StatelessWidget {
         ];
       }
 
-      bool limitIsBigger = this.limit > filteredDocuments.length;
-      filteredDocuments = filteredDocuments.sublist(0, limitIsBigger ? filteredDocuments.length : this.limit);
+      bool limitIsBigger = this.limit > this.documents.length;
+      List<DocumentSnapshot> filteredDocuments =
+          this.documents.sublist(0, limitIsBigger ? this.documents.length : this.limit);
 
       List<Widget> mappedDocuments = filteredDocuments.map((document) {
+        if (document["uid"] != null) {
+          imageManager.addAccountId(document["uid"]);
+        }
+
         return BigCard(
           workPosition: document["workPosition"],
           businessName: document["businessName"],
@@ -171,7 +171,7 @@ class BuildCarousell extends StatelessWidget {
       children: <Widget>[
         TitleButton(
           title: this.title,
-          documents: filterDocuments(),
+          documents: this.documents,
         ),
         Container(
           height: 255,
@@ -220,7 +220,7 @@ class _BuildSelectionState extends State<BuildSelection> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text("Your preferences"),
+        title: Text("What you like"),
         actions: <Widget>[
           RoundButton(
             icon: Icons.done,

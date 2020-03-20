@@ -83,28 +83,27 @@ class BigCard extends StatelessWidget {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
-                            Text(
-                              this.workPosition,
-                              style: TextStyle(
-                                fontWeight: FontWeight.w500,
-                                fontSize: 19,
+                            Container(
+                              child: Text(
+                                this.workPosition,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 19,
+                                ),
                               ),
                             ),
-                            Text(
-                              this.businessName,
-                              style: TextStyle(
-                                color: Colors.grey,
-                                fontSize: 15,
+                            Container(
+                              child: Text(
+                                this.businessName,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  color: Colors.grey,
+                                  fontSize: 15,
+                                ),
                               ),
                             ),
                           ],
-                        ),
-                        Text(
-                          Time.getDateTime(createdAt),
-                          style: TextStyle(
-                            color: Colors.grey,
-                            fontSize: 11,
-                          ),
                         ),
                       ],
                     ),
@@ -126,8 +125,20 @@ class BigCard extends StatelessWidget {
                         SizedBox(
                           width: 2,
                         ),
+                        Container(
+                          width: 200,
+                          child: Text(
+                            this.location,
+                            style: TextStyle(
+                              color: Colors.grey,
+                              fontSize: 11,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        Spacer(),
                         Text(
-                          this.location,
+                          Time.getDateTime(createdAt),
                           style: TextStyle(
                             color: Colors.grey,
                             fontSize: 11,

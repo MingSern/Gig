@@ -63,7 +63,7 @@ class ViewProfileScreen extends StatelessWidget {
                 mainAxisSize: MainAxisSize.max,
                 children: <Widget>[
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    mainAxisAlignment: MainAxisAlignment.start,
                     mainAxisSize: MainAxisSize.max,
                     children: <Widget>[
                       Padding(
@@ -80,11 +80,6 @@ class ViewProfileScreen extends StatelessWidget {
                                   ),
                                 ),
                               )
-                            // : CircleAvatar(
-                            //     radius: 50,
-                            //     backgroundColor: Colors.grey[100],
-                            //     backgroundImage: CachedNetworkImageProvider(account["imageUrl"]),
-                            //   ),
                             : Container(
                                 height: 100,
                                 width: 100,
@@ -103,14 +98,48 @@ class ViewProfileScreen extends StatelessWidget {
                                 ),
                               ),
                       ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Text(
+                            handleFullname(),
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20,
+                              color: Colors.black.withOpacity(0.8),
+                            ),
+                          ),
+                          Text(
+                            account["email"],
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: Colors.grey,
+                            ),
+                          ),
+                          Text(
+                            account["phoneNumber"],
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: Colors.grey,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  Row(
+                    mainAxisSize: MainAxisSize.max,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
                       Expanded(
                         child: Container(
-                          height: 70,
+                          padding: const EdgeInsets.all(10),
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(100),
-                              bottomLeft: Radius.circular(100),
+                              topRight: Radius.circular(100),
+                              bottomRight: Radius.circular(100),
                             ),
                             boxShadow: [
                               BoxShadow(
@@ -120,59 +149,35 @@ class ViewProfileScreen extends StatelessWidget {
                               ),
                             ],
                           ),
-                          child: Center(
-                            child: Column(
-                              mainAxisSize: MainAxisSize.max,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: <Widget>[
-                                Text(
-                                  user.otherUser["length"],
-                                  style: TextStyle(fontSize: 20),
-                                ),
-                                userType == UserType.employer ? Text("Jobs") : Text("Shortlists"),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.max,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: <Widget>[
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.max,
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: <Widget>[
-                              Text(
-                                handleFullname(),
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 20,
-                                  color: Colors.black.withOpacity(0.8),
-                                ),
-                              ),
-                              Text(
-                                user.account.email,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                  color: Colors.grey,
-                                ),
+                              Column(
+                                mainAxisSize: MainAxisSize.max,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: <Widget>[
+                                  Text(
+                                    user.otherUser["length"],
+                                    style: TextStyle(fontSize: 20),
+                                  ),
+                                  userType == UserType.employer ? Text("Jobs") : Text("Shortlists"),
+                                ],
                               ),
                             ],
                           ),
                         ),
-                        PrimaryButton(
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                        child: PrimaryButton(
+                          width: 125,
                           text: "Message",
                           onPressed: viewChatRoom,
-                        )
-                      ],
-                    ),
+                        ),
+                      )
+                    ],
                   ),
                   SizedBox(
                     height: 15,

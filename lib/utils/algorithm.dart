@@ -1,4 +1,5 @@
 import 'package:Gig/models/user.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class Algorithm {
@@ -12,28 +13,40 @@ class Algorithm {
     return match;
   }
 
-  static bool hybridPreferences({@required document, @required User user}) {
-    int difference = user.account.preferedWages - int.parse(document["wages"]);
-    bool match = user.account.preferedCategories.contains(document["category"]);
+  static List<DocumentSnapshot> hybridListPreferences(
+      {@required List<DocumentSnapshot> documents, @required User user}) {
+    List<DocumentSnapshot> preferedJobs = [];
 
-    if ((difference > -5 && difference < 5) || match) {
-      return true;
-    }
+    preferedJobs = documents.where((document) {
+      double wages = double.parse(document["wages"]);
+      bool within = wages >= user.account.preferedWages.start && wages <= user.account.preferedWages.end;
+      bool match = user.account.preferedCategories.contains(document["category"]);
 
-    return false;
+      if (within || match) {
+        return true;
+      }
+
+      return false;
+    }).toList();
+
+    return preferedJobs;
   }
 
-  static bool wagesPreferences({@required document, @required User user}) {
-    int difference = user.account.preferedWages - int.parse(document["wages"]);
+  static double jaccard(List<String> listA, List<String> listB) {
+    int a = listA.length;
+    int b = listB.length;
+    int sum = a + b;
+    int intersaction = listA.where((item) => listB.contains(item)).toList().length;
+    int union = sum - intersaction < 0 ? -(sum - intersaction) : sum - intersaction;
 
-    if ((difference > -5 && difference < 5)) {
-      return true;
-    }
+    double similarityIndex = intersaction / union;
 
-    return false;
+    return similarityIndex;
   }
 
-  static bool none() {
-    return true;
+  static bool verifyMessage(String message) {
+    bool result = message.toLowerCase().replaceAll(" ", "").contains("transfermoney");
+
+    return result;
   }
 }

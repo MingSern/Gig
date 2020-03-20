@@ -7,6 +7,7 @@ import 'package:Gig/models/image_manager.dart';
 import 'package:Gig/models/job.dart';
 import 'package:Gig/models/user.dart';
 import 'package:Gig/utils/checker.dart';
+import 'package:Gig/utils/drawers.dart';
 import 'package:Gig/utils/palette.dart';
 import 'package:Gig/utils/time.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -116,14 +117,69 @@ class BuildLists extends StatelessWidget {
     }
 
     void declinePending(document) {
-      var jobseekerId = document["uid"];
-      var key = document["key"];
+      TextEditingController controller = new TextEditingController();
 
-      job.declinePending(jobseekerId, key).then((_) {
-        if (job.containsError) {
-          job.showErrorMessage(context);
-        }
-      });
+      Drawers.keyboard(
+        context: context,
+        child: Padding(
+          padding: const EdgeInsets.all(15.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Text("Send a short message to the jobseeker."),
+              SizedBox(height: 20),
+              TextField(
+                maxLength: 100,
+                maxLines: null,
+                autofocus: true,
+                controller: controller,
+                textCapitalization: TextCapitalization.sentences,
+                decoration: InputDecoration(
+                  filled: true,
+                  isDense: true,
+                  labelText: "Message",
+                  hintText: "I am sorry to...",
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 25, vertical: 15),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.white),
+                    borderRadius: BorderRadius.circular(25),
+                  ),
+                ),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  FlatButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: Text(
+                      "Cancel".toUpperCase(),
+                      style: TextStyle(color: Palette.lapizBlue),
+                    ),
+                  ),
+                  FlatButton(
+                    onPressed: () {
+                      var jobseekerId = document["uid"];
+                      var key = document["key"];
+                      Navigator.pop(context);
+
+                      job.declinePending(jobseekerId, key, controller.text).then((_) {
+                        if (job.containsError) {
+                          job.showErrorMessage(context);
+                        }
+                      });
+                    },
+                    child: Text(
+                      "Save & reject".toUpperCase(),
+                      style: TextStyle(color: Palette.lapizBlue),
+                    ),
+                  ),
+                ],
+              )
+            ],
+          ),
+        ),
+      );
     }
 
     bool checkJobStatus(String status) {
@@ -145,8 +201,6 @@ class BuildLists extends StatelessWidget {
         if (!snapshot.hasData) {
           return Container();
         }
-
-        // return Text(snapshot.data["pendings"].length.toString());
 
         List pendings = snapshot.data["pendings"];
         List shortlists = snapshot.data["shortlists"];
@@ -173,15 +227,6 @@ class BuildLists extends StatelessWidget {
           );
         }
 
-        // if (snapshot.data.documents.length == 0) {
-        //   return EmptyState(
-        //     imagePath: "assets/empty_list.png",
-        //     message: this.type == JobStatus.pending
-        //         ? user.isJobSeeker() ? "You haven't apply any jobs 🤷" : "No one apply for your jobs 🤷"
-        //         : "Seems like you haven't been accepted 🤷",
-        //   );
-        // }
-
         return ListView.builder(
           itemCount: this.type == JobStatus.pending ? pendings.length : shortlists.length,
           itemBuilder: (context, index) {
@@ -201,8 +246,6 @@ class BuildLists extends StatelessWidget {
               imageManager.addAccountId(document["uid"]);
             }
 
-            // return Text(document.toString());
-
             return Column(
               children: <Widget>[
                 currentDate != previousDate ? Date(date: currentDate) : Container(),
@@ -213,6 +256,7 @@ class BuildLists extends StatelessWidget {
                             imageUrl: imageManager.getImageUrl(document["uid"]),
                             workPosition: document["workPosition"],
                             onPressed: () => viewProfile(document["uid"]),
+                            message: document["message"],
                             declined: checkJobStatus(document["status"]),
                             onAccept: () => acceptPending(document),
                             onReject: () => declinePending(document),
@@ -230,19 +274,10 @@ class BuildLists extends StatelessWidget {
                         wages: document["wages"],
                         location: document["location"],
                         createdAt: document["updatedAt"],
+                        message: document["message"],
                         declined: checkJobStatus(document["status"]),
                         onPressed: () => viewJobInfo(document),
                       ),
-                // : SmallCard(
-                //     workPosition: document["workPosition"],
-                //     businessName: "asdad",
-                //     imageUrl: imageManager.getImageUrl(document["uid"]),
-                //     wages: "asdad",
-                //     location: "asdad",
-                //     createdAt: document["updatedAt"],
-                //     declined: checkJobStatus(document["status"]),
-                //     onPressed: () => viewJobInfo(document),
-                //   ),
               ],
             );
           },

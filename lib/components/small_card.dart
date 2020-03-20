@@ -1,3 +1,5 @@
+import 'package:Gig/components/warning_message.dart';
+import 'package:Gig/enum/enum.dart';
 import 'package:Gig/utils/device.dart';
 import 'package:Gig/utils/palette.dart';
 import 'package:Gig/utils/time.dart';
@@ -14,6 +16,7 @@ class SmallCard extends StatelessWidget {
   final GestureTapCallback onPressed;
   final GestureTapCallback onLongPress;
   final bool declined;
+  final String message;
 
   SmallCard({
     @required this.workPosition,
@@ -25,6 +28,7 @@ class SmallCard extends StatelessWidget {
     @required this.onPressed,
     this.onLongPress,
     this.declined = false,
+    this.message,
   });
 
   Widget handleAvatar() {
@@ -130,13 +134,11 @@ class SmallCard extends StatelessWidget {
                 ],
               ),
               this.declined
-                  ? Text(
-                      "Declined",
-                      style: TextStyle(
-                        color: Colors.red,
-                        fontSize: 26,
-                        fontWeight: FontWeight.w500,
-                      ),
+                  ? WarningMessage(
+                      margin: const EdgeInsets.only(top: 10),
+                      message: this.message == null || this.message == ""
+                          ? "${this.businessName} declined your application."
+                          : this.message,
                     )
                   : Text(
                       "RM ${this.wages}/hr",

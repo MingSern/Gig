@@ -1,4 +1,5 @@
 import 'package:Gig/enum/enum.dart';
+import 'package:flutter/material.dart';
 
 class Account {
   UserType userType;
@@ -10,7 +11,7 @@ class Account {
   String verificationId;
   String imageUrl;
   List<dynamic> preferedCategories;
-  int preferedWages;
+  RangeValues preferedWages;
 
   Account(userType, email, password, fullname, businessName, phoneNumber) {
     this.preferedCategories = new List<dynamic>();
@@ -34,7 +35,7 @@ class Account {
     this.preferedCategories = List.from(categories);
   }
 
-  void setPreferedWages(int wages) {
-    this.preferedWages = wages;
+  void setPreferedWages(RangeValues preferedWages) {
+    this.preferedWages = preferedWages;
   }
 }

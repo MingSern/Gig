@@ -2,10 +2,13 @@ import 'package:Gig/components/chat_box.dart';
 import 'package:Gig/components/date.dart';
 import 'package:Gig/components/round_button.dart';
 import 'package:Gig/components/rounded_nav_bar.dart';
+import 'package:Gig/components/warning_message.dart';
+import 'package:Gig/enum/enum.dart';
 import 'package:Gig/models/chat_room.dart';
 import 'package:Gig/models/image_manager.dart';
 import 'package:Gig/models/screen_controller.dart';
 import 'package:Gig/models/user.dart';
+import 'package:Gig/utils/algorithm.dart';
 import 'package:Gig/utils/palette.dart';
 import 'package:Gig/utils/time.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -31,6 +34,21 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
       controller.goTo(context: context, screenIndex: 2);
 
       return Future.value(false);
+    }
+
+    Widget checkMessage(DocumentSnapshot document) {
+      if (document["uid"] != user.userId && user.isJobSeeker()) {
+        bool verified = Algorithm.verifyMessage(document["message"]);
+
+        if (verified) {
+          return WarningMessage(
+            level: WarningLevel.caution,
+            message: "The message above indicates a potential scam.",
+          );
+        }
+      }
+
+      return Container();
     }
 
     return WillPopScope(
@@ -98,7 +116,12 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
                       return Column(
                         children: <Widget>[
                           user.isJobSeeker()
-                              ? index == lastIndex ? BuildWarningMessage() : Container()
+                              ? index == lastIndex
+                                  ? WarningMessage(
+                                      message:
+                                          "Please be aware of scams. Keep in mind that normal employers will not ask for any sensitive or bank informations from you.",
+                                    )
+                                  : Container()
                               : Container(),
                           currentDate != nextDate ? Date(date: currentDate) : Container(),
                           ChatBox(
@@ -106,6 +129,7 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
                             message: document["message"],
                             createdAt: document["createdAt"],
                           ),
+                          checkMessage(document),
                           index == 0 ? SizedBox(height: 10) : Container(),
                         ],
                       );
@@ -116,27 +140,6 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
             ),
             Keyboard(controller: textController),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-class BuildWarningMessage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.fromLTRB(15, 15, 15, 0),
-      padding: const EdgeInsets.all(15),
-      width: double.infinity,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(15),
-        color: Palette.cherryRed.withOpacity(0.5),
-      ),
-      child: Text(
-        "Please be aware of scams. Keep in mind that normal employers will not ask for any sensitive or bank informations from you.",
-        style: TextStyle(
-          color: Colors.red,
         ),
       ),
     );

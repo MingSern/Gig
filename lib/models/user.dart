@@ -1,11 +1,16 @@
+import 'dart:convert';
+
 import 'package:Gig/enum/enum.dart';
 import 'package:Gig/models/account.dart';
 import 'package:Gig/models/base.dart';
 import 'package:Gig/services/firebase.dart';
+import 'package:Gig/services/ip_quality_score.dart';
 import 'package:Gig/utils/checker.dart';
 import 'package:Gig/utils/debounce.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+import 'package:http/http.dart';
 
 final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
 final Firestore firestore = Firestore.instance;
@@ -42,7 +47,7 @@ class User extends Base {
         this.authStatus = AuthStatus.notSignedIn;
       }
     }).catchError((onError) {
-      setErrorMessage(onError.toString());
+      setErrorMessage(onError.message);
       this.authStatus = AuthStatus.notSignedIn;
     });
 
@@ -84,13 +89,23 @@ class User extends Base {
     String password = accountData["password"] ?? "";
     String imageUrl = accountData["imageUrl"] ?? "";
     List<dynamic> preferedCategories = accountData["preferedCategories"] ?? [];
-    int preferedWages = accountData["preferedWages"] ?? 10;
+    String preferedWages = accountData["preferedWages"];
 
     Account account = new Account(userType, email, password, fullname, businessName, phoneNumber);
 
     account.setImageUrl(imageUrl);
     account.setPreferedCategories(preferedCategories);
-    account.setPreferedWages(preferedWages);
+
+    if (preferedWages == null) {
+      account.setPreferedWages(RangeValues(10, 100));
+    } else {
+      List<String> values = preferedWages.split("-");
+      double start = double.parse(values.first);
+      double end = double.parse(values.last);
+
+      account.setPreferedWages(RangeValues(start, end));
+    }
+
     this.setAccount(account);
   }
 
@@ -101,7 +116,7 @@ class User extends Base {
     await Firebase.signIn(email, password).then((_) async {
       await this.authenticate();
     }).catchError((onError) {
-      setErrorMessage(onError.toString());
+      setErrorMessage(onError.message);
     });
 
     isLoading(false);
@@ -110,34 +125,56 @@ class User extends Base {
   Future<void> verifyAccount(Account account) async {
     isLoading(true);
 
-    var verificationId;
-    this.account = account;
+    try {
+      var verificationId;
+      this.account = account;
 
-    final PhoneCodeAutoRetrievalTimeout autoRetrieve = (String verId) {
-      verificationId = verId;
-    };
+      // bool verified = await this.verifyEmail();
+      bool verified = true;
 
-    final PhoneCodeSent smsCodeSent = (String verId, [int forceCodeResend]) {
-      verificationId = verId;
-      account.setVerificationId(verId);
-      this.setAccount(account);
-    };
+      if (verified) {
+        final PhoneCodeAutoRetrievalTimeout autoRetrieve = (String verId) {
+          verificationId = verId;
+        };
 
-    final PhoneVerificationCompleted verifySuccess = (AuthCredential user) {
-      print("verified $verificationId");
-    };
+        final PhoneCodeSent smsCodeSent = (String verId, [int forceCodeResend]) {
+          verificationId = verId;
+          account.setVerificationId(verId);
+          this.setAccount(account);
+        };
 
-    final PhoneVerificationFailed verifyFailed = (AuthException exception) {
-      print('${exception.toString()}');
-    };
+        final PhoneVerificationCompleted verifySuccess = (AuthCredential user) {
+          print("verified $verificationId");
+        };
 
-    await Firebase.sendCodeToPhoneNumber(
-            account.phoneNumber, autoRetrieve, smsCodeSent, verifySuccess, verifyFailed)
-        .catchError((onError) {
-      setErrorMessage(onError.toString());
-    });
+        final PhoneVerificationFailed verifyFailed = (AuthException exception) {
+          print('${exception.toString()}');
+        };
+
+        await Firebase.sendCodeToPhoneNumber(
+                account.phoneNumber, autoRetrieve, smsCodeSent, verifySuccess, verifyFailed)
+            .catchError((onError) {
+          setErrorMessage(onError.message);
+        });
+      } else {
+        setErrorMessage("Please provide a valid email address.");
+      }
+    } catch (e) {
+      setErrorMessage("Seems like you are currently offline. Turn back on your Wifi an try again.");
+    }
 
     isLoading(false);
+  }
+
+  Future<bool> verifyEmail() async {
+    Response response = await IpQualityScore.call(this.account.email);
+    var data = json.decode(response.body);
+
+    if (data["valid"]) {
+      return true;
+    }
+
+    return false;
   }
 
   Future<void> verifyAndRegisterAccount(String smsCode) async {
@@ -149,12 +186,12 @@ class User extends Base {
     );
 
     AuthResult result = await Firebase.signInWithPhoneNumber(credential).catchError((onError) {
-      setErrorMessage(onError.toString());
+      setErrorMessage(onError.message);
     });
 
     if (result?.user != null) {
       String userId = await Firebase.signUp(this.account.email, this.account.password).catchError((onError) {
-        setErrorMessage(onError.toString());
+        setErrorMessage(onError.message);
       });
 
       this.setId(userId);
@@ -195,7 +232,7 @@ class User extends Base {
       await this.authenticate();
       await this.unsubscribeFcmToken();
     }).catchError((onError) {
-      setErrorMessage(onError.toString());
+      setErrorMessage(onError.message);
     });
 
     isLoading(false);
@@ -374,7 +411,7 @@ class User extends Base {
     return this.account.userType == UserType.employer;
   }
 
-  void setWages(int wages) {
+  void setWages(RangeValues wages) {
     this.account.preferedWages = wages;
 
     notifyListeners();
@@ -390,11 +427,12 @@ class User extends Base {
     notifyListeners();
   }
 
-  Future<void> savePreferedWages({double preferedWages}) async {
+  Future<void> savePreferedWages({RangeValues preferedWages}) async {
     isLoading(true);
 
     var updateWages = {
-      "preferedWages": preferedWages.toInt() ?? this.account.preferedWages,
+      "preferedWages": "${preferedWages.start.toStringAsFixed(2)}-${preferedWages.end.toStringAsFixed(2)}" ??
+          this.account.preferedWages,
     };
 
     await firestore
@@ -406,7 +444,7 @@ class User extends Base {
     });
 
     if (preferedWages != null) {
-      this.account.setPreferedWages(preferedWages.toInt());
+      this.account.setPreferedWages(preferedWages);
     }
 
     isLoading(false);

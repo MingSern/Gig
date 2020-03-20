@@ -1,3 +1,5 @@
+import 'package:Gig/components/warning_message.dart';
+import 'package:Gig/enum/enum.dart';
 import 'package:Gig/utils/device.dart';
 import 'package:Gig/utils/palette.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -11,6 +13,7 @@ class ListCard extends StatelessWidget {
   final bool declined;
   final GestureTapCallback onAccept;
   final GestureTapCallback onReject;
+  final String message;
 
   ListCard({
     @required this.fullname,
@@ -20,6 +23,7 @@ class ListCard extends StatelessWidget {
     this.declined = false,
     this.onAccept,
     this.onReject,
+    this.message,
   });
 
   @override
@@ -70,13 +74,11 @@ class ListCard extends StatelessWidget {
                   this.onAccept == null && this.onReject == null
                       ? Container()
                       : this.declined
-                          ? Text(
-                              "Declined",
-                              style: TextStyle(
-                                color: Colors.red,
-                                fontSize: 26,
-                                fontWeight: FontWeight.w500,
-                              ),
+                          ? WarningMessage(
+                              margin: const EdgeInsets.only(top: 10),
+                              message: this.message == null || this.message == ""
+                                  ? "You have declined this application."
+                                  : this.message,
                             )
                           : Container(height: 40),
                 ],
