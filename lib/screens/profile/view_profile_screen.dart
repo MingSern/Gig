@@ -1,4 +1,5 @@
 import 'package:Gig/components/description_card.dart';
+import 'package:Gig/components/gender_chip.dart';
 import 'package:Gig/components/loading.dart';
 import 'package:Gig/components/primary_button.dart';
 import 'package:Gig/components/round_button.dart';
@@ -124,6 +125,12 @@ class ViewProfileScreen extends StatelessWidget {
                               color: Colors.grey,
                             ),
                           ),
+                          user.isEmployer()
+                              ? GenderChip(
+                                  gender: account["gender"] ?? "Male",
+                                  age: account["age"] ?? "22",
+                                )
+                              : Container()
                         ],
                       ),
                     ],

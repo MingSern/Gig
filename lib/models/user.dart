@@ -86,12 +86,13 @@ class User extends Base {
     String fullname = accountData["fullname"];
     String businessName = accountData["businessName"] ?? "";
     String phoneNumber = accountData["phoneNumber"];
-    String password = accountData["password"] ?? "";
     String imageUrl = accountData["imageUrl"] ?? "";
     List<dynamic> preferedCategories = accountData["preferedCategories"] ?? [];
     String preferedWages = accountData["preferedWages"];
+    String gender = accountData["gender"];
+    String age = accountData["age"];
 
-    Account account = new Account(userType, email, password, fullname, businessName, phoneNumber);
+    Account account = new Account(userType, email, null, fullname, age, gender, businessName, phoneNumber);
 
     account.setImageUrl(imageUrl);
     account.setPreferedCategories(preferedCategories);
@@ -211,6 +212,8 @@ class User extends Base {
         data["businessName"] = this.account.businessName;
       } else {
         data["preferedCategories"] = [];
+        data["age"] = this.account.age;
+        data["gender"] = this.account.gender;
       }
 
       var userRef = firestore.collection("accounts").document(this.userId);

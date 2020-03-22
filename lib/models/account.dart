@@ -12,13 +12,17 @@ class Account {
   String imageUrl;
   List<dynamic> preferedCategories;
   RangeValues preferedWages;
+  String gender;
+  String age;
 
-  Account(userType, email, password, fullname, businessName, phoneNumber) {
+  Account(userType, email, password, fullname, age, gender, businessName, phoneNumber) {
     this.preferedCategories = new List<dynamic>();
     this.userType = userType;
     this.email = email;
     this.password = password;
     this.fullname = fullname;
+    this.age = age;
+    this.gender = gender;
     this.businessName = businessName;
     this.phoneNumber = phoneNumber;
   }

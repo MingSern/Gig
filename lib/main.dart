@@ -17,6 +17,7 @@ import 'package:Gig/screens/home/search_jobs_screen.dart';
 import 'package:Gig/screens/profile/description_screen.dart';
 import 'package:Gig/screens/profile/edit_image_screen.dart';
 import 'package:Gig/screens/profile/view_profile_screen.dart';
+import 'package:Gig/screens/result_screen.dart';
 import 'package:Gig/utils/palette.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -87,6 +88,7 @@ class MyApp extends StatelessWidget {
             '/profile/description/add': (context) => DescriptionScreen(),
             '/profile/image/edit': (context) => EditImageScreen(),
             '/profile/view': (context) => ViewProfileScreen(),
+            '/result': (context) => ResultScreen(),
           },
         ),
       ),

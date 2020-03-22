@@ -1,3 +1,4 @@
+import 'package:Gig/components/drop_field.dart';
 import 'package:Gig/components/field.dart';
 import 'package:Gig/components/primary_button.dart';
 import 'package:Gig/components/title_text.dart';
@@ -21,6 +22,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   var fullname;
   var businessName;
+  var age;
+  var gender;
   var email;
   var password;
   var phoneNumber;
@@ -32,6 +35,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
     this.password = account["password"];
     this.fullname = account["fullname"];
     this.businessName = account["businessName"];
+    this.age = account["age"];
+    this.gender = account["gender"];
   }
 
   @override
@@ -59,7 +64,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
     Future<void> verifyAccount() async {
       if (validatedAndSaved()) {
         Device.dismissKeyboard(context);
-        Account account = Account(userType, email, password, fullname, businessName, phoneNumber);
+        Account account =
+            Account(userType, email, password, fullname, age, gender, businessName, phoneNumber);
 
         await user.verifyAccount(account).then((_) {
           if (user.containsError) {
@@ -112,6 +118,39 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         onSaved: (value) => this.businessName = value,
                         validator: (value) => value.isEmpty ? "Business/Company name is empty" : null,
                       ),
+                userType == UserType.jobseeker
+                    ? Column(
+                        children: <Widget>[
+                          SizedBox(height: 10),
+                          Row(
+                            children: <Widget>[
+                              Flexible(
+                                child: DropField(
+                                  padding: const EdgeInsets.only(left: 30, right: 5),
+                                  labelText: "Age",
+                                  value: this.age,
+                                  validator: (value) => value == null ? "Age is empty" : null,
+                                  items: List.generate(58, (age) {
+                                    return (age + 18).toString();
+                                  }),
+                                  onChanged: (value) => this.setState(() => this.age = value),
+                                ),
+                              ),
+                              Flexible(
+                                child: DropField(
+                                  padding: const EdgeInsets.only(left: 5, right: 30),
+                                  labelText: "Gender",
+                                  value: this.gender,
+                                  validator: (value) => value == null ? "Gender is empty" : null,
+                                  items: ["Male", "Female"],
+                                  onChanged: (value) => this.setState(() => this.gender = value),
+                                ),
+                              ),
+                            ],
+                          )
+                        ],
+                      )
+                    : Container(),
                 SizedBox(height: 10),
                 Field(
                   initialValue: this.email,

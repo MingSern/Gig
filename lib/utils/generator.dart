@@ -109,14 +109,20 @@ class Generator {
       "zis0b",
     ];
 
+    var age = List.generate(58, (number) {
+      return (number + 18).toString();
+    });
+    var gender = ["Male", "Female"];
     var name = emails[random.nextInt(emails.length)];
-    var num = random.nextInt(100);
+    var number = random.nextInt(100);
 
     var data = {
-      "email": name + num.toString() + "@gmail.com",
+      "email": name + number.toString() + "@gmail.com",
       "password": "111111",
       "fullname": name,
       "businessName": name + name,
+      "gender": gender[random.nextInt(gender.length)],
+      "age": age[random.nextInt(age.length)],
     };
 
     return data;
@@ -164,13 +170,26 @@ class Generator {
     var randomJob = jobCategories[random.nextInt(jobCategories.length)];
     var category = randomJob["category"];
     var workPositions = randomJob["workPosition"];
+    var responsibilities = randomJob["responsibilities"];
+    var requirements = randomJob["requirements"];
     var randomWorkPosition = workPositions[random.nextInt(workPositions.length)];
+
+    responsibilities = responsibilities.where((line) {
+      return random.nextInt(100) <= 30;
+    }).toList();
+
+    requirements = requirements.where((line) {
+      return random.nextInt(100) <= 30;
+    }).toList();
+
+    var desciption =
+        "Responsibilities:\n" + responsibilities.join("\n") + "\n\nRequirements:\n" + requirements.join("\n");
 
     var data = {
       "workPosition": randomWorkPosition,
       "wages": (random.nextInt(30) + 1).toString(),
       "location": locations[random.nextInt(locations.length)],
-      "description": "I want more detailed information.",
+      "description": desciption,
       "category": category,
     };
 

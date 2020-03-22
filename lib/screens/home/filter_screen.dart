@@ -51,9 +51,13 @@ class _BuildFilterState extends State<BuildFilter> {
         var saveCategories = widget.user.savePreferedCategories(preferedCategories: preferedCategories);
         var saveWages = widget.user.savePreferedWages(preferedWages: preferedWages);
 
-        await Future.wait([saveCategories, saveWages]).then((_) {
+        await Future.wait([saveCategories, saveWages]).then((_) async {
+          await Future.wait([
+            job.getAvailableJobs(),
+            job.getPreferedJobs(),
+          ]);
+
           Navigator.pop(context);
-          job.getAvailableJobs();
         });
       } else {
         Dialogs.notifyDialog(

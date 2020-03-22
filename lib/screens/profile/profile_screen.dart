@@ -1,5 +1,6 @@
 import 'package:Gig/components/description_card.dart';
 import 'package:Gig/components/empty_state.dart';
+import 'package:Gig/components/gender_chip.dart';
 import 'package:Gig/components/round_button.dart';
 import 'package:Gig/components/secondary_button.dart';
 import 'package:Gig/models/screen_controller.dart';
@@ -97,7 +98,7 @@ class ProfileScreen extends StatelessWidget {
         backgroundColor: Palette.mustard,
         child: Text(
           Device.getFirstLetter(
-            user.account.businessName.isEmpty ? user.account.fullname : user.account.businessName,
+            user.isJobSeeker() ? user.account.fullname : user.account.businessName,
           ),
           style: TextStyle(
             color: Colors.black,
@@ -147,18 +148,25 @@ class ProfileScreen extends StatelessWidget {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    Text(
-                      user.account.businessName.isEmpty ? user.account.fullname : user.account.businessName,
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20,
-                        color: Colors.black.withOpacity(0.8),
+                    Container(
+                      width: Device.getMaxWidth(context) * 0.6,
+                      child: Text(
+                        user.account.businessName.isEmpty ? user.account.fullname : user.account.businessName,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
+                          color: Colors.black.withOpacity(0.8),
+                        ),
                       ),
                     ),
-                    Text(
-                      user.account.email,
-                      style: TextStyle(
-                        color: Colors.grey,
+                    Container(
+                      width: Device.getMaxWidth(context) * 0.6,
+                      child: Text(
+                        user.account.email,
+                        style: TextStyle(
+                          color: Colors.grey,
+                        ),
                       ),
                     ),
                     Text(
@@ -167,6 +175,12 @@ class ProfileScreen extends StatelessWidget {
                         color: Colors.grey,
                       ),
                     ),
+                    user.isJobSeeker()
+                        ? GenderChip(
+                            gender: user?.account?.gender ?? "Male",
+                            age: user?.account?.age ?? "22",
+                          )
+                        : Container()
                   ],
                 ),
               ],

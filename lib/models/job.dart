@@ -25,6 +25,7 @@ class Job extends Base {
 
   Job() {
     this.getAvailableJobs();
+    this.getPreferedJobs();
   }
 
   void update(User user) {
@@ -34,15 +35,20 @@ class Job extends Base {
 
   void setAvailableJobs(List<DocumentSnapshot> availableJobs) {
     this.availableJobs = List.from(availableJobs);
-    this.preferedJobs = Algorithm.hybridListPreferences(
-      documents: this.availableJobs,
-      user: this.user,
-    );
+    // this.preferedJobs = Algorithm.hybridListPreferences(
+    //   documents: this.availableJobs,
+    //   user: this.user,
+    // );
 
-    this.preferedJobs.removeWhere((job) {
-      return this.availableJobs.sublist(0, 5).contains(job);
-    });
+    // this.preferedJobs.removeWhere((job) {
+    //   return this.availableJobs.sublist(0, 5).contains(job);
+    // });
 
+    notifyListeners();
+  }
+
+  void setPreferedJobs(List<DocumentSnapshot> preferedJobs) {
+    this.preferedJobs = preferedJobs;
     notifyListeners();
   }
 
@@ -147,14 +153,33 @@ class Job extends Base {
     isLoading(false);
   }
 
+  Future<void> getPreferedJobs() async {
+    isLoading(true);
+
+    DocumentSnapshot document =
+        await firestore.collection("recommendedJobs").document(this.user.userId).get();
+
+    List preferedJobIds = document.data["preferedJobs"];
+
+    QuerySnapshot preferedJobs = await firestore
+        .collection(jobs)
+        .where("key",
+            whereIn: preferedJobIds.sublist(0, preferedJobIds.length > 10 ? 10 : preferedJobIds.length))
+        .getDocuments();
+
+    this.setPreferedJobs(preferedJobs.documents);
+
+    isLoading(false);
+  }
+
   Future<void> acceptPending(String jobseekerId, String key) async {
     isLoading(true);
 
     await Future.wait([
-      this.movePendingToShortlist(
-          this.user.userId, key, jobseekerId), // update pending to shortlist for [employer]
-      this.movePendingToShortlist(
-          jobseekerId, key, this.user.userId) // update pending to shortlist for [jobseeker]
+      // update pending to shortlist for [employer]
+      this.movePendingToShortlist(this.user.userId, key, jobseekerId),
+      // update pending to shortlist for [jobseeker]
+      this.movePendingToShortlist(jobseekerId, key, this.user.userId),
     ]);
 
     /// update data for [jobs]

@@ -22,7 +22,7 @@ class Algorithm {
       bool within = wages >= user.account.preferedWages.start && wages <= user.account.preferedWages.end;
       bool match = user.account.preferedCategories.contains(document["category"]);
 
-      if (within || match) {
+      if (within && match) {
         return true;
       }
 

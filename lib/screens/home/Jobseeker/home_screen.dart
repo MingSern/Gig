@@ -28,7 +28,10 @@ class HomeScreen extends StatelessWidget {
     }
 
     Future<void> onRefresh() async {
-      await job.getAvailableJobs();
+      await Future.wait([
+        job.getAvailableJobs(),
+        job.getPreferedJobs(),
+      ]);
     }
 
     return user.account.preferedCategories.isEmpty
@@ -36,7 +39,15 @@ class HomeScreen extends StatelessWidget {
             controller: controller,
             children: <Widget>[
               Scaffold(
-                appBar: AppBar(title: Text("Home")),
+                appBar: AppBar(
+                  title: Text(
+                    "Home",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black.withOpacity(0.8),
+                    ),
+                  ),
+                ),
                 body: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   mainAxisSize: MainAxisSize.max,
@@ -94,16 +105,17 @@ class HomeScreen extends StatelessWidget {
                       ],
                     ),
                   ),
-            // floatingActionButton: FloatingActionButton(onPressed: () async {
-            //   print({
-            //     "currentUser": true,
-            //     "uid": user.userId,
-            //     "preferedCategories": user.account.preferedCategories,
-            //   });
-            //   List result = await job.jaccardCategory();
-
-            //   print(result);
-            // }),
+            floatingActionButton: FloatingActionButton(
+              backgroundColor: Colors.white,
+              child: Icon(
+                Icons.note_add,
+                color: Palette.lapizBlue,
+              ),
+              onPressed: () async {
+                List result = await job.jaccardCategory();
+                Navigator.pushNamed(context, "/result", arguments: result);
+              },
+            ),
           );
   }
 }
@@ -130,7 +142,7 @@ class BuildCarousell extends StatelessWidget {
     }
 
     List<Widget> mapDocuments() {
-      if (this.documents.isEmpty || this.documents == null || this.documents.length < 1) {
+      if (this.documents == null || this.documents.isEmpty || this.documents.length < 1) {
         return [
           BigCard(
             workPosition: "Empty",
@@ -220,7 +232,13 @@ class _BuildSelectionState extends State<BuildSelection> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text("What you like"),
+        title: Text(
+          "What you like",
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.black.withOpacity(0.8),
+          ),
+        ),
         actions: <Widget>[
           RoundButton(
             icon: Icons.done,

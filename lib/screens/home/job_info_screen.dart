@@ -210,7 +210,7 @@ class JobInfoScreen extends StatelessWidget {
             DescriptionCard(
               icon: Icons.description,
               title: "Job description",
-              child: Text(Lorem.short()),
+              child: Text(job.job["description"]),
             ),
             SizedBox(
               height: 15,

@@ -104,7 +104,7 @@ class _AddJobScreenState extends State<AddJobScreen> {
                 Field(
                   initialValue: this.wages,
                   keyboardType: TextInputType.number,
-                  labelText: "Wages",
+                  labelText: "Wages (RM/Hour)",
                   loading: job.loading,
                   onSaved: (value) => wages = value,
                   validator: (value) => value.isEmpty ? "Wages is empty" : null,
