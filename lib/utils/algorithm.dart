@@ -1,5 +1,3 @@
-import 'package:Gig/models/user.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class Algorithm {
@@ -13,24 +11,24 @@ class Algorithm {
     return match;
   }
 
-  static List<DocumentSnapshot> hybridListPreferences(
-      {@required List<DocumentSnapshot> documents, @required User user}) {
-    List<DocumentSnapshot> preferedJobs = [];
+  // static List<DocumentSnapshot> hybridListPreferences(
+  //     {@required List<DocumentSnapshot> documents, @required User user}) {
+  //   List<DocumentSnapshot> preferredJobs = [];
 
-    preferedJobs = documents.where((document) {
-      double wages = double.parse(document["wages"]);
-      bool within = wages >= user.account.preferedWages.start && wages <= user.account.preferedWages.end;
-      bool match = user.account.preferedCategories.contains(document["category"]);
+  //   preferredJobs = documents.where((document) {
+  //     double wages = double.parse(document["wages"]);
+  //     bool within = wages >= user.account.preferredWages.start && wages <= user.account.preferredWages.end;
+  //     bool match = user.account.preferredCategories.contains(document["category"]);
 
-      if (within && match) {
-        return true;
-      }
+  //     if (within && match) {
+  //       return true;
+  //     }
 
-      return false;
-    }).toList();
+  //     return false;
+  //   }).toList();
 
-    return preferedJobs;
-  }
+  //   return preferredJobs;
+  // }
 
   static double jaccard(List<String> listA, List<String> listB) {
     int a = listA.length;

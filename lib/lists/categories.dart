@@ -1,13 +1,13 @@
 List<String> categories = [
-  "Advertising & Marketing",
-  "Administration & Office",
-  "Art, Fashion & Design",
-  "Education",
-  "Healthcare",
-  "Installation, Maintenance & Repair",
-  "Restaurant & Hospitality",
-  "Sales & Retail",
-  "Others",
+  "Advertising & Marketing", // 0
+  "Administration & Office", // 1
+  "Art, Fashion & Design", // 2
+  "Education", // 3
+  "Healthcare", // 4
+  "Installation, Maintenance & Repair", //5
+  "Restaurant & Hospitality", // 6
+  "Sales & Retail", // 7
+  "Others", //8
 ];
 
 List<Map> jobCategories = [

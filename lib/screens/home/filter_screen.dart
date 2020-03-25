@@ -32,13 +32,13 @@ class BuildFilter extends StatefulWidget {
 }
 
 class _BuildFilterState extends State<BuildFilter> {
-  RangeValues preferedWages;
-  List<dynamic> preferedCategories;
+  RangeValues preferredWages;
+  List<dynamic> preferredCategories;
 
   @override
   void initState() {
-    preferedWages = widget.user.account.preferedWages;
-    preferedCategories = List.from(widget.user.account.preferedCategories);
+    preferredWages = widget.user.account.preferredWages;
+    preferredCategories = List.from(widget.user.account.preferredCategories);
     super.initState();
   }
 
@@ -46,17 +46,13 @@ class _BuildFilterState extends State<BuildFilter> {
   Widget build(BuildContext context) {
     Job job = Provider.of<Job>(context);
 
-    void savePreferedCategories() async {
-      if (preferedCategories.isNotEmpty) {
-        var saveCategories = widget.user.savePreferedCategories(preferedCategories: preferedCategories);
-        var saveWages = widget.user.savePreferedWages(preferedWages: preferedWages);
+    void savePreferredCategories() async {
+      if (preferredCategories.isNotEmpty) {
+        var saveCategories = widget.user.savePreferredCategories(preferredCategories: preferredCategories);
+        var saveWages = widget.user.savePreferredWages(preferredWages: preferredWages);
 
-        await Future.wait([saveCategories, saveWages]).then((_) async {
-          await Future.wait([
-            job.getAvailableJobs(),
-            job.getPreferedJobs(),
-          ]);
-
+        await Future.wait([saveCategories, saveWages]);
+        await job.getAllJobs().then((_) {
           Navigator.pop(context);
         });
       } else {
@@ -80,7 +76,7 @@ class _BuildFilterState extends State<BuildFilter> {
           RoundButton(
             icon: Icons.done,
             loading: widget.user.loading,
-            onPressed: savePreferedCategories,
+            onPressed: savePreferredCategories,
           ),
         ],
       ),
@@ -91,20 +87,20 @@ class _BuildFilterState extends State<BuildFilter> {
             FilterCard(
               title: "Expected wages:",
               value:
-                  "RM ${preferedWages.start.toStringAsFixed(0)} ~ ${preferedWages.end.toStringAsFixed(2)}/hr",
+                  "RM ${preferredWages.start.toStringAsFixed(0)} ~ ${preferredWages.end.toStringAsFixed(2)}/hr",
               child: Column(
                 children: <Widget>[
                   SizedBox(height: 10),
                   RangeSlider(
                     activeColor: Palette.mustard,
-                    values: preferedWages,
-                    onChanged: (value) => this.setState(() => preferedWages = value),
+                    values: preferredWages,
+                    onChanged: (value) => this.setState(() => preferredWages = value),
                     divisions: 99,
                     min: 1,
                     max: 100,
                     labels: RangeLabels(
-                      "RM ${preferedWages.start.toStringAsFixed(2)}/hr",
-                      "RM ${preferedWages.end.toStringAsFixed(2)}/hr",
+                      "RM ${preferredWages.start.toStringAsFixed(2)}/hr",
+                      "RM ${preferredWages.end.toStringAsFixed(2)}/hr",
                     ),
                   ),
                 ],
@@ -117,7 +113,7 @@ class _BuildFilterState extends State<BuildFilter> {
                 physics: ClampingScrollPhysics(),
                 itemCount: categories.length,
                 itemBuilder: (context, index) {
-                  bool prefered = preferedCategories.contains(categories[index]);
+                  bool preferred = preferredCategories.contains(categories[index]);
 
                   return Material(
                     color: Colors.transparent,
@@ -125,20 +121,20 @@ class _BuildFilterState extends State<BuildFilter> {
                         title: Text(
                           categories[index],
                           style: TextStyle(
-                            color: prefered ? Palette.lapizBlue : Colors.grey,
+                            color: preferred ? Palette.lapizBlue : Colors.grey,
                           ),
                         ),
-                        trailing: prefered
+                        trailing: preferred
                             ? Icon(
                                 Icons.done,
                                 color: Palette.lapizBlue,
                               )
                             : Container(width: double.minPositive),
                         onTap: () {
-                          if (preferedCategories.contains(categories[index])) {
-                            this.setState(() => preferedCategories.remove(categories[index]));
+                          if (preferredCategories.contains(categories[index])) {
+                            this.setState(() => preferredCategories.remove(categories[index]));
                           } else {
-                            this.setState(() => preferedCategories.add(categories[index]));
+                            this.setState(() => preferredCategories.add(categories[index]));
                           }
                         }),
                   );

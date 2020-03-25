@@ -1,5 +1,4 @@
 import 'dart:ui';
-
 import 'package:Gig/components/description_card.dart';
 import 'package:Gig/components/primary_button.dart';
 import 'package:Gig/components/round_button.dart';
@@ -13,7 +12,6 @@ import 'package:Gig/utils/checker.dart';
 import 'package:Gig/utils/device.dart';
 import 'package:Gig/utils/dialogs.dart';
 import 'package:Gig/utils/generator.dart';
-import 'package:Gig/utils/lorem.dart';
 import 'package:Gig/utils/palette.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -201,6 +199,16 @@ class JobInfoScreen extends StatelessWidget {
               icon: Icons.monetization_on,
               title: "Wages",
               child: Text("RM ${job.job["wages"]}/hr"),
+            ),
+            DescriptionCard(
+              icon: Icons.accessibility_new,
+              title: "Preferred age",
+              child: Text(job.job["age"]),
+            ),
+            DescriptionCard(
+              icon: Icons.person,
+              title: "Preferred gender",
+              child: Text(job.job["gender"]),
             ),
             DescriptionCard(
               icon: Icons.location_on,

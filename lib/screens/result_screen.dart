@@ -23,7 +23,7 @@ class ResultScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               Text("ID: ${results[index]["uid"]}"),
-              Text("Prefered Categories: ${results[index]["preferedCategories"]}"),
+              Text("Preferred Categories: ${results[index]["preferredCategories"]}"),
               Text("A: ${results[index]["A"]}"),
               Text("B: ${results[index]["B"]}"),
               Text("A n B: ${results[index]["A n B"]}"),

@@ -1,5 +1,4 @@
 import 'package:Gig/components/warning_message.dart';
-import 'package:Gig/enum/enum.dart';
 import 'package:Gig/utils/device.dart';
 import 'package:Gig/utils/palette.dart';
 import 'package:cached_network_image/cached_network_image.dart';

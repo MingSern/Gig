@@ -202,8 +202,8 @@ class BuildLists extends StatelessWidget {
           return Container();
         }
 
-        List pendings = snapshot.data["pendings"];
-        List shortlists = snapshot.data["shortlists"];
+        List pendings = snapshot.data["pendings"] ?? [];
+        List shortlists = snapshot.data["shortlists"] ?? [];
 
         pendings.sort((b, a) {
           return a["updatedAt"].compareTo(b["updatedAt"]);

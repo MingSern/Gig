@@ -1,7 +1,7 @@
 import 'package:Gig/enum/enum.dart';
 import 'package:Gig/models/base.dart';
 import 'package:Gig/models/user.dart';
-import 'package:Gig/utils/algorithm.dart';
+import 'package:Gig/utils/debounce.dart';
 import 'package:Gig/utils/generator.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -15,41 +15,50 @@ final jobs = "jobs";
 
 class Job extends Base {
   User user;
+  bool jobExist;
   dynamic job;
   List<DocumentSnapshot> availableJobs;
-  List<DocumentSnapshot> preferedJobs;
-  List<String> preferedCategories = [];
-  double preferedWages = 10;
-  List<String> accountIds = [];
-  List<Map> accountImageUrls = [];
+  List<DocumentSnapshot> preferredJobs;
+  List<DocumentSnapshot> recommendedJobs;
+  List<String> preferredCategories;
+  double preferredWages;
+  List<String> accountIds;
+  List<Map> accountImageUrls;
+  Debounce debounce;
 
   Job() {
-    this.getAvailableJobs();
-    this.getPreferedJobs();
+    this.reset();
   }
 
   void update(User user) {
     this.user = user;
-    notifyListeners();
+
+    if (this.user != null && this.user.isJobSeeker() && !this.jobExist) {
+      this.getAllJobs();
+    } else {
+      this.reset();
+    }
+  }
+
+  void reset() {
+    this.jobExist = false;
+    this.preferredCategories = new List<String>();
+    this.preferredWages = 10;
+    this.accountIds = new List<String>();
+    this.accountImageUrls = new List<Map>();
+    this.debounce = new Debounce(milliseconds: 2000);
   }
 
   void setAvailableJobs(List<DocumentSnapshot> availableJobs) {
     this.availableJobs = List.from(availableJobs);
-    // this.preferedJobs = Algorithm.hybridListPreferences(
-    //   documents: this.availableJobs,
-    //   user: this.user,
-    // );
-
-    // this.preferedJobs.removeWhere((job) {
-    //   return this.availableJobs.sublist(0, 5).contains(job);
-    // });
-
-    notifyListeners();
   }
 
-  void setPreferedJobs(List<DocumentSnapshot> preferedJobs) {
-    this.preferedJobs = preferedJobs;
-    notifyListeners();
+  void setRecommendedJobs(List<DocumentSnapshot> recommendedJobs) {
+    this.recommendedJobs = recommendedJobs;
+  }
+
+  void setPreferredJobs(List<DocumentSnapshot> preferredJobs) {
+    this.preferredJobs = preferredJobs;
   }
 
   void setJob(dynamic job) {
@@ -58,7 +67,8 @@ class Job extends Base {
   }
 
   // employer -----------------------------------------------------------------------------------------
-  Future<void> createJob(var workPosition, var wages, var location, var description, var category) async {
+  Future<void> createJob(
+      var workPosition, var wages, var location, var description, var category, var age, var gender) async {
     isLoading(true);
 
     var key = this.createKey();
@@ -75,9 +85,10 @@ class Job extends Base {
       "category": category,
       "businessName": this.user.account.businessName,
       "createdAt": this.getCurrentTime(),
+      "age": age,
+      "gender": gender,
       "pendings": [],
       "shortlists": [],
-      "declines": [],
     };
 
     var createNewJob = firestore.collection(jobs).document(key).setData(data).catchError((error) {
@@ -136,9 +147,23 @@ class Job extends Base {
         .snapshots();
   }
 
-  Future<void> getAvailableJobs({int limit}) async {
+  Future<void> getAllJobs() async {
     isLoading(true);
 
+    await Future.wait([
+      this.getRecommendedJobs(),
+      this.getPreferredJobs(),
+      this.getAvailableJobs(),
+    ]);
+
+    print("hello");
+    this.jobExist = true;
+    notifyListeners();
+
+    isLoading(false);
+  }
+
+  Future<void> getAvailableJobs({int limit}) async {
     QuerySnapshot availableJobs;
 
     if (limit != null) {
@@ -149,27 +174,51 @@ class Job extends Base {
     }
 
     this.setAvailableJobs(availableJobs.documents);
-
-    isLoading(false);
   }
 
-  Future<void> getPreferedJobs() async {
-    isLoading(true);
-
+  Future<void> getRecommendedJobs() async {
     DocumentSnapshot document =
-        await firestore.collection("recommendedJobs").document(this.user.userId).get();
+        await firestore.collection("recommendedJobs").document(this.user?.userId).get();
 
-    List preferedJobIds = document.data["preferedJobs"];
+    if (document.exists) {
+      List recommendedJob = document.data["recommendedJobs"] ?? [];
 
-    QuerySnapshot preferedJobs = await firestore
-        .collection(jobs)
-        .where("key",
-            whereIn: preferedJobIds.sublist(0, preferedJobIds.length > 10 ? 10 : preferedJobIds.length))
-        .getDocuments();
+      var results = await Future.wait(recommendedJob.map((job) {
+        return firestore.collection(jobs).where("key", isEqualTo: job["id"]).getDocuments();
+      }));
 
-    this.setPreferedJobs(preferedJobs.documents);
+      List<DocumentSnapshot> documents = [];
 
-    isLoading(false);
+      results.forEach((result) {
+        documents.addAll(result.documents);
+      });
+
+      this.setRecommendedJobs(documents);
+    } else {
+      this.setRecommendedJobs([]);
+    }
+  }
+
+  Future<void> getPreferredJobs() async {
+    DocumentSnapshot document = await firestore.collection("preferredJobs").document(this.user?.userId).get();
+
+    if (document.exists) {
+      List preferredJobIds = document.data["preferredJobs"] ?? [];
+
+      var results = await Future.wait(preferredJobIds.map((id) {
+        return firestore.collection(jobs).where("key", isEqualTo: id).getDocuments();
+      }));
+
+      List<DocumentSnapshot> documents = [];
+
+      results.forEach((result) {
+        documents.addAll(result.documents);
+      });
+
+      this.setPreferredJobs(documents);
+    } else {
+      this.setPreferredJobs([]);
+    }
   }
 
   Future<void> acceptPending(String jobseekerId, String key) async {
@@ -373,34 +422,34 @@ class Job extends Base {
   }
 
   Future<List> jaccardCategory() async {
-    List<String> preferedCategories = List.from(user.account.preferedCategories);
+    List<String> preferredCategories = List.from(user.account.preferredCategories);
     QuerySnapshot snapshot = await firestore
         .collection(accounts)
         .where("userType", isEqualTo: "UserType.jobseeker")
         .getDocuments();
 
     List<dynamic> otherUsers = snapshot.documents.where((document) {
-      bool documentExist = document.data["preferedCategories"] != null;
+      bool documentExist = document.data["preferredCategories"] != null;
       bool notCurrentUser = document.data["uid"] != this.user.userId;
 
       return (documentExist && notCurrentUser);
     }).toList();
 
     otherUsers = otherUsers.map((otherUser) {
-      List<String> categories = List.from(preferedCategories);
-      List otherPreferedCategories = otherUser["preferedCategories"];
+      List<String> categories = List.from(preferredCategories);
+      List otherPreferredCategories = otherUser["preferredCategories"];
 
       int a = categories.length;
-      int b = otherPreferedCategories.length;
+      int b = otherPreferredCategories.length;
       int sum = a + b;
-      int intersaction = categories.where((item) => otherPreferedCategories.contains(item)).toList().length;
+      int intersaction = categories.where((item) => otherPreferredCategories.contains(item)).toList().length;
       int union = sum - intersaction < 0 ? -(sum - intersaction) : sum - intersaction;
 
       double similarityIndex = intersaction / union;
 
       return {
         "uid": otherUser["uid"],
-        "preferedCategories": otherUser["preferedCategories"],
+        "preferredCategories": otherUser["preferredCategories"],
         "A": a,
         "B": b,
         "A n B": intersaction,
@@ -432,12 +481,12 @@ class Job extends Base {
   //       .getDocuments(;);
 
   //   otherUsers = otherUsers.map((otherUser) {
-  //     List<String> categories = List.from(preferedCategories);
-  //     categories.removeWhere((category) => !otherUser["preferedCategories"].contains(category));
+  //     List<String> categories = List.from(preferredCategories);
+  //     categories.removeWhere((category) => !otherUser["preferredCategories"].contains(category));
 
-  //     List otherPreferedCategories = otherUser["preferedCategories"];
-  //     int other = otherPreferedCategories.length; // |A|
-  //     int user = preferedCategories.length; // |B|
+  //     List otherPreferredCategories = otherUser["preferredCategories"];
+  //     int other = otherPreferredCategories.length; // |A|
+  //     int user = preferredCategories.length; // |B|
   //     int intersaction = categories.length; // |A n B|
   //     int otherUnionUser = other + user; // |A u B|
 
@@ -445,7 +494,7 @@ class Job extends Base {
 
   //     return {
   //       "uid": otherUser["uid"],
-  //       "preferedCategories": otherUser["preferedCategories"],
+  //       "preferredCategories": otherUser["preferredCategories"],
   //       "A": user,
   //       "B": other,
   //       "A n B": intersaction,

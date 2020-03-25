@@ -28,13 +28,10 @@ class HomeScreen extends StatelessWidget {
     }
 
     Future<void> onRefresh() async {
-      await Future.wait([
-        job.getAvailableJobs(),
-        job.getPreferedJobs(),
-      ]);
+      await job.getAllJobs();
     }
 
-    return user.account.preferedCategories.isEmpty
+    return user.account.preferredCategories.isEmpty
         ? PageView(
             controller: controller,
             children: <Widget>[
@@ -89,16 +86,16 @@ class HomeScreen extends StatelessWidget {
                       children: <Widget>[
                         BuildCarousell(
                           title: "Recommended for you",
-                          documents: job.availableJobs,
+                          documents: job.recommendedJobs,
                           limit: 10,
                         ),
                         BuildCarousell(
                           title: "Your preferences",
-                          documents: job.preferedJobs,
+                          documents: job.preferredJobs,
                           limit: 10,
                         ),
                         BuildCarousell(
-                          title: "Available jobs",
+                          title: "Latest jobs",
                           documents: job.availableJobs,
                           limit: 10,
                         ),
@@ -145,20 +142,12 @@ class BuildCarousell extends StatelessWidget {
       if (this.documents == null || this.documents.isEmpty || this.documents.length < 1) {
         return [
           BigCard(
-            workPosition: "Empty",
-            businessName: "Empty",
-            imageUrl: "Empty",
-            wages: "Empty",
-            location: "Empty",
-            createdAt: 123124918479,
-            onPressed: () {},
+            isEmpty: true,
           )
         ];
       }
 
-      bool limitIsBigger = this.limit > this.documents.length;
-      List<DocumentSnapshot> filteredDocuments =
-          this.documents.sublist(0, limitIsBigger ? this.documents.length : this.limit);
+      List<DocumentSnapshot> filteredDocuments = this.documents.take(this.limit).toList();
 
       List<Widget> mappedDocuments = filteredDocuments.map((document) {
         if (document["uid"] != null) {
@@ -204,11 +193,13 @@ class BuildSelection extends StatefulWidget {
 }
 
 class _BuildSelectionState extends State<BuildSelection> {
-  List<String> preferedCategories;
+  List<String> preferredCategories;
+  RangeValues preferredWages;
 
   @override
   void initState() {
-    preferedCategories = new List<String>();
+    preferredCategories = new List<String>();
+    preferredWages = RangeValues(10, 100);
     super.initState();
   }
 
@@ -217,10 +208,13 @@ class _BuildSelectionState extends State<BuildSelection> {
     Job job = Provider.of<Job>(context);
     User user = Provider.of<User>(context);
 
-    void savePreferedCategories() {
-      if (preferedCategories.isNotEmpty) {
-        user.savePreferedCategories(preferedCategories: preferedCategories).then((_) {
-          job.getAvailableJobs();
+    Future<void> savePreferredCategories() async {
+      if (preferredCategories.isNotEmpty) {
+        var categories = user.savePreferredCategories(preferredCategories: preferredCategories);
+        var wages = user.savePreferredWages(preferredWages: preferredWages);
+
+        await Future.wait([categories, wages]).then((_) {
+          job.getAllJobs();
         });
       } else {
         Dialogs.notifyDialog(
@@ -233,7 +227,7 @@ class _BuildSelectionState extends State<BuildSelection> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          "What you like",
+          "What you like?",
           style: TextStyle(
             fontWeight: FontWeight.bold,
             color: Colors.black.withOpacity(0.8),
@@ -243,7 +237,7 @@ class _BuildSelectionState extends State<BuildSelection> {
           RoundButton(
             icon: Icons.done,
             loading: user.loading,
-            onPressed: savePreferedCategories,
+            onPressed: savePreferredCategories,
           ),
         ],
       ),
@@ -253,6 +247,28 @@ class _BuildSelectionState extends State<BuildSelection> {
               child: Column(
                 children: <Widget>[
                   FilterCard(
+                    title: "Expected wages:",
+                    value:
+                        "RM ${preferredWages.start.toStringAsFixed(0)} ~ ${preferredWages.end.toStringAsFixed(2)}/hr",
+                    child: Column(
+                      children: <Widget>[
+                        SizedBox(height: 10),
+                        RangeSlider(
+                          activeColor: Palette.mustard,
+                          values: preferredWages,
+                          onChanged: (value) => this.setState(() => preferredWages = value),
+                          divisions: 99,
+                          min: 1,
+                          max: 100,
+                          labels: RangeLabels(
+                            "RM ${preferredWages.start.toStringAsFixed(2)}/hr",
+                            "RM ${preferredWages.end.toStringAsFixed(2)}/hr",
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  FilterCard(
                     title: "Catogories",
                     child: ListView.separated(
                       shrinkWrap: true,
@@ -260,7 +276,7 @@ class _BuildSelectionState extends State<BuildSelection> {
                       itemCount: categories.length,
                       itemBuilder: (context, index) {
                         String category = categories[index];
-                        bool prefered = preferedCategories.contains(category) ?? false;
+                        bool preferred = preferredCategories.contains(category) ?? false;
 
                         return Material(
                           color: Colors.transparent,
@@ -268,20 +284,20 @@ class _BuildSelectionState extends State<BuildSelection> {
                             title: Text(
                               category,
                               style: TextStyle(
-                                color: prefered ? Palette.lapizBlue : Colors.grey,
+                                color: preferred ? Palette.lapizBlue : Colors.grey,
                               ),
                             ),
-                            trailing: prefered
+                            trailing: preferred
                                 ? Icon(
                                     Icons.done,
                                     color: Palette.lapizBlue,
                                   )
                                 : Container(width: double.minPositive),
                             onTap: () {
-                              if (prefered) {
-                                this.setState(() => preferedCategories.remove(category));
+                              if (preferred) {
+                                this.setState(() => preferredCategories.remove(category));
                               } else {
-                                this.setState(() => preferedCategories.add(category));
+                                this.setState(() => preferredCategories.add(category));
                               }
                             },
                           ),

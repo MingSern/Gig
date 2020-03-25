@@ -73,6 +73,8 @@ class ImageManager extends Base {
           "imageUrl": "${document["imageUrl"]}",
         };
       }).toList();
+
+      notifyListeners();
     }
   }
 

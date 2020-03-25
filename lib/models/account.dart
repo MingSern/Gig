@@ -10,13 +10,13 @@ class Account {
   String phoneNumber;
   String verificationId;
   String imageUrl;
-  List<dynamic> preferedCategories;
-  RangeValues preferedWages;
+  List<dynamic> preferredCategories;
+  RangeValues preferredWages;
   String gender;
   String age;
 
   Account(userType, email, password, fullname, age, gender, businessName, phoneNumber) {
-    this.preferedCategories = new List<dynamic>();
+    this.preferredCategories = new List<dynamic>();
     this.userType = userType;
     this.email = email;
     this.password = password;
@@ -35,11 +35,11 @@ class Account {
     this.imageUrl = imageUrl;
   }
 
-  void setPreferedCategories(List<dynamic> categories) {
-    this.preferedCategories = List.from(categories);
+  void setPreferredCategories(List<dynamic> categories) {
+    this.preferredCategories = List.from(categories);
   }
 
-  void setPreferedWages(RangeValues preferedWages) {
-    this.preferedWages = preferedWages;
+  void setPreferredWages(RangeValues preferredWages) {
+    this.preferredWages = preferredWages;
   }
 }

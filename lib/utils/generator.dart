@@ -166,8 +166,12 @@ class Generator {
       "Kampong Buloh Semerah",
       "Kampung Rid",
     ];
+    var ageCategory = ["18-20", "21-30", "31-40", "Any"];
+    var genderCategory = ["Male", "Female"];
 
-    var randomJob = jobCategories[random.nextInt(jobCategories.length)];
+    var index = [1, 0];
+
+    var randomJob = jobCategories[index[random.nextInt(index.length)]];
     var category = randomJob["category"];
     var workPositions = randomJob["workPosition"];
     var responsibilities = randomJob["responsibilities"];
@@ -191,6 +195,8 @@ class Generator {
       "location": locations[random.nextInt(locations.length)],
       "description": desciption,
       "category": category,
+      "age": ageCategory[random.nextInt(ageCategory.length)],
+      "gender": genderCategory[random.nextInt(genderCategory.length)],
     };
 
     return data;

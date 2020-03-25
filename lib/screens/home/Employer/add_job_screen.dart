@@ -1,3 +1,4 @@
+import 'package:Gig/components/drop_field.dart';
 import 'package:Gig/components/field.dart';
 import 'package:Gig/components/round_button.dart';
 import 'package:Gig/lists/categories.dart';
@@ -19,6 +20,8 @@ class _AddJobScreenState extends State<AddJobScreen> {
   var location;
   var description;
   var category;
+  var age;
+  var gender;
 
   @override
   void initState() {
@@ -34,6 +37,8 @@ class _AddJobScreenState extends State<AddJobScreen> {
     this.location = data["location"];
     this.description = data["description"];
     this.category = data["category"];
+    this.age = data["age"];
+    this.gender = data["gender"];
   }
 
   @override
@@ -54,7 +59,8 @@ class _AddJobScreenState extends State<AddJobScreen> {
     void createJob() {
       if (validatedAndSaved()) {
         job
-            .createJob(this.workPosition, this.wages, this.location, this.description, this.category)
+            .createJob(this.workPosition, this.wages, this.location, this.description, this.category,
+                this.age, this.gender)
             .then((_) {
           if (job.containsError) {
             job.showErrorMessage(context);
@@ -120,55 +126,40 @@ class _AddJobScreenState extends State<AddJobScreen> {
                   validator: (value) => value.isEmpty ? "Location is empty" : null,
                 ),
                 SizedBox(height: 10),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 0),
-                  child: DropdownButtonFormField(
-                    isExpanded: true,
-                    isDense: false,
-                    value: this.category,
-                    validator: (value) => value == null ? "Category is empty" : null,
-                    disabledHint: DropdownMenuItem(
-                      value: this.category,
-                      child: Text(
-                        this.category ?? "Blah",
-                        style: TextStyle(color: Colors.black),
+                Row(
+                  children: <Widget>[
+                    Flexible(
+                      child: DropField(
+                        loading: job.loading,
+                        padding: const EdgeInsets.only(left: 30, right: 5),
+                        labelText: "Age",
+                        value: this.age,
+                        validator: (value) => value == null ? "Age is empty" : null,
+                        items: ["18-20", "21-30", "31-40", "Any"],
+                        onChanged: (value) => this.setState(() => this.age = value),
                       ),
                     ),
-                    decoration: InputDecoration(
-                      labelText: "Category",
-                      filled: true,
-                      isDense: true,
-                      fillColor: job.loading ? Colors.grey[50] : Colors.grey[100],
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 25, vertical: 0),
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.white),
-                        borderRadius: BorderRadius.circular(25),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.white),
-                        borderRadius: BorderRadius.circular(25),
-                      ),
-                      disabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.white),
-                        borderRadius: BorderRadius.circular(25),
-                      ),
-                      errorBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.red),
-                        borderRadius: BorderRadius.circular(25),
-                      ),
-                      focusedErrorBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.white),
-                        borderRadius: BorderRadius.circular(25),
+                    Flexible(
+                      child: DropField(
+                        loading: job.loading,
+                        padding: const EdgeInsets.only(left: 5, right: 30),
+                        labelText: "Gender",
+                        value: this.gender,
+                        validator: (value) => value == null ? "Gender is empty" : null,
+                        items: ["Male", "Female"],
+                        onChanged: (value) => this.setState(() => this.gender = value),
                       ),
                     ),
-                    items: categories.map((category) {
-                      return DropdownMenuItem(
-                        value: category,
-                        child: Text(category),
-                      );
-                    }).toList(),
-                    onChanged: job.loading ? null : (value) => this.setState(() => this.category = value),
-                  ),
+                  ],
+                ),
+                SizedBox(height: 10),
+                DropField(
+                  loading: job.loading,
+                  labelText: "Category",
+                  value: this.category,
+                  validator: (value) => value == null ? "Category is empty" : null,
+                  items: categories,
+                  onChanged: job.loading ? null : (value) => this.setState(() => this.category = value),
                 ),
                 SizedBox(height: 10),
                 Field(

@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:Gig/enum/enum.dart';
 import 'package:Gig/models/account.dart';
 import 'package:Gig/models/base.dart';
@@ -87,24 +86,24 @@ class User extends Base {
     String businessName = accountData["businessName"] ?? "";
     String phoneNumber = accountData["phoneNumber"];
     String imageUrl = accountData["imageUrl"] ?? "";
-    List<dynamic> preferedCategories = accountData["preferedCategories"] ?? [];
-    String preferedWages = accountData["preferedWages"];
+    List<dynamic> preferredCategories = accountData["preferredCategories"] ?? [];
+    String preferredWages = accountData["preferredWages"];
     String gender = accountData["gender"];
     String age = accountData["age"];
 
     Account account = new Account(userType, email, null, fullname, age, gender, businessName, phoneNumber);
 
     account.setImageUrl(imageUrl);
-    account.setPreferedCategories(preferedCategories);
+    account.setPreferredCategories(preferredCategories);
 
-    if (preferedWages == null) {
-      account.setPreferedWages(RangeValues(10, 100));
+    if (preferredWages == null) {
+      account.setPreferredWages(RangeValues(10, 100));
     } else {
-      List<String> values = preferedWages.split("-");
+      List<String> values = preferredWages.split("-");
       double start = double.parse(values.first);
       double end = double.parse(values.last);
 
-      account.setPreferedWages(RangeValues(start, end));
+      account.setPreferredWages(RangeValues(start, end));
     }
 
     this.setAccount(account);
@@ -211,7 +210,7 @@ class User extends Base {
       if (this.account.userType == UserType.employer) {
         data["businessName"] = this.account.businessName;
       } else {
-        data["preferedCategories"] = [];
+        data["preferredCategories"] = [];
         data["age"] = this.account.age;
         data["gender"] = this.account.gender;
       }
@@ -415,27 +414,28 @@ class User extends Base {
   }
 
   void setWages(RangeValues wages) {
-    this.account.preferedWages = wages;
+    this.account.preferredWages = wages;
 
     notifyListeners();
   }
 
   void setCategories(String category) {
-    if (this.account.preferedCategories.contains(category)) {
-      this.account.preferedCategories.remove(category);
+    if (this.account.preferredCategories.contains(category)) {
+      this.account.preferredCategories.remove(category);
     } else {
-      this.account.preferedCategories.add(category);
+      this.account.preferredCategories.add(category);
     }
 
     notifyListeners();
   }
 
-  Future<void> savePreferedWages({RangeValues preferedWages}) async {
+  Future<void> savePreferredWages({RangeValues preferredWages}) async {
     isLoading(true);
 
     var updateWages = {
-      "preferedWages": "${preferedWages.start.toStringAsFixed(2)}-${preferedWages.end.toStringAsFixed(2)}" ??
-          this.account.preferedWages,
+      "preferredWages":
+          "${preferredWages.start.toStringAsFixed(2)}-${preferredWages.end.toStringAsFixed(2)}" ??
+              this.account.preferredWages,
     };
 
     await firestore
@@ -446,18 +446,18 @@ class User extends Base {
       setErrorMessage(onError.toString());
     });
 
-    if (preferedWages != null) {
-      this.account.setPreferedWages(preferedWages);
+    if (preferredWages != null) {
+      this.account.setPreferredWages(preferredWages);
     }
 
     isLoading(false);
   }
 
-  Future<void> savePreferedCategories({List<dynamic> preferedCategories}) async {
+  Future<void> savePreferredCategories({List<dynamic> preferredCategories}) async {
     isLoading(true);
 
     var updateCategories = {
-      "preferedCategories": preferedCategories ?? this.account.preferedCategories,
+      "preferredCategories": preferredCategories ?? this.account.preferredCategories,
     };
 
     await firestore
@@ -468,8 +468,8 @@ class User extends Base {
       setErrorMessage(onError.toString());
     });
 
-    if (preferedCategories != null) {
-      this.account.setPreferedCategories(preferedCategories);
+    if (preferredCategories != null) {
+      this.account.setPreferredCategories(preferredCategories);
     }
 
     isLoading(false);
