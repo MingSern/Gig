@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 
 class DropField extends StatelessWidget {
   final String labelText;
-  dynamic value;
+  final dynamic value;
   final Function validator;
   final bool loading;
   final List items;
   final Function onChanged;
   final EdgeInsets padding;
+  final bool flexible;
 
   DropField({
     @required this.labelText,
@@ -17,6 +18,7 @@ class DropField extends StatelessWidget {
     @required this.onChanged,
     this.loading = false,
     this.padding = const EdgeInsets.symmetric(horizontal: 30, vertical: 0),
+    this.flexible = false,
   });
 
   @override
@@ -31,7 +33,7 @@ class DropField extends StatelessWidget {
         disabledHint: DropdownMenuItem(
           value: this.value,
           child: Text(
-            this.value ?? "Blah",
+            this.value ?? "",
             style: TextStyle(color: Colors.black),
           ),
         ),
@@ -40,7 +42,7 @@ class DropField extends StatelessWidget {
           filled: true,
           isDense: true,
           fillColor: this.loading ? Colors.grey[50] : Colors.grey[100],
-          contentPadding: const EdgeInsets.symmetric(horizontal: 25, vertical: 0),
+          contentPadding: EdgeInsets.symmetric(horizontal: 25, vertical: this.flexible ? 15 : 0),
           focusedBorder: OutlineInputBorder(
             borderSide: BorderSide(color: Colors.white),
             borderRadius: BorderRadius.circular(25),

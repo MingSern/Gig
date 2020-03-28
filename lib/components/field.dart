@@ -12,6 +12,7 @@ class Field extends StatelessWidget {
   final Function(String) validator;
   final TextCapitalization textCapitalization;
   final Widget prefix;
+  final GestureTapCallback onTap;
 
   Field({
     @required this.keyboardType,
@@ -25,6 +26,7 @@ class Field extends StatelessWidget {
     this.obscureText = false,
     this.hintText = "",
     this.prefix,
+    this.onTap,
   });
 
   @override
@@ -32,6 +34,7 @@ class Field extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 30),
       child: TextFormField(
+        onTap: this.onTap,
         enabled: !this.loading,
         initialValue: this.initialValue,
         textCapitalization: this.textCapitalization,

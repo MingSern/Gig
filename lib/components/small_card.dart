@@ -10,7 +10,7 @@ class SmallCard extends StatelessWidget {
   final String businessName;
   final String imageUrl;
   final String wages;
-  final String location;
+  final List location;
   final num createdAt;
   final GestureTapCallback onPressed;
   final GestureTapCallback onLongPress;
@@ -64,6 +64,12 @@ class SmallCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  String handleLocation() {
+    var address = this.location.first.split(",");
+
+    return address[2];
   }
 
   @override
@@ -160,15 +166,18 @@ class SmallCard extends StatelessWidget {
                   SizedBox(
                     width: 2,
                   ),
-                  Text(
-                    this.location,
-                    style: TextStyle(
-                      color: Colors.grey,
-                      fontSize: 11,
+                  Expanded(
+                    child: Text(
+                      handleLocation(),
+                      style: TextStyle(
+                        color: Colors.grey,
+                        fontSize: 11,
+                      ),
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  Expanded(
-                    child: Container(),
+                  SizedBox(
+                    width: 2,
                   ),
                   Text(
                     Time.getDateTime(this.createdAt),

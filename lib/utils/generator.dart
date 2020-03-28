@@ -130,46 +130,91 @@ class Generator {
 
   static Map generateJobData() {
     var locations = [
-      "Hialeah",
-      "Lock Haven",
-      "Ocala",
-      "Morrilton",
-      "Windham",
-      "Lincoln",
-      "Pauls Valley",
-      "Denton",
-      "Moorhead",
-      "Wahiawa",
-      "Kampong Wan Chik",
-      "Kampung Beluru",
-      "Kampung Kuncau",
-      "Lubok Nibong",
-      "Kampung Ganun",
-      "Kampong Kepala Tomang",
-      "Aloi Lubok",
-      "Rumah Ingka",
-      "Kampong Banggol Damar",
-      "Kampung Kaparingan",
-      "Kampung Perdak",
-      "Kampung Pandang Kela",
-      "Sembulan",
-      "Kampong Batu Thirty-seven",
-      "Kampong Tok Jamal",
-      "Kampong Asam Kumbang",
-      "Kampong Sungai Atun",
-      "Kampong Palau Belachan",
-      "Kampung Padang Che Nudin",
-      "Kuala Gramma",
-      "Rumah Chadun",
-      "Kampung Bukit Katong",
-      "Kampung Siong",
-      "Kampong Buloh Semerah",
-      "Kampung Rid",
+      [
+        "Budiman Business Park, Jln Budiman, Taman Desa Baru, 43200 Cheras 9 Miles, Selangor",
+        "3.029930",
+        "101.773430",
+      ],
+      [
+        "No3, Jalan Temengung 5/9, Bandar Mahkota Cheras, 43200 Kajang, Selangor",
+        "3.052500",
+        "101.787220",
+      ],
+      [
+        "26 & 27, Jalan Mendaling, Bandar Kajang, 43000 Kajang, Selangor",
+        "2.873160",
+        "101.816180",
+      ],
+      [
+        "41-G, Jalan Temenggung 21/9, Bandar Mahkota Cheras, 43200 Cheras, Selangor",
+        "3.052080",
+        "101.787567",
+      ],
+      [
+        "37, Jalan Manis 4, Taman Bukit Segar, 56100 Cheras, Wilayah Persekutuan Kuala Lumpur",
+        "3.089410",
+        "101.742930",
+      ],
+      [
+        "26G, Jalan SL1/11, Bandar Sungai Long, Jalan Cheras, 43300 Kajang, Selangor, 43300 Selangor",
+        "3.047110",
+        "101.797060",
+      ],
+      [
+        "32G, Jalan Dataran Cheras 6, Dataran Perniagaan Cheras, 43200 Cheras, Selangor",
+        "3.074610",
+        "101.772370",
+      ],
+      [
+        "No. 69, Jalan Dataran Cheras 4, Dataran Perniagaan Cheras, Balakong, 43200 Cheras, Selangor",
+        "3.040970",
+        "101.770110",
+      ],
+      [
+        "Jalan Temenggung 21/9 G-20-20L & G-21-21L, Ground Floor BMC mall, Bandar Mahkota Cheras, 43200 Cheras, Selangor",
+        "3.011462",
+        "101.478807",
+      ],
+      [
+        "No. 46 & 48, Jalan Temenggung 1/9, Bandar Mahkota Cheras, 43200 Cheras, Selangor",
+        "3.053750",
+        "101.787930",
+      ],
+      [
+        "18-1, Jalan Manis 4, Taman Bukit Segar, 56100 Cheras, Wilayah Persekutuan Kuala Lumpur",
+        "3.088660",
+        "101.743710",
+      ],
+      [
+        "168, Jalan 7, Pekan Batu 9 Cheras, 43200 Cheras, Selangor",
+        "3.069190",
+        "101.770800",
+      ],
+      [
+        "Jalan Residence 1, 25, Jalan Mahkota, Bandar Mahkota Cheras, 43200 Cheras, Selangor",
+        "3.052020",
+        "101.789200",
+      ],
+      [
+        "6, Jalan Temenggung 29/9, Bandar Mahkota Cheras, 43200 Kajang, Selangor",
+        "3.052460",
+        "101.786980",
+      ],
+      [
+        "No. 9 & 11, Mahkota Square, Jalan Temenggung 23/9, Bandar Mahkota Cheras, 43200 Cheras, Selangor",
+        "3.051930",
+        "101.789070",
+      ],
+      [
+        "25, Jalan Kasturi 3, Taman Kasturi, 43200 Cheras, Selangor",
+        "3.038990",
+        "101.768370",
+      ],
     ];
     var ageCategory = ["18-20", "21-30", "31-40", "Any"];
-    var genderCategory = ["Male", "Female"];
+    var genderCategory = ["Male", "Female", "Any"];
 
-    var index = [1, 0];
+    var index = [3];
 
     var randomJob = jobCategories[index[random.nextInt(index.length)]];
     var category = randomJob["category"];
@@ -179,11 +224,11 @@ class Generator {
     var randomWorkPosition = workPositions[random.nextInt(workPositions.length)];
 
     responsibilities = responsibilities.where((line) {
-      return random.nextInt(100) <= 30;
+      return random.nextInt(100) <= 20;
     }).toList();
 
     requirements = requirements.where((line) {
-      return random.nextInt(100) <= 30;
+      return random.nextInt(100) <= 20;
     }).toList();
 
     var desciption =

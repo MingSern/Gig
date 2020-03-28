@@ -127,8 +127,8 @@ class ViewProfileScreen extends StatelessWidget {
                           ),
                           user.isEmployer()
                               ? GenderChip(
-                                  gender: account["gender"] ?? "Male",
-                                  age: account["age"] ?? "22",
+                                  gender: account["gender"],
+                                  age: account["age"],
                                 )
                               : Container()
                         ],

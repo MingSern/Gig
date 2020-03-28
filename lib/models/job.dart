@@ -1,7 +1,6 @@
 import 'package:Gig/enum/enum.dart';
 import 'package:Gig/models/base.dart';
 import 'package:Gig/models/user.dart';
-import 'package:Gig/utils/debounce.dart';
 import 'package:Gig/utils/generator.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -22,9 +21,6 @@ class Job extends Base {
   List<DocumentSnapshot> recommendedJobs;
   List<String> preferredCategories;
   double preferredWages;
-  List<String> accountIds;
-  List<Map> accountImageUrls;
-  Debounce debounce;
 
   Job() {
     this.reset();
@@ -34,19 +30,23 @@ class Job extends Base {
     this.user = user;
 
     if (this.user != null && this.user.isJobSeeker() && !this.jobExist) {
+      print("hi");
       this.getAllJobs();
-    } else {
+    }
+
+    if (this.user.authStatus == AuthStatus.notSignedIn) {
+      print("bye");
       this.reset();
     }
   }
 
   void reset() {
     this.jobExist = false;
+    this.availableJobs = new List<DocumentSnapshot>();
+    this.preferredJobs = new List<DocumentSnapshot>();
+    this.recommendedJobs = new List<DocumentSnapshot>();
     this.preferredCategories = new List<String>();
     this.preferredWages = 10;
-    this.accountIds = new List<String>();
-    this.accountImageUrls = new List<Map>();
-    this.debounce = new Debounce(milliseconds: 2000);
   }
 
   void setAvailableJobs(List<DocumentSnapshot> availableJobs) {
@@ -156,7 +156,6 @@ class Job extends Base {
       this.getAvailableJobs(),
     ]);
 
-    print("hello");
     this.jobExist = true;
     notifyListeners();
 
@@ -346,7 +345,7 @@ class Job extends Base {
     });
 
     this.setJob(await theJob.get());
-    this.getAvailableJobs();
+    this.getAllJobs();
 
     /// set data to [employer]
     var updateEmployersPendingData = {
@@ -383,6 +382,8 @@ class Job extends Base {
           "location": this.job["location"],
           "description": this.job["description"],
           "businessName": this.job["businessName"],
+          "age": this.job["ages"],
+          "gender": this.job["gender"],
           "category": this.job["category"],
           "createdAt": this.job["createdAt"],
           "updatedAt": currentTime,

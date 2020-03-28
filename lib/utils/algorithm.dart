@@ -4,9 +4,8 @@ class Algorithm {
   static bool search({@required var document, @required String keyword}) {
     bool match = document["workPosition"].toLowerCase().replaceAll(" ", "").contains(keyword) ||
         document["businessName"].toLowerCase().replaceAll(" ", "").contains(keyword) ||
-        document["description"].toLowerCase().replaceAll(" ", "").contains(keyword) ||
         document["category"].toLowerCase().replaceAll(" ", "").contains(keyword) ||
-        document["location"].toLowerCase().replaceAll(" ", "").contains(keyword);
+        document["location"].first.toLowerCase().replaceAll(" ", "").contains(keyword);
 
     return match;
   }

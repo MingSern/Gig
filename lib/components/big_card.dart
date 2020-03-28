@@ -9,7 +9,7 @@ class BigCard extends StatelessWidget {
   final String businessName;
   final String imageUrl;
   final String wages;
-  final String location;
+  final List location;
   final num createdAt;
   final GestureTapCallback onPressed;
   final bool isEmpty;
@@ -27,6 +27,12 @@ class BigCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    String handleLocation() {
+      var address = this.location.first.split(",");
+
+      return address[2];
+    }
+
     return Opacity(
       opacity: this.isEmpty ? 0.5 : 1,
       child: Container(
@@ -140,10 +146,9 @@ class BigCard extends StatelessWidget {
                                 SizedBox(
                                   width: 2,
                                 ),
-                                Container(
-                                  width: 200,
+                                Expanded(
                                   child: Text(
-                                    this.location,
+                                    handleLocation(),
                                     style: TextStyle(
                                       color: Colors.grey,
                                       fontSize: 11,
@@ -151,7 +156,9 @@ class BigCard extends StatelessWidget {
                                     overflow: TextOverflow.ellipsis,
                                   ),
                                 ),
-                                Spacer(),
+                                SizedBox(
+                                  width: 2,
+                                ),
                                 Text(
                                   Time.getDateTime(createdAt),
                                   style: TextStyle(

@@ -18,7 +18,7 @@ class PrimaryButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return AnimatedContainer(
       duration: Duration(milliseconds: 250),
-      width: loading ? 45 : this.width,
+      width: this.loading ? 45 : this.width,
       height: 45,
       margin: const EdgeInsets.all(5),
       child: RawMaterialButton(
@@ -30,7 +30,7 @@ class PrimaryButton extends StatelessWidget {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(100),
         ),
-        child: loading
+        child: this.loading
             ? SizedBox(
                 height: 20,
                 width: 20,
@@ -39,15 +39,18 @@ class PrimaryButton extends StatelessWidget {
                   backgroundColor: Colors.transparent,
                 ),
               )
-            : Text(
-                this.text,
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
-                  fontSize: 15,
+            : SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Text(
+                  this.text,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                    fontSize: 15,
+                  ),
                 ),
               ),
-        onPressed: loading ? null : this.onPressed,
+        onPressed: this.loading ? null : this.onPressed,
       ),
     );
   }

@@ -35,7 +35,10 @@ class MyApp extends StatelessWidget {
 
     final providers = [
       ChangeNotifierProvider<User>(create: (context) => User()),
-      ChangeNotifierProvider<ScreenController>(create: (context) => ScreenController()),
+      ChangeNotifierProxyProvider<User, ScreenController>(
+        create: (_) => ScreenController(),
+        update: (_, user, screenController) => screenController..update(user),
+      ),
       ChangeNotifierProxyProvider<User, Job>(
         create: (_) => Job(),
         update: (_, user, job) => job..update(user),

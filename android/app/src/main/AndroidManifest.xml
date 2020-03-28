@@ -9,6 +9,10 @@
         android:name="io.flutter.app.FlutterApplication"
         android:label="EasyJob"
         android:icon="@mipmap/ic_launcher">
+
+        <meta-data android:name="com.google.android.geo.API_KEY"
+               android:value="AIzaSyCITcJfRzSd-frV2OBWH8uCEihLd6ZbiRk"/>
+
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"

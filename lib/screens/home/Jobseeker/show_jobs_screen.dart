@@ -1,3 +1,4 @@
+import 'package:Gig/components/empty_state.dart';
 import 'package:Gig/components/round_button.dart';
 import 'package:Gig/components/small_card.dart';
 import 'package:Gig/models/image_manager.dart';
@@ -30,23 +31,28 @@ class ShowJobsScreen extends StatelessWidget {
           onPressed: () => Device.goBack(context),
         ),
       ),
-      body: ListView(
-        children: documents.map((document) {
-          if (document["uid"] != null) {
-            imageManager.addAccountId(document["uid"]);
-          }
+      body: documents.isNotEmpty
+          ? ListView(
+              children: documents.map((document) {
+                if (document["uid"] != null) {
+                  imageManager.addAccountId(document["uid"]);
+                }
 
-          return SmallCard(
-            workPosition: document["workPosition"],
-            businessName: document["businessName"],
-            imageUrl: imageManager.getImageUrl(document["uid"]),
-            wages: document["wages"],
-            createdAt: document["createdAt"],
-            location: document["location"],
-            onPressed: () => viewJobInfo(document),
-          );
-        }).toList(),
-      ),
+                return SmallCard(
+                  workPosition: document["workPosition"],
+                  businessName: document["businessName"],
+                  imageUrl: imageManager.getImageUrl(document["uid"]),
+                  wages: document["wages"],
+                  createdAt: document["createdAt"],
+                  location: document["location"],
+                  onPressed: () => viewJobInfo(document),
+                );
+              }).toList(),
+            )
+          : EmptyState(
+              imagePath: "assets/empty_image.png",
+              message: "Can't find any jobs for you. 😢",
+            ),
     );
   }
 }

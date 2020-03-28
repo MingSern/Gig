@@ -17,7 +17,6 @@ class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     User user = Provider.of<User>(context);
-    ScreenController controller = Provider.of<ScreenController>(context);
 
     void logout() {
       Dialogs.confirmationDialog(
@@ -28,7 +27,6 @@ class ProfileScreen extends StatelessWidget {
       ).then((onConfirm) {
         if (onConfirm ?? false) {
           user.logoutAccount();
-          controller.goTo(context: context, screenIndex: 0);
         }
       });
     }

@@ -37,7 +37,7 @@ class SecondaryButton extends StatelessWidget {
             borderRadius: BorderRadius.circular(100),
           ),
           constraints: BoxConstraints.tight(Size(this.width, 45)),
-          child: loading
+          child: this.loading
               ? SizedBox(
                   height: 20,
                   width: 20,
@@ -46,33 +46,36 @@ class SecondaryButton extends StatelessWidget {
                     backgroundColor: Colors.transparent,
                   ),
                 )
-              : Row(
-                  mainAxisSize: MainAxisSize.max,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    this.icon != null
-                        ? Icon(
-                            this.icon,
-                            color: Colors.white,
-                          )
-                        : Container(),
-                    this.smaller
-                        ? Text(
-                            this.text,
-                            style: TextStyle(
+              : SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.max,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      this.icon != null
+                          ? Icon(
+                              this.icon,
                               color: Colors.white,
-                              fontSize: 13,
-                            ),
-                          )
-                        : Text(
-                            this.text,
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                              fontSize: 15,
-                            ),
-                          ),
-                  ],
+                            )
+                          : Container(),
+                      this.smaller
+                          ? Text(
+                              this.text,
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 13,
+                              ),
+                            )
+                          : Text(
+                              this.text,
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                                fontSize: 15,
+                              ),
+                            )
+                    ],
+                  ),
                 ),
           onPressed: this.loading ? null : this.onPressed,
         ),

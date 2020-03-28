@@ -13,6 +13,7 @@ import 'package:Gig/utils/dialogs.dart';
 import 'package:Gig/utils/palette.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -78,7 +79,7 @@ class HomeScreen extends StatelessWidget {
                 )
               ],
             ),
-            body: job.availableJobs == null
+            body: !job.jobExist
                 ? Loading()
                 : RefreshIndicator(
                     onRefresh: onRefresh,
@@ -109,9 +110,15 @@ class HomeScreen extends StatelessWidget {
                 color: Palette.lapizBlue,
               ),
               onPressed: () async {
-                List result = await job.jaccardCategory();
-                Navigator.pushNamed(context, "/result", arguments: result);
+                Position position =
+                    await Geolocator().getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+
+                print(position.toString());
               },
+              // onPressed: () async {
+              //   List result = await job.jaccardCategory();
+              //   Navigator.pushNamed(context, "/result", arguments: result);
+              // },
             ),
           );
   }

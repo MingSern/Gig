@@ -5,7 +5,6 @@ import 'package:Gig/models/base.dart';
 import 'package:Gig/services/firebase.dart';
 import 'package:Gig/services/ip_quality_score.dart';
 import 'package:Gig/utils/checker.dart';
-import 'package:Gig/utils/debounce.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -22,11 +21,9 @@ class User extends Base {
   String applied = "0";
   dynamic otherUser;
   bool profileCompleted = false;
-  Debounce debounce;
 
   User() {
     this.authenticate();
-    debounce = new Debounce(milliseconds: 1500);
   }
 
   Future<void> authenticate() async {
