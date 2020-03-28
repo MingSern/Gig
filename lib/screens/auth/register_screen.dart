@@ -130,7 +130,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   labelText: "Age",
                                   value: this.age,
                                   validator: (value) => value == null ? "Age is empty" : null,
-                                  items: List.generate(58, (age) {
+                                  items: List.generate(33, (age) {
                                     return (age + 18).toString();
                                   }),
                                   onChanged: (value) => this.setState(() => this.age = value),

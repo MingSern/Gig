@@ -97,7 +97,7 @@ class HomeScreen extends StatelessWidget {
                         ),
                         BuildCarousell(
                           title: "Latest jobs",
-                          documents: job.availableJobs,
+                          documents: job.latestJobs,
                           limit: 10,
                         ),
                       ],
@@ -217,10 +217,11 @@ class _BuildSelectionState extends State<BuildSelection> {
 
     Future<void> savePreferredCategories() async {
       if (preferredCategories.isNotEmpty) {
-        var categories = user.savePreferredCategories(preferredCategories: preferredCategories);
-        var wages = user.savePreferredWages(preferredWages: preferredWages);
-
-        await Future.wait([categories, wages]).then((_) {
+        // var categories = user.savePreferredCategories(preferredCategories: preferredCategories);
+        // var wages = user.savePreferredWages(preferredWages: preferredWages);
+        await user
+            .savePreferences(preferredWages: preferredWages, preferredCategories: preferredCategories)
+            .then((_) {
           job.getAllJobs();
         });
       } else {

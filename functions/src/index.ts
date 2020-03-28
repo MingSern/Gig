@@ -205,6 +205,10 @@ export const jobRecommendations = functions.firestore
 
             // Collaborative filtering
             const userAppliedJobs = appliedJobs;
+
+            // do not do collaborative recommendation for new users
+            if (userAppliedJobs.length == 0) return;
+
             const mappedOtherUsers = otherUsers.map(function (otherUser) {
 
                 const pendings = otherUser.data().pendings;
@@ -230,8 +234,8 @@ export const jobRecommendations = functions.firestore
                     const recommendedJob = {
                         id: difference.key,
                         uid: otherUser.uid,
-                        // appliedJobs: otherUser.appliedJobs,
                         similarity: otherUser.similarity,
+                        appliedJobs: otherUser.appliedJobs.map((job) => job.key),
                     };
 
                     if (!collaborativeRecommendations.includes(recommendedJob)) {
@@ -385,45 +389,45 @@ export const chatNotification = functions.firestore
 
 
 
-export const preferredJobs = functions.firestore
-    .document("accounts/{accountId}")
-    .onUpdate(async event => {
-        const beforeData = event.before.data();
-        const afterData = event.after.data();
+// export const preferredJobs = functions.firestore
+//     .document("accounts/{accountId}")
+//     .onUpdate(async event => {
+//         const beforeData = event.before.data();
+//         const afterData = event.after.data();
 
-        if (beforeData === undefined) return;
-        if (afterData === undefined) return;
-        if (beforeData.preferredCategories === afterData.preferredCategories) return;
+//         if (beforeData === undefined) return;
+//         if (afterData === undefined) return;
+//         if (beforeData.preferredCategories === afterData.preferredCategories) return;
 
-        const querySnapshot = await db
-            .collection("jobs")
-            .get();
+//         const querySnapshot = await db
+//             .collection("jobs")
+//             .get();
 
-        var jobs: any[] = [];
+//         var jobs: any[] = [];
 
-        querySnapshot.forEach(function (snapshot) {
+//         querySnapshot.forEach(function (snapshot) {
 
-            if (afterData === undefined) return;
+//             if (afterData === undefined) return;
 
-            const document = snapshot.data();
-            const wages = parseFloat(document.wages);
-            const range = afterData.preferredWages.split("-");
-            const start = parseFloat(range[0]);
-            const end = parseFloat(range[1]);
-            const within = wages >= start && wages <= end;
-            const match = afterData.preferredCategories.includes(document.category);
+//             const document = snapshot.data();
+//             const wages = parseFloat(document.wages);
+//             const range = afterData.preferredWages.split("-");
+//             const start = parseFloat(range[0]);
+//             const end = parseFloat(range[1]);
+//             const within = wages >= start && wages <= end;
+//             const match = afterData.preferredCategories.includes(document.category);
 
-            if (within && match) {
-                jobs.push(document.key);
-            }
+//             if (within && match) {
+//                 jobs.push(document.key);
+//             }
 
-        });
+//         });
 
-        console.log("------------- Save Preffered Jobs Done -------------");
+//         console.log("------------- Save Preffered Jobs Done -------------");
 
-        return db.collection("preferredJobs")
-            .doc(afterData.uid)
-            .set({ preferredJobs: jobs });
-    });
+//         return db.collection("preferredJobs")
+//             .doc(afterData.uid)
+//             .set({ preferredJobs: jobs });
+//     });
 
 

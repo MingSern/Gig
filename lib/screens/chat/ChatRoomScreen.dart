@@ -42,8 +42,9 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
 
         if (verified) {
           return WarningMessage(
-            level: WarningLevel.caution,
+            level: WarningLevel.danger,
             message: "The message above indicates a potential scam.",
+            margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
           );
         }
       }

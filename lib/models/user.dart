@@ -426,9 +426,24 @@ class User extends Base {
     notifyListeners();
   }
 
-  Future<void> savePreferredWages({RangeValues preferredWages}) async {
+  Future<void> savePreferences({RangeValues preferredWages, List<dynamic> preferredCategories}) async {
     isLoading(true);
 
+    bool newUser = this.account.preferredCategories.length == 0;
+
+    await Future.wait([
+      this.savePreferredWages(preferredWages: preferredWages),
+      this.savePreferredCategories(preferredCategories: preferredCategories),
+    ]);
+
+    if (newUser) {
+      await Future.delayed(Duration(seconds: 2));
+    }
+
+    isLoading(false);
+  }
+
+  Future<void> savePreferredWages({RangeValues preferredWages}) async {
     var updateWages = {
       "preferredWages":
           "${preferredWages.start.toStringAsFixed(2)}-${preferredWages.end.toStringAsFixed(2)}" ??
@@ -446,13 +461,9 @@ class User extends Base {
     if (preferredWages != null) {
       this.account.setPreferredWages(preferredWages);
     }
-
-    isLoading(false);
   }
 
   Future<void> savePreferredCategories({List<dynamic> preferredCategories}) async {
-    isLoading(true);
-
     var updateCategories = {
       "preferredCategories": preferredCategories ?? this.account.preferredCategories,
     };
@@ -468,8 +479,6 @@ class User extends Base {
     if (preferredCategories != null) {
       this.account.setPreferredCategories(preferredCategories);
     }
-
-    isLoading(false);
   }
 
   void setProfileCompleted(bool profileCompleted) {

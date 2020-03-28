@@ -192,7 +192,7 @@ class JobInfoScreen extends StatelessWidget {
             ),
             DescriptionCard(
               icon: Icons.category,
-              title: "Category",
+              title: "Job Category",
               child: Text(job.job["category"]),
             ),
             DescriptionCard(
@@ -200,16 +200,16 @@ class JobInfoScreen extends StatelessWidget {
               title: "Wages",
               child: Text("RM ${job.job["wages"]}/hr"),
             ),
-            // DescriptionCard(
-            //   icon: Icons.accessibility_new,
-            //   title: "Preferred age",
-            //   child: Text(job.job["age"]),
-            // ),
-            // DescriptionCard(
-            //   icon: Icons.person,
-            //   title: "Preferred gender",
-            //   child: Text(job.job["gender"]),
-            // ),
+            DescriptionCard(
+              icon: Icons.accessibility_new,
+              title: "Preferred Age",
+              child: Text(job.job["age"]),
+            ),
+            DescriptionCard(
+              icon: Icons.person,
+              title: "Preferred Gender",
+              child: Text(job.job["gender"]),
+            ),
             DescriptionCard(
               icon: Icons.location_on,
               title: "Location",

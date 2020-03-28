@@ -122,12 +122,18 @@ class BuildLists extends StatelessWidget {
       Drawers.keyboard(
         context: context,
         child: Padding(
-          padding: const EdgeInsets.all(15.0),
+          padding: const EdgeInsets.fromLTRB(15, 15, 15, 0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              Text("Send a short message to the jobseeker."),
+              Text(
+                "Reject this jobseeker",
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
               SizedBox(height: 20),
               TextField(
                 maxLength: 100,
@@ -138,7 +144,7 @@ class BuildLists extends StatelessWidget {
                 decoration: InputDecoration(
                   filled: true,
                   isDense: true,
-                  labelText: "Message",
+                  labelText: "Reason (Optional)",
                   hintText: "I am sorry to...",
                   contentPadding: const EdgeInsets.symmetric(horizontal: 25, vertical: 15),
                   focusedBorder: OutlineInputBorder(

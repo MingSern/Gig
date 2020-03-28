@@ -1,8 +1,12 @@
+import 'dart:convert';
+
 import 'package:Gig/enum/enum.dart';
 import 'package:Gig/models/base.dart';
 import 'package:Gig/models/user.dart';
+import 'package:Gig/utils/algorithm.dart';
 import 'package:Gig/utils/generator.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:geolocator/geolocator.dart';
 
 final firestore = Firestore.instance;
 final accounts = "accounts";
@@ -18,6 +22,8 @@ class Job extends Base {
   dynamic job;
   List<DocumentSnapshot> availableJobs;
   List<DocumentSnapshot> preferredJobs;
+  List<DocumentSnapshot> latestJobs;
+  // List<DocumentSnapshot> nearYouJobs;
   List<DocumentSnapshot> recommendedJobs;
   List<String> preferredCategories;
   double preferredWages;
@@ -30,12 +36,10 @@ class Job extends Base {
     this.user = user;
 
     if (this.user != null && this.user.isJobSeeker() && !this.jobExist) {
-      print("hi");
       this.getAllJobs();
     }
 
     if (this.user.authStatus == AuthStatus.notSignedIn) {
-      print("bye");
       this.reset();
     }
   }
@@ -44,6 +48,8 @@ class Job extends Base {
     this.jobExist = false;
     this.availableJobs = new List<DocumentSnapshot>();
     this.preferredJobs = new List<DocumentSnapshot>();
+    this.latestJobs = new List<DocumentSnapshot>();
+    // this.nearYouJobs = new List<DocumentSnapshot>();
     this.recommendedJobs = new List<DocumentSnapshot>();
     this.preferredCategories = new List<String>();
     this.preferredWages = 10;
@@ -60,6 +66,15 @@ class Job extends Base {
   void setPreferredJobs(List<DocumentSnapshot> preferredJobs) {
     this.preferredJobs = preferredJobs;
   }
+
+  void setLatestJobs(List<DocumentSnapshot> latestJobs) {
+    this.latestJobs = latestJobs;
+  }
+
+  // void setNearYouJobs(List<DocumentSnapshot> nearYouJobs) {
+  //   nearYouJobs.forEach((job) => print(job.data["distance"]));
+  //   this.nearYouJobs = nearYouJobs;
+  // }
 
   void setJob(dynamic job) {
     this.job = job;
@@ -162,15 +177,9 @@ class Job extends Base {
     isLoading(false);
   }
 
-  Future<void> getAvailableJobs({int limit}) async {
-    QuerySnapshot availableJobs;
-
-    if (limit != null) {
-      availableJobs =
-          await firestore.collection(jobs).orderBy("createdAt", descending: true).limit(limit).getDocuments();
-    } else {
-      availableJobs = await firestore.collection(jobs).orderBy("createdAt", descending: true).getDocuments();
-    }
+  Future<void> getAvailableJobs() async {
+    QuerySnapshot availableJobs =
+        await firestore.collection(jobs).orderBy("createdAt", descending: true).getDocuments();
 
     this.setAvailableJobs(availableJobs.documents);
   }
@@ -199,26 +208,53 @@ class Job extends Base {
   }
 
   Future<void> getPreferredJobs() async {
-    DocumentSnapshot document = await firestore.collection("preferredJobs").document(this.user?.userId).get();
+    QuerySnapshot availableJobs =
+        await firestore.collection(jobs).orderBy("createdAt", descending: true).getDocuments();
 
-    if (document.exists) {
-      List preferredJobIds = document.data["preferredJobs"] ?? [];
+    this.getLatestJobs(availableJobs.documents);
+    // this.getNearYouJobs(availableJobs.documents);
 
-      var results = await Future.wait(preferredJobIds.map((id) {
-        return firestore.collection(jobs).where("key", isEqualTo: id).getDocuments();
-      }));
+    List<DocumentSnapshot> preferredJobs =
+        Algorithm.hybridListPreferences(documents: availableJobs.documents, user: this.user);
 
-      List<DocumentSnapshot> documents = [];
-
-      results.forEach((result) {
-        documents.addAll(result.documents);
-      });
-
-      this.setPreferredJobs(documents);
-    } else {
-      this.setPreferredJobs([]);
-    }
+    this.setPreferredJobs(preferredJobs);
   }
+
+  void getLatestJobs(List<DocumentSnapshot> documents) {
+    this.setLatestJobs(documents.take(20).toList());
+  }
+
+  // void getNearYouJobs(List<DocumentSnapshot> documents) async {
+  //   Position position = await Geolocator().getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+
+  //   if (position == null) {
+  //     position = await Geolocator().getLastKnownPosition(desiredAccuracy: LocationAccuracy.high);
+  //   }
+
+  //   var mappedDocuments = documents.map((document) async {
+  //     List location = document.data["location"];
+  //     double latitude = double.parse(location[1]);
+  //     double longitude = double.parse(location.last);
+
+  //     double distanceInMeters =
+  //         await Geolocator().distanceBetween(latitude, longitude, position.latitude, position.longitude);
+  //     document.data["distance"] = distanceInMeters;
+
+  //     return document;
+  //   }).toList();
+
+  //   List<DocumentSnapshot> nearYouJobs = [];
+
+  //   mappedDocuments.forEach((document) async {
+  //     nearYouJobs.add(await document);
+  //   });
+
+  //   nearYouJobs.sort((a, b) {
+  //     return a.data["distance"].compareTo(b.data["distance"]) > -1;
+  //   });
+
+  //   this.setNearYouJobs(nearYouJobs);
+  // }
 
   Future<void> acceptPending(String jobseekerId, String key) async {
     isLoading(true);
@@ -243,7 +279,7 @@ class Job extends Base {
     });
 
     this.setJob(await theJob.get());
-    this.getAvailableJobs();
+    this.getAllJobs();
 
     isLoading(false);
   }
@@ -296,7 +332,7 @@ class Job extends Base {
     });
 
     this.setJob(await theJob.get());
-    this.getAvailableJobs();
+    this.getAllJobs();
 
     isLoading(false);
   }
@@ -382,7 +418,7 @@ class Job extends Base {
           "location": this.job["location"],
           "description": this.job["description"],
           "businessName": this.job["businessName"],
-          "age": this.job["ages"],
+          "age": this.job["age"],
           "gender": this.job["gender"],
           "category": this.job["category"],
           "createdAt": this.job["createdAt"],

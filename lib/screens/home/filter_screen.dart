@@ -48,12 +48,12 @@ class _BuildFilterState extends State<BuildFilter> {
 
     void savePreferredCategories() async {
       if (preferredCategories.isNotEmpty) {
-        var saveCategories = widget.user.savePreferredCategories(preferredCategories: preferredCategories);
-        var saveWages = widget.user.savePreferredWages(preferredWages: preferredWages);
-
-        await Future.wait([saveCategories, saveWages]);
-        await job.getAllJobs().then((_) {
-          Navigator.pop(context);
+        await widget.user
+            .savePreferences(preferredWages: preferredWages, preferredCategories: preferredCategories)
+            .then((_) async {
+          await job.getAllJobs().then((_) {
+            Navigator.pop(context);
+          });
         });
       } else {
         Dialogs.notifyDialog(
@@ -70,7 +70,7 @@ class _BuildFilterState extends State<BuildFilter> {
           loading: widget.user.loading,
           onPressed: () => Device.goBack(context),
         ),
-        title: Text("Edit Preferences"),
+        title: Text("Your preferences"),
         centerTitle: true,
         actions: <Widget>[
           RoundButton(

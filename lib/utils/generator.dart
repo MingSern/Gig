@@ -109,7 +109,7 @@ class Generator {
       "zis0b",
     ];
 
-    var age = List.generate(58, (number) {
+    var age = List.generate(33, (number) {
       return (number + 18).toString();
     });
     var gender = ["Male", "Female"];
@@ -214,7 +214,7 @@ class Generator {
     var ageCategory = ["18-20", "21-30", "31-40", "Any"];
     var genderCategory = ["Male", "Female", "Any"];
 
-    var index = [3];
+    var index = [0, 1, 2, 3, 4, 5, 6, 7, 8];
 
     var randomJob = jobCategories[index[random.nextInt(index.length)]];
     var category = randomJob["category"];
