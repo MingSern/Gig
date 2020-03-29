@@ -5,6 +5,7 @@ import 'package:Gig/lists/categories.dart';
 import 'package:Gig/models/job.dart';
 import 'package:Gig/utils/device.dart';
 import 'package:Gig/utils/generator.dart';
+import 'package:Gig/utils/validator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_google_places/flutter_google_places.dart';
 import 'package:google_maps_webservice/places.dart';
@@ -148,7 +149,7 @@ class _AddJobScreenState extends State<AddJobScreen> {
                   labelText: "Work position",
                   loading: job.loading,
                   onSaved: (value) => workPosition = value,
-                  validator: (value) => value.isEmpty ? "Work position is empty" : null,
+                  validator: Validator.workPosition,
                 ),
                 SizedBox(height: 10),
                 Field(
@@ -157,14 +158,14 @@ class _AddJobScreenState extends State<AddJobScreen> {
                   labelText: "Wages (RM/Hour)",
                   loading: job.loading,
                   onSaved: (value) => wages = value,
-                  validator: (value) => value.isEmpty ? "Wages is empty" : null,
+                  validator: Validator.wages,
                 ),
                 SizedBox(height: 10),
                 DropField(
                   loading: job.loading,
                   labelText: "Category",
                   value: this.category,
-                  validator: (value) => value == null ? "Category is empty" : null,
+                  validator: Validator.category,
                   items: categories,
                   onChanged: job.loading ? null : (value) => this.setState(() => this.category = value),
                 ),
@@ -177,7 +178,7 @@ class _AddJobScreenState extends State<AddJobScreen> {
                         padding: const EdgeInsets.only(left: 30, right: 5),
                         labelText: "Age",
                         value: this.age,
-                        validator: (value) => value == null ? "Age is empty" : null,
+                        validator: Validator.age,
                         items: ["18-20", "21-30", "31-40", "Any"],
                         onChanged: (value) => this.setState(() => this.age = value),
                       ),
@@ -188,7 +189,7 @@ class _AddJobScreenState extends State<AddJobScreen> {
                         padding: const EdgeInsets.only(left: 5, right: 30),
                         labelText: "Gender",
                         value: this.gender,
-                        validator: (value) => value == null ? "Gender is empty" : null,
+                        validator: Validator.gender,
                         items: ["Male", "Female", "Any"],
                         onChanged: (value) => this.setState(() => this.gender = value),
                       ),
@@ -203,7 +204,7 @@ class _AddJobScreenState extends State<AddJobScreen> {
                     flexible: this.location != null ? true : false,
                     labelText: "Location",
                     value: this.location?.first,
-                    validator: (value) => value == null ? "Location is empty" : null,
+                    validator: Validator.location,
                     items: this.location ?? [],
                     onChanged: null,
                   ),
@@ -217,7 +218,7 @@ class _AddJobScreenState extends State<AddJobScreen> {
                   labelText: "Description",
                   loading: job.loading,
                   onSaved: (value) => description = value,
-                  validator: (value) => value.isEmpty ? "Description is empty" : null,
+                  validator: Validator.description,
                 ),
               ],
             ),

@@ -5,6 +5,7 @@ import 'package:Gig/models/user.dart';
 import 'package:Gig/utils/device.dart';
 import 'package:Gig/utils/dialogs.dart';
 import 'package:Gig/utils/palette.dart';
+import 'package:Gig/utils/validator.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -77,7 +78,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     hintText: "example@mail.com",
                     loading: user.loading,
                     onSaved: (value) => this.email = value,
-                    validator: (value) => value.isEmpty ? "Email is empty" : null,
+                    validator: Validator.email,
                   ),
                   SizedBox(height: 10),
                   Field(
@@ -86,7 +87,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     obscureText: true,
                     loading: user.loading,
                     onSaved: (value) => this.password = value,
-                    validator: (value) => value.isEmpty ? "Password is empty" : null,
+                    validator: Validator.password,
                   ),
                   Padding(
                     padding: const EdgeInsets.only(top: 40, bottom: 15),

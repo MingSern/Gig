@@ -114,7 +114,6 @@ export const demographicRecommendations = functions.firestore
 
             });
 
-
             filterredUsers.forEach(function (otherUser) {
 
                 otherUser.appliedJobs.forEach(function (appliedJob) {

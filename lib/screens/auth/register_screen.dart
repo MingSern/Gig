@@ -6,6 +6,7 @@ import 'package:Gig/enum/enum.dart';
 import 'package:Gig/models/account.dart';
 import 'package:Gig/models/user.dart';
 import 'package:Gig/utils/device.dart';
+import 'package:Gig/utils/validator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:Gig/components/round_button.dart';
@@ -108,7 +109,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         keyboardType: TextInputType.text,
                         textCapitalization: TextCapitalization.words,
                         onSaved: (value) => this.fullname = value,
-                        validator: (value) => value.isEmpty ? "Full name is empty" : null,
+                        validator: Validator.fullname,
                       )
                     : Field(
                         initialValue: this.businessName,
@@ -116,7 +117,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         keyboardType: TextInputType.text,
                         textCapitalization: TextCapitalization.words,
                         onSaved: (value) => this.businessName = value,
-                        validator: (value) => value.isEmpty ? "Business/Company name is empty" : null,
+                        validator: Validator.businessName,
                       ),
                 userType == UserType.jobseeker
                     ? Column(
@@ -129,7 +130,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   padding: const EdgeInsets.only(left: 30, right: 5),
                                   labelText: "Age",
                                   value: this.age,
-                                  validator: (value) => value == null ? "Age is empty" : null,
+                                  validator: Validator.age,
                                   items: List.generate(33, (age) {
                                     return (age + 18).toString();
                                   }),
@@ -141,7 +142,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   padding: const EdgeInsets.only(left: 5, right: 30),
                                   labelText: "Gender",
                                   value: this.gender,
-                                  validator: (value) => value == null ? "Gender is empty" : null,
+                                  validator: Validator.gender,
                                   items: ["Male", "Female"],
                                   onChanged: (value) => this.setState(() => this.gender = value),
                                 ),
@@ -157,7 +158,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   labelText: "Email",
                   keyboardType: TextInputType.emailAddress,
                   onSaved: (value) => this.email = value,
-                  validator: (value) => value.isEmpty ? "Email is empty" : null,
+                  validator: Validator.email,
                 ),
                 SizedBox(height: 10),
                 Field(
@@ -166,7 +167,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   keyboardType: TextInputType.text,
                   obscureText: true,
                   onSaved: (value) => this.password = value,
-                  validator: (value) => value.isEmpty ? "Password is empty" : null,
+                  validator: Validator.password,
                 ),
                 SizedBox(height: 10),
                 Field(
@@ -181,7 +182,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       this.phoneNumber = "+60" + value;
                     }
                   },
-                  validator: (value) => value.isEmpty ? "Phone number is empty" : null,
+                  validator: Validator.phoneNumber,
                 ),
                 Container(
                   alignment: Alignment(0, 0),
