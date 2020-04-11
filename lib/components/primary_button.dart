@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 class PrimaryButton extends StatelessWidget {
   PrimaryButton({
+    Key key,
     @required this.text,
     @required this.onPressed,
     this.loading = false,

@@ -1,12 +1,9 @@
-import 'dart:convert';
-
 import 'package:Gig/enum/enum.dart';
 import 'package:Gig/models/base.dart';
 import 'package:Gig/models/user.dart';
 import 'package:Gig/utils/algorithm.dart';
 import 'package:Gig/utils/generator.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:geolocator/geolocator.dart';
 
 final firestore = Firestore.instance;
 final accounts = "accounts";

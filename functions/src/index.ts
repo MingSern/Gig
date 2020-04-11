@@ -6,6 +6,169 @@ admin.initializeApp();
 const db = admin.firestore();
 const fcm = admin.messaging();
 
+
+export const scheduleRecommendation = functions.pubsub
+    .schedule("0 * * * *").onRun(async context => {
+
+        const stringSimilarity = require('string-similarity');
+        const jaccard = require('jaccard-array');
+
+        const queryUsers = db
+            .collection("accounts")
+            .where("userType", "==", "UserType.jobseeker")
+            .get();
+
+        const queryJobs = db
+            .collection("jobs")
+            .get();
+
+        const [users, jobs] = await Promise.all([queryUsers, queryJobs]);
+
+        users.forEach(function (user) {
+
+            const pendings = user.data().pendings;
+            const shortlists = user.data().shortlists;
+            const appliedJobs = [...pendings, ...shortlists];
+            const otherUsers = users.docs.filter((otherUser) => otherUser.data().uid !== user.data().uid);
+
+            var recommendedJobs: any[] = [];
+            var collaborativeRecommendations: any[] = [];
+            var contentBasedRecommendations: any[] = [];
+
+            // Collaborative filtering
+            const userAppliedJobs = appliedJobs;
+
+            // do not do collaborative recommendation for new users
+            if (userAppliedJobs.length == 0) return;
+
+            const mappedOtherUsers = otherUsers.map(function (otherUser) {
+
+                const pendings = otherUser.data().pendings;
+                const shortlists = otherUser.data().shortlists;
+                const otherUserAppliedJobs = [...pendings, ...shortlists];
+                const differences = otherUserAppliedJobs.filter((job) => !userAppliedJobs.includes(job));
+
+                return {
+                    uid: otherUser.data().uid,
+                    differences: differences,
+                    appliedJobs: otherUserAppliedJobs,
+                    similarity: jaccard(userAppliedJobs, otherUserAppliedJobs),
+                };
+
+            });
+
+            mappedOtherUsers.sort((a, b) => b.similarity - a.similarity);
+
+            mappedOtherUsers.forEach(function (otherUser) {
+
+                otherUser.differences.forEach(function (difference) {
+
+                    const recommendedJob = {
+                        id: difference.key,
+                        uid: otherUser.uid,
+                        similarity: otherUser.similarity,
+                        appliedJobs: otherUser.appliedJobs.map((job) => job.key),
+                    };
+
+                    if (!collaborativeRecommendations.includes(recommendedJob)) {
+
+                        collaborativeRecommendations.push(recommendedJob);
+
+                    }
+
+                });
+
+            });
+
+            console.log("------------- Collaborative Filtering Done -------------");
+
+            // Content-base filtering
+            const appliedJobsKey = appliedJobs.map((job) => job.key);
+            var preferredJobs: any[] = [];
+
+            jobs.forEach(function (job) {
+
+                if (user.data().preferredCategories.includes(job.data().category)) {
+
+                    if (!appliedJobsKey.includes(job.data().key)) {
+
+                        preferredJobs.push(job.data());
+
+                    }
+
+                }
+
+            });
+
+            const workPositions = appliedJobs.map((job) => job.workPosition.toString());
+            const descriptions = appliedJobs.map((job) => job.description.toString());
+
+            preferredJobs.forEach(async function (prefferedJob) {
+
+                const s1 = stringSimilarity.findBestMatch(prefferedJob.workPosition, workPositions);
+                const s2 = stringSimilarity.findBestMatch(prefferedJob.description, descriptions);
+
+                // Compute similarity
+                const [workPositionSimilarity, descriptionSimilarity] = await Promise.all([s1, s2]);
+
+                // Map the ratings into an array of rating
+                const mappedS1 = workPositionSimilarity.ratings.map((result: { rating: any; }) => result.rating);
+                const mappedS2 = descriptionSimilarity.ratings.map((result: { rating: any; }) => result.rating);
+
+                // Get the total rating
+                const sumWorkPositionRating = mappedS1.reduce(function (sum: any, result: any) {
+                    return sum + result;
+                });
+
+                const sumDescriptionRating = mappedS2.reduce(function (sum: any, result: any) {
+                    return sum + result;
+                });
+
+                // Calculate average rating
+                const averageWorkPositionRating = sumWorkPositionRating / workPositions.length;
+                const averageDesccriptionRating = sumDescriptionRating / descriptions.length;
+
+                // Let work position have a weight of 0.1
+                // While description have a weight of 0.9
+                const weightedAverage = (averageWorkPositionRating * 0.1) + (averageDesccriptionRating * 0.9);
+
+                if (weightedAverage > 0.5) {
+
+                    contentBasedRecommendations.push({
+                        id: prefferedJob.key,
+                        averageWorkPositionRating: averageWorkPositionRating,
+                        averageDesccriptionRating: averageDesccriptionRating,
+                        similarity: weightedAverage,
+                    });
+
+                    contentBasedRecommendations.sort((a: any, b: any) => b.weightedAverage - a.weightedAverage);
+
+                }
+
+            });
+
+            const l = Math.min(collaborativeRecommendations.length, contentBasedRecommendations.length);
+
+            for (var i = 0; i < l; i++) {
+                recommendedJobs.push(collaborativeRecommendations[i], contentBasedRecommendations[i]);
+            }
+
+            recommendedJobs.push(...collaborativeRecommendations.slice(l), ...contentBasedRecommendations.slice(l));
+
+            console.log("------------- Content-based Filtering Done -------------");
+
+            return db.collection("recommendedJobs")
+                .doc(user.data().uid)
+                .set({ recommendedJobs: recommendedJobs });
+
+        })
+
+        return;
+
+    });
+
+
+
 export const demographicRecommendations = functions.firestore
     .document("accounts/{accountId}")
     .onUpdate(async snapshot => {
@@ -48,7 +211,7 @@ export const demographicRecommendations = functions.firestore
                 const otherUserAge = Number(otherUser.age);
                 const ageDifference = userAge - otherUserAge;
 
-                return ageDifference >= -2 && ageDifference <= 2;
+                return ageDifference >= -3 && ageDifference <= 3;
 
             }
 
@@ -295,9 +458,9 @@ export const jobRecommendations = functions.firestore
                 const averageWorkPositionRating = sumWorkPositionRating / workPositions.length;
                 const averageDesccriptionRating = sumDescriptionRating / descriptions.length;
 
-                // Let work position have a weight of 0.1
-                // While description have a weight of 0.9
-                const weightedAverage = (averageWorkPositionRating * 0.1) + (averageDesccriptionRating * 0.9);
+                // Let work position have a weight of 0.2
+                // While description have a weight of 0.8
+                const weightedAverage = (averageWorkPositionRating * 0.2) + (averageDesccriptionRating * 0.8);
 
                 if (weightedAverage > 0.5) {
 

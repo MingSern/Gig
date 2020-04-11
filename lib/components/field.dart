@@ -15,6 +15,7 @@ class Field extends StatelessWidget {
   final GestureTapCallback onTap;
 
   Field({
+    Key key,
     @required this.keyboardType,
     @required this.labelText,
     @required this.onSaved,

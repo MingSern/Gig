@@ -113,7 +113,7 @@ class User extends Base {
     await Firebase.signIn(email, password).then((_) async {
       await this.authenticate();
     }).catchError((onError) {
-      setErrorMessage(onError.message);
+      setErrorMessage(onError.toString());
     });
 
     isLoading(false);
@@ -183,7 +183,7 @@ class User extends Base {
     );
 
     AuthResult result = await Firebase.signInWithPhoneNumber(credential).catchError((onError) {
-      setErrorMessage(onError.message);
+      setErrorMessage(onError.toString());
     });
 
     if (result?.user != null) {
@@ -437,7 +437,18 @@ class User extends Base {
     ]);
 
     if (newUser) {
-      await Future.delayed(Duration(seconds: 2));
+      bool again = true;
+
+      while (again) {
+        await Future.delayed(Duration(milliseconds: 500));
+
+        DocumentSnapshot recommendations =
+            await firestore.collection("recommendedJobs").document(this.userId).get();
+
+        if (recommendations.exists) {
+          again = false;
+        }
+      }
     }
 
     isLoading(false);

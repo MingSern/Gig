@@ -46,7 +46,8 @@ class RoundedNavBarItem extends StatelessWidget {
           scrollDirection: Axis.horizontal,
           physics: NeverScrollableScrollPhysics(),
           children: <Widget>[
-            Icon(this.iconData, color: this.currentIndex == this.index ? this.activeLabelColor : this.inactiveLabelColor),
+            Icon(this.iconData,
+                color: this.currentIndex == this.index ? this.activeLabelColor : this.inactiveLabelColor),
             this.currentIndex == this.index
                 ? Container(
                     alignment: Alignment(0, 0),

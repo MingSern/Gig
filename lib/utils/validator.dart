@@ -19,7 +19,7 @@ class Validator {
     return value == null ? "Age is empty" : null;
   }
 
-  static String gender(String value) {
+  static String gender(var value) {
     return value == null ? "Gender is empty" : null;
   }
 

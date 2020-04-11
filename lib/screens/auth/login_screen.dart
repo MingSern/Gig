@@ -73,6 +73,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     height: 40,
                   ),
                   Field(
+                    key: Key("email_text_field"),
                     keyboardType: TextInputType.emailAddress,
                     labelText: "Email",
                     hintText: "example@mail.com",
@@ -82,6 +83,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   SizedBox(height: 10),
                   Field(
+                    key: Key("password_text_field"),
                     keyboardType: TextInputType.text,
                     labelText: "Password",
                     obscureText: true,
@@ -92,6 +94,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   Padding(
                     padding: const EdgeInsets.only(top: 40, bottom: 15),
                     child: PrimaryButton(
+                      key: Key("login_button"),
                       text: "Login",
                       onPressed: loginAccount,
                       loading: user.loading,
