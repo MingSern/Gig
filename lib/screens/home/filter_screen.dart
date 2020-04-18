@@ -86,8 +86,9 @@ class _BuildFilterState extends State<BuildFilter> {
           children: <Widget>[
             FilterCard(
               title: "Expected wages:",
-              value:
-                  "RM ${preferredWages.start.toStringAsFixed(0)} ~ ${preferredWages.end.toStringAsFixed(2)}/hr",
+              value: preferredWages.end.toStringAsFixed(2) == "100.00"
+                  ? "RM ${preferredWages.start.toStringAsFixed(0)} ~ ∞"
+                  : "RM ${preferredWages.start.toStringAsFixed(0)} ~ ${preferredWages.end.toStringAsFixed(2)}/hr",
               child: Column(
                 children: <Widget>[
                   SizedBox(height: 10),
@@ -100,7 +101,9 @@ class _BuildFilterState extends State<BuildFilter> {
                     max: 100,
                     labels: RangeLabels(
                       "RM ${preferredWages.start.toStringAsFixed(2)}/hr",
-                      "RM ${preferredWages.end.toStringAsFixed(2)}/hr",
+                      preferredWages.end.toStringAsFixed(2) == "100.00"
+                          ? "∞"
+                          : "RM ${preferredWages.end.toStringAsFixed(2)}/hr",
                     ),
                   ),
                 ],

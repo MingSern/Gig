@@ -31,7 +31,7 @@ class RoundButton extends StatelessWidget {
   Widget build(BuildContext context) {
     Color handleColor() {
       if (this.loading) {
-        return this.loading ? Colors.black54 : Colors.black;
+        return this.loading ? this.inverted ? Colors.grey : Colors.black54 : Colors.black;
       }
 
       if (this.inverted) {
@@ -52,11 +52,6 @@ class RoundButton extends StatelessWidget {
     Widget handleAvatar() {
       if (this.imageUrl?.isNotEmpty ?? false) {
         if (this.imageUrl != "null") {
-          // return CircleAvatar(
-          //   radius: 18,
-          //   backgroundColor: Colors.grey[100],
-          //   backgroundImage: CachedNetworkImageProvider(this.imageUrl),
-          // );
           return Container(
             height: 36,
             width: 36,

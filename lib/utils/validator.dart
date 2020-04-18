@@ -1,10 +1,24 @@
 class Validator {
   static String email(String value) {
-    return value.isEmpty ? "Email is empty" : null;
+    Pattern pattern =
+        r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
+    RegExp regex = new RegExp(pattern);
+
+    if (value.isEmpty)
+      return "Email is empty";
+    else if (!regex.hasMatch(value))
+      return 'Enter a valid email';
+    else
+      return null;
   }
 
   static String password(String value) {
-    return value.isEmpty ? "Password is empty" : null;
+    if (value.isEmpty)
+      return "Password is empty";
+    else if (value.length < 6)
+      return "Password with at least 6 characters";
+    else
+      return null;
   }
 
   static String fullname(String value) {
@@ -35,11 +49,11 @@ class Validator {
     return value.isEmpty ? "Wages is empty" : null;
   }
 
-  static String category(String value) {
+  static String category(var value) {
     return value == null ? "Category is empty" : null;
   }
 
-  static String location(String value) {
+  static String location(var value) {
     return value == null ? "Location is empty" : null;
   }
 
