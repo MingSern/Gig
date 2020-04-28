@@ -76,8 +76,8 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
                 ),
               ),
               RoundButton(
-                icon: Icons.more_horiz,
-                onPressed: () {},
+                // icon: Icons.more_horiz,
+                onPressed: null,
               ),
             ],
           ),

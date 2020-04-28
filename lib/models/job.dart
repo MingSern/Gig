@@ -4,6 +4,7 @@ import 'package:Gig/models/user.dart';
 import 'package:Gig/utils/algorithm.dart';
 import 'package:Gig/utils/generator.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:geolocator/geolocator.dart';
 
 final firestore = Firestore.instance;
 final accounts = "accounts";
@@ -20,7 +21,7 @@ class Job extends Base {
   List<DocumentSnapshot> availableJobs;
   List<DocumentSnapshot> preferredJobs;
   List<DocumentSnapshot> latestJobs;
-  // List<DocumentSnapshot> nearYouJobs;
+  List<DocumentSnapshot> nearYouJobs;
   List<DocumentSnapshot> recommendedJobs;
   List<String> preferredCategories;
   double preferredWages;
@@ -46,7 +47,7 @@ class Job extends Base {
     this.availableJobs = new List<DocumentSnapshot>();
     this.preferredJobs = new List<DocumentSnapshot>();
     this.latestJobs = new List<DocumentSnapshot>();
-    // this.nearYouJobs = new List<DocumentSnapshot>();
+    this.nearYouJobs = new List<DocumentSnapshot>();
     this.recommendedJobs = new List<DocumentSnapshot>();
     this.preferredCategories = new List<String>();
     this.preferredWages = 10;
@@ -68,10 +69,9 @@ class Job extends Base {
     this.latestJobs = latestJobs;
   }
 
-  // void setNearYouJobs(List<DocumentSnapshot> nearYouJobs) {
-  //   nearYouJobs.forEach((job) => print(job.data["distance"]));
-  //   this.nearYouJobs = nearYouJobs;
-  // }
+  void setNearYouJobs(List<DocumentSnapshot> nearYouJobs) {
+    this.nearYouJobs = nearYouJobs;
+  }
 
   void setJob(dynamic job) {
     this.job = job;
@@ -209,7 +209,7 @@ class Job extends Base {
         await firestore.collection(jobs).orderBy("createdAt", descending: true).getDocuments();
 
     this.getLatestJobs(availableJobs.documents);
-    // this.getNearYouJobs(availableJobs.documents);
+    await this.getNearYouJobs(availableJobs.documents);
 
     List<DocumentSnapshot> preferredJobs =
         Algorithm.hybridListPreferences(documents: availableJobs.documents, user: this.user);
@@ -221,37 +221,34 @@ class Job extends Base {
     this.setLatestJobs(documents.take(20).toList());
   }
 
-  // void getNearYouJobs(List<DocumentSnapshot> documents) async {
-  //   Position position = await Geolocator().getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+  Future<void> getNearYouJobs(List<DocumentSnapshot> documents) async {
+    Position position = await Geolocator()
+        .getCurrentPosition(desiredAccuracy: LocationAccuracy.high)
+        .timeout(Duration(seconds: 1), onTimeout: () => null);
 
-  //   if (position == null) {
-  //     position = await Geolocator().getLastKnownPosition(desiredAccuracy: LocationAccuracy.high);
-  //   }
+    if (position == null) {
+      position = Position(longitude: 101.7937736, latitude: 3.0399107);
+    }
 
-  //   var mappedDocuments = documents.map((document) async {
-  //     List location = document.data["location"];
-  //     double latitude = double.parse(location[1]);
-  //     double longitude = double.parse(location.last);
+    List<DocumentSnapshot> nearYouJobs = [];
 
-  //     double distanceInMeters =
-  //         await Geolocator().distanceBetween(latitude, longitude, position.latitude, position.longitude);
-  //     document.data["distance"] = distanceInMeters;
+    for (var document in documents) {
+      List location = document.data["location"];
+      double latitude = double.parse(location[1]);
+      double longitude = double.parse(location.last);
 
-  //     return document;
-  //   }).toList();
+      double distanceInMeters =
+          await Geolocator().distanceBetween(latitude, longitude, position.latitude, position.longitude);
+      document.data["distance"] = distanceInMeters;
+      nearYouJobs.add(document);
+    }
 
-  //   List<DocumentSnapshot> nearYouJobs = [];
+    nearYouJobs.sort((a, b) {
+      return a.data["distance"].compareTo(b.data["distance"]);
+    });
 
-  //   mappedDocuments.forEach((document) async {
-  //     nearYouJobs.add(await document);
-  //   });
-
-  //   nearYouJobs.sort((a, b) {
-  //     return a.data["distance"].compareTo(b.data["distance"]) > -1;
-  //   });
-
-  //   this.setNearYouJobs(nearYouJobs);
-  // }
+    this.setNearYouJobs(nearYouJobs);
+  }
 
   Future<void> acceptPending(String jobseekerId, String key) async {
     isLoading(true);

@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 class RoundButton extends StatelessWidget {
   RoundButton({
     Key key,
-    @required this.icon,
+    this.icon,
     @required this.onPressed,
     this.loading = false,
     this.name,
@@ -106,10 +106,12 @@ class RoundButton extends StatelessWidget {
             mainAxisSize: MainAxisSize.max,
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              Icon(
-                this.icon,
-                color: handleColor(),
-              ),
+              this.icon != null
+                  ? Icon(
+                      this.icon,
+                      color: handleColor(),
+                    )
+                  : Container(),
               handleAvatar(),
             ],
           ),

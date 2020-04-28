@@ -166,10 +166,12 @@ class ViewProfileScreen extends StatelessWidget {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: <Widget>[
                                   Text(
-                                    user.otherUser["length"],
+                                    user.otherUser["account"]["shortlists"].length.toString(),
                                     style: TextStyle(fontSize: 20),
                                   ),
-                                  userType == UserType.employer ? Text("Jobs") : Text("Shortlists"),
+                                  userType == UserType.employer
+                                      ? Text("Shortlisted Applicants")
+                                      : Text("Shortlisted"),
                                 ],
                               ),
                             ],

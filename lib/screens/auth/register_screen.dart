@@ -172,7 +172,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 SizedBox(height: 10),
                 Field(
                   prefix: Text("+60"),
-                  initialValue: "1110768827",
+                  initialValue: "1111111111",
                   labelText: "Phone number",
                   keyboardType: TextInputType.phone,
                   onSaved: (value) {

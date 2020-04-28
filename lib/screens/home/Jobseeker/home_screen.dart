@@ -32,9 +32,27 @@ class HomeScreen extends StatelessWidget {
       await job.getAllJobs();
     }
 
+    void onGetStarted() async {
+      bool isGPSEnabled = await Geolocator().isLocationServiceEnabled();
+
+      if (isGPSEnabled) {
+        controller.animateToPage(
+          1,
+          duration: Duration(milliseconds: 500),
+          curve: Curves.fastOutSlowIn,
+        );
+      } else {
+        Dialogs.notifyDialog(
+          context: context,
+          content: "Please enable the GPS in your device setting in order to proceed.",
+        );
+      }
+    }
+
     return user.account.preferredCategories.isEmpty
         ? PageView(
             controller: controller,
+            physics: NeverScrollableScrollPhysics(),
             children: <Widget>[
               Scaffold(
                 appBar: AppBar(
@@ -56,11 +74,7 @@ class HomeScreen extends StatelessWidget {
                     ),
                     PrimaryButton(
                       text: "Get Started",
-                      onPressed: () => controller.animateToPage(
-                        1,
-                        duration: Duration(milliseconds: 500),
-                        curve: Curves.fastOutSlowIn,
-                      ),
+                      onPressed: onGetStarted,
                     ),
                   ],
                 ),
@@ -88,38 +102,43 @@ class HomeScreen extends StatelessWidget {
                         BuildCarousell(
                           title: "Recommended for you",
                           documents: job.recommendedJobs,
-                          limit: 10,
+                          limit: 15,
                         ),
                         BuildCarousell(
                           title: "Your preferences",
                           documents: job.preferredJobs,
-                          limit: 10,
+                          limit: 15,
+                        ),
+                        BuildCarousell(
+                          title: "Near you",
+                          documents: job.nearYouJobs,
+                          limit: 15,
                         ),
                         BuildCarousell(
                           title: "Latest jobs",
                           documents: job.latestJobs,
-                          limit: 10,
+                          limit: 15,
                         ),
                       ],
                     ),
                   ),
-            floatingActionButton: FloatingActionButton(
-              backgroundColor: Colors.white,
-              child: Icon(
-                Icons.note_add,
-                color: Palette.lapizBlue,
-              ),
-              onPressed: () async {
-                Position position =
-                    await Geolocator().getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+            // floatingActionButton: FloatingActionButton(
+            //   backgroundColor: Colors.white,
+            //   child: Icon(
+            //     Icons.note_add,
+            //     color: Palette.lapizBlue,
+            //   ),
+            //   onPressed: () async {
+            //     Position position =
+            //         await Geolocator().getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
 
-                print(position.toString());
-              },
-              // onPressed: () async {
-              //   List result = await job.jaccardCategory();
-              //   Navigator.pushNamed(context, "/result", arguments: result);
-              // },
-            ),
+            //     print(position.toString());
+            //   },
+            // onPressed: () async {
+            //   List result = await job.jaccardCategory();
+            //   Navigator.pushNamed(context, "/result", arguments: result);
+            // },
+            // ),
           );
   }
 }
@@ -179,7 +198,7 @@ class BuildCarousell extends StatelessWidget {
       children: <Widget>[
         TitleButton(
           title: this.title,
-          documents: this.documents,
+          documents: this.documents.take(this.limit + 15).toList(),
         ),
         Container(
           height: 255,

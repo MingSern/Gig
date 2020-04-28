@@ -53,60 +53,100 @@ class JobInfoScreen extends StatelessWidget {
       }
     }
 
-    bool checkJobApplied() {
-      bool havePendings = job.job["pendings"] != null ? true : false;
+    // bool checkJobApplied() {
+    //   bool havePendings = job.job["pendings"] != null ? true : false;
 
-      if (havePendings) {
-        var pendings = job.job["pendings"];
-        var shortlists = job.job["shortlists"];
+    //   if (havePendings) {
+    //     var pendings = job.job["pendings"];
+    //     var shortlists = job.job["shortlists"];
 
-        if (pendings.contains(user.userId) || shortlists.contains(user.userId)) {
-          return true;
-        }
-      } else {
-        JobStatus status = Checker.getJobStatus(job.job["status"]);
+    //     if (pendings.contains(user.userId) || shortlists.contains(user.userId)) {
+    //       return true;
+    //     }
+    //   } else {
+    //     JobStatus status = Checker.getJobStatus(job.job["status"]);
 
-        if (status == JobStatus.pending || status == JobStatus.shortlisted) {
-          return true;
-        }
+    //     if (status == JobStatus.pending || status == JobStatus.shortlisted) {
+    //       return true;
+    //     }
+    //   }
+
+    //   return false;
+    // }
+
+    // Widget buildMessageButton() {
+    //   bool haveShortlists = job.job["shortlists"] != null ? true : false;
+
+    //   if (haveShortlists) {
+    //     var shortlists = job.job["shortlists"];
+
+    //     if (shortlists.contains(user.userId)) {
+    //       return PrimaryButton(
+    //         text: "Message",
+    //         onPressed: viewChatRoom,
+    //       );
+    //     }
+    //   } else {
+    //     JobStatus status = Checker.getJobStatus(job.job["status"]);
+
+    //     if (status == JobStatus.shortlisted) {
+    //       return PrimaryButton(
+    //         text: "Message",
+    //         onPressed: viewChatRoom,
+    //       );
+    //     }
+    //   }
+
+    //   return Container();
+    // }
+
+    String checkJobStatus() {
+      var pendings = job.job["pendings"] ?? [];
+      var shortlists = job.job["shortlists"] ?? [];
+      var declines = job.job["declines"] ?? [];
+
+      if (pendings.contains(user.userId)) {
+        return "Applied";
       }
 
-      return false;
+      if (shortlists.contains(user.userId)) {
+        return "Accepted";
+      }
+
+      if (declines.contains(user.userId)) {
+        return "Declined";
+      }
+
+      return "Apply";
     }
 
-    Widget buildMessageButton() {
-      bool haveShortlists = job.job["shortlists"] != null ? true : false;
+    bool checkButtonStatus() {
+      var pendings = job.job["pendings"] ?? [];
+      var shortlists = job.job["shortlists"] ?? [];
+      var declines = job.job["declines"] ?? [];
 
-      if (haveShortlists) {
-        var shortlists = job.job["shortlists"];
-
-        if (shortlists.contains(user.userId)) {
-          return PrimaryButton(
-            text: "Message",
-            onPressed: viewChatRoom,
-          );
-        }
-      } else {
-        JobStatus status = Checker.getJobStatus(job.job["status"]);
-
-        if (status == JobStatus.shortlisted) {
-          return PrimaryButton(
-            text: "Message",
-            onPressed: viewChatRoom,
-          );
-        }
+      if (pendings.contains(user.userId)) {
+        return false;
       }
 
-      return Container();
+      if (shortlists.contains(user.userId)) {
+        return false;
+      }
+
+      if (declines.contains(user.userId)) {
+        return false;
+      }
+
+      return true;
     }
 
     Widget buildApplyButton() {
       if (user.userId != job.job["uid"]) {
         return SecondaryButton(
           smaller: true,
-          text: checkJobApplied() ? "Applied" : "Apply Job",
+          text: checkJobStatus(),
           loading: job.loading,
-          onPressed: checkJobApplied() ? null : applyJob,
+          onPressed: checkButtonStatus() ? applyJob : null,
         );
       }
 
@@ -182,14 +222,7 @@ class JobInfoScreen extends StatelessWidget {
                 ),
               ],
             ),
-            Row(
-              mainAxisSize: MainAxisSize.max,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                buildApplyButton(),
-                buildMessageButton(),
-              ],
-            ),
+            buildApplyButton(),
             DescriptionCard(
               icon: Icons.category,
               title: "Job Category",
@@ -203,7 +236,11 @@ class JobInfoScreen extends StatelessWidget {
             DescriptionCard(
               icon: Icons.accessibility_new,
               title: "Preferred Age",
-              child: Text(job.job["age"]),
+              child: Text(
+                ["18-20", "21-30", "31-40"].contains("${job.job["age"]}")
+                    ? "${job.job["age"]} years old"
+                    : "Any",
+              ),
             ),
             DescriptionCard(
               icon: Icons.person,

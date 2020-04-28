@@ -38,7 +38,16 @@ class Validator {
   }
 
   static String phoneNumber(String value) {
-    return value.isEmpty ? "Phone number is empty" : null;
+    String pattern = r'(^(?:[+0]9)?[0-9]{10,12}$)';
+    RegExp regex = new RegExp(pattern);
+
+    if (value.isEmpty) {
+      return "Phone number is empty";
+    } else if (!regex.hasMatch(value)) {
+      return "Enter a valid phone number.";
+    }
+
+    return null;
   }
 
   static String workPosition(String value) {

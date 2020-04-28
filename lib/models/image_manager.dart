@@ -64,17 +64,16 @@ class ImageManager extends Base {
 
   void getAccount() async {
     if (this.accountIds.isNotEmpty || this.accountIds != null) {
-      var accountsData =
-          await firestore.collection("accounts").where("uid", whereIn: this.accountIds).getDocuments();
+      for (var id in this.accountIds) {
+        var document = await firestore.collection("accounts").document(id).get();
 
-      this.accountImageUrls = accountsData.documents.map((document) {
-        return {
+        this.accountImageUrls.add({
           "uid": "${document["uid"]}",
           "imageUrl": "${document["imageUrl"]}",
-        };
-      }).toList();
+        });
+      }
 
-      notifyListeners();
+      // notifyListeners();
     }
   }
 

@@ -33,8 +33,6 @@ class User extends Base {
 
         await Future.wait([
           this.getAccount(),
-          this.getApplied(),
-          this.getShortlisted(),
           this.subscribeFcmToken(),
         ]);
 
@@ -92,6 +90,8 @@ class User extends Base {
 
     account.setImageUrl(imageUrl);
     account.setPreferredCategories(preferredCategories);
+    this.setApplied(accountData["pendings"]);
+    this.setShortlisted(accountData["shortlists"]);
 
     if (preferredWages == null) {
       account.setPreferredWages(RangeValues(10, 100));
@@ -113,7 +113,7 @@ class User extends Base {
     await Firebase.signIn(email, password).then((_) async {
       await this.authenticate();
     }).catchError((onError) {
-      setErrorMessage(onError.toString());
+      setErrorMessage(onError.message?.toString() ?? onError.toString());
     });
 
     isLoading(false);
@@ -126,8 +126,8 @@ class User extends Base {
       var verificationId;
       this.account = account;
 
-      // bool verified = await this.verifyEmail();
-      bool verified = true;
+      bool verified = await this.verifyEmail();
+      // bool verified = true;
 
       if (verified) {
         final PhoneCodeAutoRetrievalTimeout autoRetrieve = (String verId) {
@@ -218,7 +218,7 @@ class User extends Base {
         await this.authenticate();
       });
     } else {
-      setErrorMessage("User not exist.");
+      setErrorMessage("Incorrect verification code. Make sure you have entered your phone number correctly.");
     }
 
     isLoading(false);
@@ -227,9 +227,10 @@ class User extends Base {
   Future<void> logoutAccount() async {
     isLoading(true);
 
+    await this.unsubscribeFcmToken();
+
     await Firebase.signOut().then((_) async {
       await this.authenticate();
-      await this.unsubscribeFcmToken();
     }).catchError((onError) {
       setErrorMessage(onError.message);
     });
@@ -238,29 +239,29 @@ class User extends Base {
   }
 
   // Methods ------------------------------------------
-  void setApplied(int length) {
-    this.applied = length.toString();
+  void setApplied(List pendings) {
+    this.applied = pendings.length.toString();
     notifyListeners();
   }
 
-  void setShortlisted(int length) {
-    this.shortlisted = length.toString();
+  void setShortlisted(List shortlists) {
+    this.shortlisted = shortlists.length.toString();
     notifyListeners();
   }
 
-  Future<void> getApplied() async {
-    var documents =
-        await firestore.collection("accounts").document(this.userId).collection("pendings").getDocuments();
+  // Future<void> getApplied() async {
+  //   var documents =
+  //       await firestore.collection("accounts").document(this.userId).collection("pendings").getDocuments();
 
-    this.setApplied(documents.documents.length);
-  }
+  //   this.setApplied(documents.documents.length);
+  // }
 
-  Future<void> getShortlisted() async {
-    var documents =
-        await firestore.collection("accounts").document(this.userId).collection("shortlists").getDocuments();
+  // Future<void> getShortlisted() async {
+  //   var documents =
+  //       await firestore.collection("accounts").document(this.userId).collection("shortlists").getDocuments();
 
-    this.setShortlisted(documents.documents.length);
-  }
+  //   this.setShortlisted(documents.documents.length);
+  // }
 
   Stream<QuerySnapshot> getDescriptions() {
     return firestore.collection("accounts").document(this.userId).collection("descriptions").snapshots();
@@ -346,38 +347,11 @@ class User extends Base {
   Future<void> viewOtherUserProfile(String uid) async {
     isLoading(true);
 
-    var account = await firestore.collection("accounts").document(uid).get().catchError((onError) {
+    var account = firestore.collection("accounts").document(uid).get().catchError((onError) {
       setErrorMessage(onError.toString());
     });
 
-    UserType userType = Checker.getUserType(account["userType"]);
-    var length = 0;
-
-    if (userType == UserType.jobseeker) {
-      var shortlists = await firestore
-          .collection("accounts")
-          .document(uid)
-          .collection("shortlists")
-          .getDocuments()
-          .catchError((onError) {
-        setErrorMessage(onError.toString());
-      });
-
-      length = shortlists.documents.length;
-    } else {
-      var posts = await firestore
-          .collection("accounts")
-          .document(uid)
-          .collection("posts")
-          .getDocuments()
-          .catchError((onError) {
-        setErrorMessage(onError.toString());
-      });
-
-      length = posts.documents.length;
-    }
-
-    var descriptions = await firestore
+    var descriptions = firestore
         .collection("accounts")
         .document(uid)
         .collection("descriptions")
@@ -386,10 +360,11 @@ class User extends Base {
       setErrorMessage(onError.toString());
     });
 
+    List result = await Future.wait([account, descriptions]);
+
     var otherUser = {
-      "account": account,
-      "length": length.toString(),
-      "descriptions": descriptions.documents,
+      "account": result.first,
+      "descriptions": result.last.documents,
     };
 
     this.setOtherUser(otherUser);
