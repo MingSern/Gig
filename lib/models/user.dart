@@ -126,8 +126,8 @@ class User extends Base {
       var verificationId;
       this.account = account;
 
-      bool verified = await this.verifyEmail();
-      // bool verified = true;
+      // bool verified = await this.verifyEmail();
+      bool verified = true;
 
       if (verified) {
         final PhoneCodeAutoRetrievalTimeout autoRetrieve = (String verId) {
