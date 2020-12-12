@@ -1,6 +1,7 @@
 # gig
 
-A new Flutter project.
+This is my Final Year Project, a part time job finder application with scam detection and recommendation.
+My whole code architecture at that time was rubbish, i'll admit to that.
 
 ## Getting Started
 
